@@ -1,0 +1,975 @@
+package com.tecn.tijuana.congresos.eventos.congreso;
+
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
+import com.tecn.tijuana.congresos.utils.Api;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+
+import static com.tecn.tijuana.congresos.utils.Api.DEFAULT_PAGE;
+import static com.tecn.tijuana.congresos.utils.Api.DEFAULT_PAGE_SIZE;
+
+
+/**
+ * Clase principal de la capa de servicio para la entidad.
+ */
+@Service
+public class CongresoService {
+
+  //----------------------------------------------------------------------------
+  // Variables auxiliares de clase.
+
+  private final CongresoRepository conRep;
+
+
+  /**
+   * CONSTRUCTOR principal de la clase/servicio, usado principalmente por Spring
+   * para el funcionamiento de la app.
+   *
+   * @param conRep
+   * Repositorio de DB de la entidad de CONGRESO usado para abstraer consultas
+   * y operaciones de la BD.
+   */
+//  @Autowired
+  public CongresoService (
+    CongresoRepository conRep
+  ) {
+    this.conRep = conRep;
+  }
+
+
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion por defecto.
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see Api#pagina()
+   */
+  public List<Congreso> q () {
+    return q(DEFAULT_PAGE);
+  }
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see Api#pagina()
+   */
+  public List<Congreso> q (int page) {
+    return q(page, DEFAULT_PAGE_SIZE);
+  }
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @param pageSize
+   * Tamano de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> q (int page, int pageSize) {
+    return conRep.
+      findAll(Api.pagina(page, pageSize))
+      .getContent();
+  }
+
+
+
+  /**
+   * Consulta todos los CONGRESOS publicados indiscriminadamente usando los
+   * parametros de paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @param pageSize
+   * Tamano de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> qPublicados (int page, int pageSize) {
+    return conRep.publicados(Api.pagina(page, pageSize)).getContent();
+  }
+
+  /**
+   * Consulta todos los CONGRESOS publicados cuya fecha aun es a futuro,
+   * incluyendo aquellos que se encuentran cancelados, usando los parametros de
+   * paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @param pageSize
+   * Tamano de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> qPublicadosProximos (int page, int pageSize) {
+    return conRep.publicadosProximos(
+      Api.pagina(page, pageSize)).getContent();
+  }
+
+
+
+  /**
+   * Busca registros en la BD cuyos campos tipo String contengan el texto
+   * especificado en {@code txt}, utilizando coincidencia parcial
+   * case-insensitive.
+   * <p>
+   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
+   * aplicando solo la paginacion especificada.
+   * <p>
+   * Ejemplo: {@code buscar("texto", 0, 10)} retorna la primera pagina de
+   * usuarios que contengan "texto" en alguno de sus campos.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param page
+   * Numero de pagina (0-based)
+   *
+   * @param pageSize
+   * Cantidad de resultados por pagina
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> buscar (String txt, int page, int pageSize) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    if (Objects.isNull(txt) || txt.isBlank()) {
+      return conRep.findAll(pg).getContent();
+    }
+
+    return conRep
+      .buscar(txt.toLowerCase().trim(), pg)
+      .getContent();
+  }
+
+  /**
+   * Permite consultar los CONGRESOS de un ORGANIZADOR usando una posible
+   * busqueda de texto.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param page
+   * Numero de pagina (0-based)
+   *
+   * @param pageSize
+   * Cantidad de resultados por pagina
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> buscarMios (
+    Usuario actor, String txt, int page, int pageSize
+  ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    if (Objects.isNull(txt) || txt.isBlank()) {
+      return conRep
+        .porOrganizador(actor.getId(), pg)
+        .getContent();
+    }
+
+    return conRep
+      .buscarPorOrganizador(actor.getId(), txt.toLowerCase().trim(), pg)
+      .getContent();
+  }
+
+  /**
+   * Consulta los CONGRESOS publicados usando una busqueda de texto.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param page
+   * Numero de pagina (0-based)
+   *
+   * @param pageSize
+   * Cantidad de resultados por pagina
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> publicadosBuscar (
+    String txt, int page, int pageSize
+  ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    if (Objects.isNull(txt) || txt.isBlank()) {
+      return conRep.publicados(pg).getContent();
+    }
+
+    return conRep
+      .buscarPublicados(txt.toLowerCase().trim(), pg)
+      .getContent();
+  }
+
+
+
+  /**
+   * Obtiene el registro con el ID especificado.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado o {@code null} si no existe.
+   */
+  public Congreso qId (Long id)
+    throws ResponseStatusException {
+
+    return conRep.findById(id).orElse(null);
+  }
+
+
+
+  /**
+   * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
+   * existe.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado.
+   */
+  public Congreso afirmar (Long id)
+    throws ResponseStatusException {
+
+    return conRep.findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format("Congreso con ID: %s no encontrado", id)));
+  }
+
+
+
+  /**
+   * Obtiene CONGRESO publicado con el ID especificado. Sino lo encuentra o no
+   * esta publicado, lanza una excepcion.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado.
+   */
+  public Congreso qIdPublicado (Long id)
+    throws ResponseStatusException {
+
+    // Encontrar registro.
+    var con = afirmar(id);
+
+    // Comprobar estatus.
+    if (!con.isPublicado()) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format("Congreso publicado con ID: %s no encontrado", id));
+    }
+
+    return con;
+  }
+
+
+
+  /**
+   * Permite ORGANIZADORES registrar nuevos CONGRESOS.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param congreso
+   * Datos del Congreso.
+   *
+   * @return
+   * El Congreso recien registrado en la BD.
+   */
+  public Congreso registrar (Usuario actor, Congreso congreso)
+    throws ResponseStatusException {
+
+    // Validar las fechas del Congreso o retornar el error HTTP acorde.
+    afirmarPeriodoEventoValido(congreso);
+    afirmarPeriodoInscripcionesValido(congreso);
+
+    // Marcar al Actor como creador del registro.
+    congreso.setCreadorId(actor.getId());
+    congreso.setOrganizadorId(actor.getId());
+
+    return conRep.saveAndFlush(Congreso.nuevo(congreso));
+  }
+
+
+
+  /**
+   * Actualiza un registro con los nuevos datos provistos.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @param congreso
+   * El objeto con los nuevos datos.
+   *
+   * @return
+   * El registro de la BD editado.
+   */
+  public Congreso editar (
+    Usuario actor, Long id, Congreso congreso
+  ) throws ResponseStatusException {
+
+    // Encontrar el Congreso.
+    var con = afirmar(id);
+
+    // Comprobar permisos.
+    afirmarOrganizadorAsignado(actor, con);
+
+    // Validar cambios.
+    afirmarPeriodoEventoValido(congreso);
+    afirmarPeriodoInscripcionesValido(congreso);
+
+    // Actualizar, guardar y retornar el registro.
+    return conRep.saveAndFlush(con.actualizar(congreso));
+  }
+
+
+
+  /**
+   * Permite editar un slot de multimedia del Congreso.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del Congreso.
+   *
+   * @param slot
+   * El nombre del slot a editar.
+   *
+   * @param img {@code [null]}
+   * Posible imagen a usar como foto de info.
+   * Si es {@code null} se remueve la imagen de ese slot.
+   *
+   * @return
+   * El Congreso editado.
+   */
+  public Congreso editarMedia (
+    Usuario actor, Long id, String slot, MultipartFile img
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el Congreso.
+    var con = afirmar(id);
+
+    // Comprobar permisos.
+    afirmarOrganizadorAsignado(actor, con);
+
+    try {
+      con.setMedia(slot, img);
+    } catch (IOException e) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Error al procesar la imagen");
+    }
+
+    // Actualizar, guardar y retornar el registro.
+    return conRep.saveAndFlush(con);
+  }
+
+
+
+  /**
+   * Elimina un Congreso y sus registros derivados de otras entidades que ya no
+   * sean requeridos, siempre y cuando el Actor tenga los permisos suficientes.
+   *
+   * @param actor
+   * El Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * El ID del Congreso a eliminar.
+   *
+   * @return
+   * El Congreso eliminado.
+   */
+  public Congreso eliminar (
+    Usuario actor, Long id
+  )
+    throws ResponseStatusException {
+
+    // Intentar encontrar el registro.
+    var con = qId(id);
+
+    // Si el registro existe eliminarlo.
+    if (Objects.nonNull(con)) {
+      conRep.deleteById(id);
+    }
+
+    // Retornar el posible registro eliminado o null.
+    return con;
+  }
+
+
+
+  /**
+   * Publica/retracta un registro segun el estatus especificado.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @param estatus
+   * {@code true} = publicado.
+   * {@code false} = retractado.
+   *
+   * @return
+   * El registro publicado/retractado.
+   */
+  public Congreso publicar (
+    Usuario actor, Long id, boolean estatus
+  ) throws ResponseStatusException {
+
+    // Encontrar el Congreso.
+    var con = afirmar(id);
+
+    // Comprobar permisos.
+    afirmarOrganizadorAsignado(actor, con);
+
+    // Actualizar registro.
+    con.setPublicado(estatus);
+
+    // Guardar y retornar el registro.
+    return conRep.saveAndFlush(con);
+  }
+
+
+
+  /**
+   * Cancela/restaura un registro segun el estatus especificado.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @param estatus
+   * {@code true} = cancelado.
+   * {@code false} = restaurado.
+   *
+   * @return
+   * El registro cancelado/retractado.
+   */
+  public Congreso cancelar (
+    Usuario actor, Long id, boolean estatus
+  ) throws ResponseStatusException {
+
+    // Encontrar el Congreso.
+    var con = afirmar(id);
+
+    // Comprobar permisos.
+    afirmarOrganizadorAsignado(actor, con);
+
+    // Actualizar registro.
+    con.setCancelado(estatus);
+
+    // Guardar y retornar el registro.
+    return conRep.saveAndFlush(con);
+  }
+
+
+
+  /**
+   * Determina si el registro tiene un rango de fechas valido.
+   *
+   * @param congreso
+   * Registro a validar.
+   *
+   * @return
+   * El registro si el rango de fechas es valido.
+   *
+   * @throws ResponseStatusException
+   * Si el rango de fechas rompe alguno de los requerimientos.
+   */
+  public static Congreso afirmarPeriodoInscripcionesValido (
+    Congreso congreso
+  )
+    throws ResponseStatusException {
+
+    var inicio = congreso.getInscripcionesFechaInicio();
+    var fin = congreso.getInscripcionesFechaFin();
+
+    if (!periodoFuturo(inicio, fin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Las fechas de inscripciones deben ser en el futuro.");
+    }
+
+    if (!periodoOrdenCorrecto(inicio, fin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La fecha de terminacion de inscripciones debe ser posterior a la de" +
+          " inicio.");
+    }
+
+    if (!periodoRangoValido(inicio, fin,
+      Congreso.INSCRIPCIONES_DURACION_MIN, Congreso.INSCRIPCIONES_DURACION_MAX)
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La duracion del congreso debe ser al menos 1 hora y maximo 7 dias.");
+    }
+
+    if (!periodoOrdenCorrecto(fin, congreso.getFechaInicio())) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La fecha de terminacion de inscripciones debe ser antes que la fecha" +
+          " de inicio del ccongreso.");
+    }
+
+    return congreso;
+  }
+
+  /**
+   * Determina si el registro tiene un rango de fechas valido.
+   *
+   * @param congreso
+   * Registro a validar.
+   *
+   * @return
+   * El registro si el rango de fechas es valido.
+   *
+   * @throws ResponseStatusException
+   * Si el rango de fechas rompe alguno de los requerimientos.
+   */
+  public static Congreso afirmarPeriodoEventoValido (Congreso congreso)
+    throws ResponseStatusException {
+
+    var inicio = congreso.getFechaInicio();
+    var fin = congreso.getFechaFin();
+
+    if (!periodoFuturo(inicio, fin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Las fechas deben ser en el futuro.");
+    }
+
+    if (!periodoOrdenCorrecto(inicio, fin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La fecha de terminacion debe ser posterior a la de inicio.");
+    }
+
+    if (!periodoRangoValido(
+      inicio, fin, Congreso.DURACION_MIN, Congreso.DURACION_MAX)
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La duracion debe ser al menos 1 hora y maximo 7 dias.");
+    }
+
+    return congreso;
+  }
+
+  /**
+   * Determina si el periodo descrito por la fecha de inicio y la fecha de
+   * terminacion especificadas es en el futuro.
+   *
+   * @param inicio
+   * Fecha de inicio.
+   *
+   * @param fin
+   * Fecha de terminacion.
+   *
+   * @return
+   * true = correcto.
+   * true = incorrecto.
+   */
+  public static boolean periodoFuturo (LocalDate inicio, LocalDate fin) {
+    var now = LocalDate.now();
+
+    return inicio.isAfter(now) && fin.isAfter(now);
+  }
+
+  /**
+   * Determina si el periodo descrito por la fecha de inicio y la fecha de
+   * terminacion especificadas esta en el orden correcto.
+   *
+   * @param inicio
+   * Fecha de inicio.
+   *
+   * @param fin
+   * Fecha de terminacion.
+   *
+   * @return
+   * true = correcto.
+   * true = incorrecto.
+   */
+  public static boolean periodoOrdenCorrecto (LocalDate inicio, LocalDate fin) {
+    return fin.isAfter(inicio);
+  }
+
+  /**
+   * Determina si la duracion del Congreso es valida.
+   *
+   * @param inicio
+   * Fecha de inicio.
+   *
+   * @param fin
+   * Fecha de terminacion.
+   *
+   * @param minSecs
+   * Duracion minima permitida en segundos.
+   *
+   * @param maxSecs
+   * Duracion maxima permitida en segundos.
+   *
+   * @return
+   * true = valido.
+   * true = invalido.
+   */
+  public static boolean periodoRangoValido (
+    LocalDate inicio, LocalDate fin, int minSecs, int maxSecs
+  ) {
+    var dur = Duration.between(inicio, fin);
+
+    return dur.toSeconds() >= minSecs && dur.toSeconds() <= maxSecs;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso
+  afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible (
+    Long id
+  ) {
+    return
+      afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible(
+        afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso
+  afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible (
+    Congreso reg
+  ) {
+    return afirmarConCupoDisponible(
+      afirmarEnPeriodoDeInscripciones(
+        afirmarPublicado(
+          afirmarNoCancelado(
+            reg))));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso
+  afirmarNoCanceladoConCupoDisponibleFechaFinFutura (
+    Long id
+  ) {
+    return afirmarNoCanceladoConCupoDisponibleFechaFinFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso
+  afirmarNoCanceladoConCupoDisponibleFechaFinFutura (
+    Congreso reg
+  ) {
+    return afirmarFechaFinFutura(
+      afirmarConCupoDisponible(
+        afirmarNoCancelado(
+          reg)));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso afirmarNoCanceladoEnCurso (
+    Long id
+  ) {
+    return afirmarEnCurso(afirmarNoCancelado(afirmar(id)));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarNoCanceladoEnCurso (
+    Congreso reg
+  ) {
+    return afirmarEnCurso(afirmarNoCancelado(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarNoCancelado (Congreso reg) {
+    if (reg.isCancelado()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso esta cancelado");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarPublicado (Congreso reg) {
+    if (!reg.isPublicado()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no esta publicado");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarEnPeriodoDeInscripciones (
+    Congreso reg
+  ) {
+    var now = LocalDate.now();
+    if (
+      now.isBefore(reg.getInscripcionesFechaInicio())
+        || now.isAfter(reg.getInscripcionesFechaFin())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no esta en periodo de inscripciones");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarConCupoDisponible (Congreso reg) {
+    if (reg.getInscritos() >= reg.getCupo()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no tiene cupo disponible");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarFechaFinFutura (Congreso reg) {
+    var now = LocalDate.now();
+    if (now.isAfter(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso ya concluyo");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarFechaInicioFutura (Congreso reg) {
+    var now = LocalDate.now();
+    if (now.isAfter(reg.getFechaInicio())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso ya concluyo");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarEnCurso (
+    Congreso reg
+  ) {
+    var now = LocalDate.now();
+    if (
+      now.isBefore(reg.getFechaInicio())
+        || now.isAfter(reg.getFechaFin())
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no esta en curso");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error.
+   *
+   * @param actor
+   * Usuario responsable de la operacion.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   *
+   * @throws ResponseStatusException
+   * {@code HTTP-UNAUTHORIZED} Si no es el ORGANIZADOR asignado.
+   */
+  public static Congreso afirmarOrganizadorAsignado (
+    Usuario actor, Congreso reg
+  )
+    throws ResponseStatusException {
+
+    if (!Objects.equals(reg.getId(), actor.getId())) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "No es el organizador asignado.");
+    }
+
+    return reg;
+  }
+}

@@ -1,0 +1,1058 @@
+package com.tecn.tijuana.congresos.eventos.conferencia;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Objects;
+
+
+/**
+ * Clase que representa la entidad de CONFERENCIA en el sistema y en la BD.
+ * */
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Conferencia {
+
+  //----------------------------------------------------------------------------
+  // Variables auxiliares de clase.
+
+  public static final int DURACION_MIN = 30 * 60; // 30m
+  public static final int DURACION_MAX = 8 * 60 * 60; // 8h
+
+  public static final boolean PUBLICADA = true;
+  public static final boolean RETRACTADA = false;
+
+  public static final boolean CANCELADA = true;
+  public static final boolean RESTAURADA = false;
+
+
+
+  /**
+   * Identificador unico del registro.
+   * */
+  @Id
+  @GeneratedValue(
+    strategy = GenerationType.SEQUENCE,
+    generator = "conferencia_sequence"
+  )
+  @SequenceGenerator(
+    name = "conferencia_sequence",
+    sequenceName = "conferencia_sequence",
+    allocationSize = 1
+  )
+  @Column(nullable = false, updatable = false)
+  private Long id;
+
+
+  /**
+   * Cuando fue creado el registro.
+   * */
+  @Column(nullable = false, updatable = false)
+  private LocalDate fechaCreacion;
+
+  /**
+   * Posible creador del registro.
+   * */
+  @Column(updatable = false)
+  private Long creadorId;
+
+
+
+  /**
+   * CONGRESO donde tendra lugar la CONFERENCIA.
+   * */
+  @Column(nullable = false, updatable = false)
+  private Long congresoId;
+
+
+
+  /**
+   * Nombre de la CONFERENCIA.
+   * */
+  @NotBlank(message = "Nombre vacio")
+  @Size(min = 1, max = 100,
+    message = "El nombre debe tener entre 1 y 100 caracteres")
+  @Column(nullable = false, length = 100)
+  private String nombre;
+
+  /**
+   * Descripcion corta de la CONFERENCIA.
+   * */
+  @Size(max = 100,
+    message = "El resumen debe tener entre 0 y 100 caracteres")
+  @Column(nullable = false, length = 100)
+  private String resumen;
+
+  /**
+   * Descripcion detallada de la CONFERENCIA.
+   * */
+  @Size(max = 500,
+    message = "La descripcion debe tener entre 0 y 500 caracteres")
+  @Column(nullable = false, length = 500)
+  private String descripcion;
+
+  /**
+   * Direccion donde tendra lugar la CONFERENCIA.
+   * */
+  @Size(max = 100,
+    message = "La sala debe tener entre 0 y 100 caracteres")
+  @Column(nullable = false, length = 100)
+  private String sala;
+
+
+
+  /**
+   * Cuando iniciara el evento.
+   * */
+  @Temporal(TemporalType.DATE)
+  @Column(nullable = false)
+  private LocalDate fechaInicio;
+
+  /**
+   * Cuando concluira el evento.
+   * */
+  @Temporal(TemporalType.DATE)
+  @Column(nullable = false)
+  private LocalDate fechaFin;
+
+
+
+  /**
+   * Determina si la CONFERENCIA ha sido publicada, es decir, esta disponible
+   * para que el publico general la vea y pueda inscribirse.
+   * */
+  private boolean publicada = false;
+
+  /**
+   * Determina si la CONFERENCIA ha sido cancelada y ya no se llevara a cabo.
+   * */
+  private boolean cancelada = false;
+
+
+
+  /**
+   * Cuantos espacios para inscripciones hay para la CONFERENCIA.
+   * */
+  @Size(max = 5000,
+    message = "El cupo debe ser menor o igual a 5000")
+  @Column(nullable = false)
+  private int cupo;
+
+  /**
+   * Cuantos ALUMNOS han sido inscritos a la CONFERENCIA.
+   * */
+  @Size(max = 5000,
+    message = "El numero de inscripciones debe ser menor o igual a 5000")
+  @Column(nullable = false)
+  private int inscritos;
+
+  /**
+   * Cuantos ALUMNOS asistieron al CONGRESO cuando sucedio.
+   * */
+  @Size(max = 5000,
+    message = "El numero de asistencias debe ser menor o igual a a 5000")
+  @Column(nullable = false)
+  private int asistencias;
+
+
+
+  /**
+   * Cuantos integrantes de STAFF se requeriran.
+   * */
+  @Size(max = 100,
+    message = "La cantidad de staff debe ser menor o igual a 100")
+  @Column(nullable = false)
+  private int staffCantidad;
+
+  /**
+   * Cuantos integrantes de STAFF se requeriran.
+   * */
+  @Size(max = 500,
+    message = "La descripcion de requerimientos de staff debe ser menor" +
+      " o igual a 500 caracteres")
+  @Column(nullable = false, length = 500)
+  private String staffRequerimientos;
+
+
+
+  /**
+   * Nombre del conferencista a cargo.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de conferencista debe tener entre 1 y 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaNombre;
+
+  /**
+   * Email del conferencista a cargo.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El email de conferencista debe tener entre 1 y 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaEmail;
+
+  /**
+   * Codigo pais del telefono del conferencista a cargo.
+   * */
+  @Size(min = 1, max = 7,
+    message = "El prefijo de telefono de conferencista debe tener entre" +
+      " 1 y 7 caracteres")
+  @Column(length = 100)
+  private String conferencistaTelPref;
+
+  /**
+   * Numero nacional del telefono del conferencista a cargo.
+   * */
+  @Size(min = 4, max = 14,
+    message = "El telefono de conferencista debe tener entre" +
+      " 4 y 14 caracteres")
+  @Column(length = 100)
+  private String conferencistaTelSuf;
+
+  /**
+   * Semblanza del conferencista a cargo.
+   * */
+  @Size(min = 1, max = 200,
+    message = "La semblanza del conferencista debe tener entre" +
+      " 1 y 200 caracteres")
+  @Column(length = 100)
+  private String conferencistaSemblanza;
+
+  //----------------------------------------
+  /**
+   * Nombre de archivo de la foto del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaFotoNombre;
+
+  /**
+   * Tipo de archivo multimedia de la foto del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaFotoMimeType;
+
+  /**
+   * Contenido crudo de la foto del conferencista.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] conferencistaFotoImgData;
+
+  //----------------------------------------
+  /**
+   * Nombre de archivo del banner del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaBannerNombre;
+
+  /**
+   * Tipo de archivo multimedia del banner del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaBannerMimeType;
+
+  /**
+   * Contenido crudo del banner del conferencista.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] conferencistaBannerImgData;
+
+  //----------------------------------------
+  /**
+   * Nombre de archivo del logo de empresa del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaLogoEmpresaNombre;
+
+  /**
+   * Tipo de archivo multimedia del logo de empresa del conferencista.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String conferencistaLogoEmpresaMimeType;
+
+  /**
+   * Contenido crudo del logo de empresa del conferencista.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] conferencistaLogoEmpresaImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 1.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media1Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 1.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media1MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 1.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media1ImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 2.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media2Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 2.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media2MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 2.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media2ImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 3.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media3Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 3.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media3MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 3.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media3ImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 4.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media4Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 4.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media4MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 4.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media4ImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 5.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media5Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 5.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media5MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 5.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media5ImgData;
+
+
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 6.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media6Nombre;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 6.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String media6MimeType;
+
+  /**
+   * Slot de multimedia informativa previa al evento.
+   * <p>
+   * Contenido crudo de la foto 6.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] media6ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 1.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt1Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 1.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt1MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 1.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt1ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 2.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt2Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 2.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt2MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 2.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt2ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 3.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt3Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 3.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt3MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 3.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt3ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 4.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt4Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 4.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt4MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 4.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt4ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 5.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt5Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 5.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt5MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 5.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt5ImgData;
+
+
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Nombre original del archivo de la imagen que se uso como foto 6.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El nombre de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt6Nombre;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Tipo de archivo multimedia de la foto 6.
+   * */
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaEvt6MimeType;
+
+  /**
+   * Slot de multimedia para subir durante o despues del evento.
+   * <p>
+   * Contenido crudo de la foto 6.
+   * */
+  @Lob
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaEvt6ImgData;
+
+
+
+  /**
+   * Funcion constructora alternativa para crear Conferencias.
+   */
+  private Conferencia (
+    Long creadorId,
+    Long congresoId,
+
+    String nombre,
+    String resumen,
+    String descripcion,
+    String sala,
+
+    LocalDate fechaInicio,
+    LocalDate fechaFin,
+
+    int cupo,
+    int staffCantidad,
+    String staffRequerimientos,
+
+    String conferencistaNombre,
+    String conferencistaEmail,
+    String conferencistaTelPref,
+    String conferencistaTelSuf,
+    String conferencistaSemblanza
+  ) {
+    this.fechaCreacion            = LocalDate.now();
+    this.creadorId                = creadorId;
+    this.congresoId               = congresoId;
+    this.nombre                   = nombre;
+    this.resumen                  = resumen;
+    this.descripcion              = descripcion;
+    this.sala                     = sala;
+    this.fechaInicio              = fechaInicio;
+    this.fechaFin                 = fechaFin;
+    this.cupo                     = cupo;
+    this.staffCantidad            = staffCantidad;
+    this.staffRequerimientos      = staffRequerimientos;
+    this.conferencistaNombre      = conferencistaNombre;
+    this.conferencistaEmail       = conferencistaEmail;
+    this.conferencistaTelPref     = conferencistaTelPref;
+    this.conferencistaTelSuf      = conferencistaTelSuf;
+    this.conferencistaSemblanza   = conferencistaSemblanza;
+  }
+
+
+
+  /**
+   * Funcion constructora alternativa para crear Conferencias.
+   *
+   * @return
+   * La nueva Conferencia.
+   */
+  public static Conferencia nueva (Conferencia reg) {
+    return new Conferencia(
+      reg.getCreadorId(),
+      reg.getCongresoId(),
+      reg.getNombre(),
+      reg.getResumen(),
+      reg.getDescripcion(),
+      reg.getSala(),
+      reg.getFechaInicio(),
+      reg.getFechaFin(),
+      reg.getCupo(),
+      reg.getStaffCantidad(),
+      reg.getStaffRequerimientos(),
+      reg.getConferencistaNombre(),
+      reg.getConferencistaEmail(),
+      reg.getConferencistaTelPref(),
+      reg.getConferencistaTelSuf(),
+      reg.getConferencistaSemblanza()
+    );
+  }
+
+
+
+  /**
+   * Actualiza una Conferencia en la BD con la informacion del objeto de
+   * Conferencia provisto.
+   *
+   * @param reg
+   * El objeto de Conferencia con los nuevos valores.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Conferencia actualizar (Conferencia reg) {
+
+    setNombre(reg.getNombre());
+    setResumen(reg.getResumen());
+    setDescripcion(reg.getDescripcion());
+    setSala(reg.getSala());
+
+    setFechaInicio(reg.getFechaInicio());
+    setFechaFin(reg.getFechaFin());
+
+    setPublicada(reg.isPublicada());
+    setCancelada(reg.isCancelada());
+
+    setCupo(reg.getCupo());
+
+    setStaffCantidad(reg.getStaffCantidad());
+    setStaffRequerimientos(reg.getStaffRequerimientos());
+
+    setConferencistaNombre(reg.getConferencistaNombre());
+    setConferencistaEmail(reg.getConferencistaEmail());
+    setConferencistaTelPref(reg.getConferencistaTelPref());
+    setConferencistaTelSuf(reg.getConferencistaTelSuf());
+    setConferencistaSemblanza(reg.getConferencistaSemblanza());
+
+    return this;
+  }
+
+
+
+  /**
+   * Establecer todos los parametros de imagen para el slot de media
+   * especificado.
+   *
+   * @param slot
+   * El nombre del slot a editar.
+   *
+   * @param img
+   * El archivo multiparte que contiene la imagen.
+   *
+   * @return
+   * El objeto actualizado.
+   *
+   * @throws IOException
+   * Cuando hay algun problema con la imagen.
+   */
+  public Conferencia setMedia (
+    String slot, MultipartFile img
+  )
+    throws IOException {
+
+    if (Objects.isNull(img)) {
+      switch (slot) {
+
+        case "conferencistaFoto":
+          setConferencistaFotoNombre(null);
+          setConferencistaFotoMimeType(null);
+          setConferencistaFotoImgData(null);
+          break;
+
+        case "conferencistaBanner":
+          setConferencistaBannerNombre(null);
+          setConferencistaBannerMimeType(null);
+          setConferencistaBannerImgData(null);
+          break;
+
+        case "conferencistaLogoEmpresa":
+          setConferencistaLogoEmpresaNombre(null);
+          setConferencistaLogoEmpresaMimeType(null);
+          setConferencistaLogoEmpresaImgData(null);
+          break;
+
+        case "media1":
+          setMedia1Nombre(null);
+          setMedia1MimeType(null);
+          setMedia1ImgData(null);
+          break;
+
+        case "media2":
+          setMedia2Nombre(null);
+          setMedia2MimeType(null);
+          setMedia2ImgData(null);
+          break;
+
+        case "media3":
+          setMedia3Nombre(null);
+          setMedia3MimeType(null);
+          setMedia3ImgData(null);
+          break;
+
+        case "media4":
+          setMedia4Nombre(null);
+          setMedia4MimeType(null);
+          setMedia4ImgData(null);
+          break;
+
+        case "media5":
+          setMedia5Nombre(null);
+          setMedia5MimeType(null);
+          setMedia5ImgData(null);
+          break;
+
+        case "media6":
+          setMedia6Nombre(null);
+          setMedia6MimeType(null);
+          setMedia6ImgData(null);
+          break;
+
+        case "mediaEvt1":
+          setMediaEvt1Nombre(null);
+          setMediaEvt1MimeType(null);
+          setMediaEvt1ImgData(null);
+          break;
+
+        case "mediaEvt2":
+          setMediaEvt2Nombre(null);
+          setMediaEvt2MimeType(null);
+          setMediaEvt2ImgData(null);
+          break;
+
+        case "mediaEvt3":
+          setMediaEvt3Nombre(null);
+          setMediaEvt3MimeType(null);
+          setMediaEvt3ImgData(null);
+          break;
+
+        case "mediaEvt4":
+          setMediaEvt4Nombre(null);
+          setMediaEvt4MimeType(null);
+          setMediaEvt4ImgData(null);
+          break;
+
+        case "mediaEvt5":
+          setMediaEvt5Nombre(null);
+          setMediaEvt5MimeType(null);
+          setMediaEvt5ImgData(null);
+          break;
+
+        case "mediaEvt6":
+          setMediaEvt6Nombre(null);
+          setMediaEvt6MimeType(null);
+          setMediaEvt6ImgData(null);
+          break;
+
+        default:
+          break;
+      }
+    }
+    else {
+      // Aux.
+      var name = img.getOriginalFilename();
+      var mime = img.getContentType();
+      var bytes = img.getBytes();
+      // Editar el slot indicado.
+      switch (slot) {
+
+        case "conferencistaFoto":
+          setConferencistaFotoNombre(name);
+          setConferencistaFotoMimeType(mime);
+          setConferencistaFotoImgData(bytes);
+          break;
+
+        case "conferencistaBanner":
+          setConferencistaBannerNombre(name);
+          setConferencistaBannerMimeType(mime);
+          setConferencistaBannerImgData(bytes);
+          break;
+
+        case "conferencistaLogoEmpresa":
+          setConferencistaLogoEmpresaNombre(name);
+          setConferencistaLogoEmpresaMimeType(mime);
+          setConferencistaLogoEmpresaImgData(bytes);
+          break;
+
+        case "media1":
+          setMedia1Nombre(name);
+          setMedia1MimeType(mime);
+          setMedia1ImgData(bytes);
+          break;
+
+        case "media2":
+          setMedia2Nombre(name);
+          setMedia2MimeType(mime);
+          setMedia2ImgData(bytes);
+          break;
+
+        case "media3":
+          setMedia3Nombre(name);
+          setMedia3MimeType(mime);
+          setMedia3ImgData(bytes);
+          break;
+
+        case "media4":
+          setMedia4Nombre(name);
+          setMedia4MimeType(mime);
+          setMedia4ImgData(bytes);
+          break;
+
+        case "media5":
+          setMedia5Nombre(name);
+          setMedia5MimeType(mime);
+          setMedia5ImgData(bytes);
+          break;
+
+        case "media6":
+          setMedia6Nombre(name);
+          setMedia6MimeType(mime);
+          setMedia6ImgData(bytes);
+          break;
+
+        case "mediaEvt1":
+          setMediaEvt1Nombre(name);
+          setMediaEvt1MimeType(mime);
+          setMediaEvt1ImgData(bytes);
+          break;
+
+        case "mediaEvt2":
+          setMediaEvt2Nombre(name);
+          setMediaEvt2MimeType(mime);
+          setMediaEvt2ImgData(bytes);
+          break;
+
+        case "mediaEvt3":
+          setMediaEvt3Nombre(name);
+          setMediaEvt3MimeType(mime);
+          setMediaEvt3ImgData(bytes);
+          break;
+
+        case "mediaEvt4":
+          setMediaEvt4Nombre(name);
+          setMediaEvt4MimeType(mime);
+          setMediaEvt4ImgData(bytes);
+          break;
+
+        case "mediaEvt5":
+          setMediaEvt5Nombre(name);
+          setMediaEvt5MimeType(mime);
+          setMediaEvt5ImgData(bytes);
+          break;
+
+        case "mediaEvt6":
+          setMediaEvt6Nombre(name);
+          setMediaEvt6MimeType(mime);
+          setMediaEvt6ImgData(bytes);
+          break;
+
+        default:
+          break;
+      }
+    }
+    return this;
+  }
+}
