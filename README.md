@@ -13,8 +13,12 @@ Antes de correr esta aplicacion, asegurese de tener instaladas las siguiented ap
 La forma mas rapida de iniciar es con docker-compose.
 
 ### 1.- Clona el repositorio
+Clonar.
 ```shell
 git clone https://github.com/AlastorMordrek/congresos.git
+```
+Entrar a la carpeta.
+```shell
 cd congresos
 ```
 ### 2.- Ajusta variables de entorno
