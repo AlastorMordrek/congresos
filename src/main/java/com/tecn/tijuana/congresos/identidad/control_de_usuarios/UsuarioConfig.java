@@ -12,18 +12,18 @@ import static java.time.Month.JANUARY;
 @Configuration
 public class UsuarioConfig {
 
-  @Value("${ADMIN_1_EMAIL:admin.1@example.com}")
-  private String admin1Email;
-  @Value("${ADMIN_1_PWD:12345}")
-  private String admin1Password;
-  @Value("${ADMIN_1_TEL_PREF:52}")
-  private String admin1TelPref;
-  @Value("${ADMIN_1_TEL_SUF:6641112222}")
-  private String admin1TelSuf;
-  @Value("${ADMIN_1_NOMBRE:Administrador}")
-  private String admin1Nombre;
-  @Value("${ADMIN_1_AP_PATERNO:Uno}")
-  private String admin1ApPaterno;
+  @Value("${ADMINISTRADOR_1_EMAIL:administrador.1@example.com}")
+  private String administrador1Email;
+  @Value("${ADMINISTRADOR_1_PWD:12345}")
+  private String administrador1Password;
+  @Value("${ADMINISTRADOR_1_TEL_PREF:52}")
+  private String administrador1TelPref;
+  @Value("${ADMINISTRADOR_1_TEL_SUF:6641112222}")
+  private String administrador1TelSuf;
+  @Value("${ADMINISTRADOR_1_NOMBRE:Administrador}")
+  private String administrador1Nombre;
+  @Value("${ADMINISTRADOR_1_AP_PATERNO:Uno}")
+  private String administrador1ApPaterno;
 
   @Value("${ORGANIZADOR_1_EMAIL:organizador.1@example.com}")
   private String organizador1Email;
@@ -126,11 +126,12 @@ public class UsuarioConfig {
   ) {
     return args -> {
 
-      if (!usrSvc.emailTomado(admin1Email)) {
+      if (!usrSvc.emailTomado(administrador1Email)) {
         usrSvc.registrarAdmin(
           Usuario.nuevoAdmin(
-            null, admin1Email, admin1Password, admin1TelPref,
-            admin1TelSuf, admin1Nombre, admin1ApPaterno, null,
+            null, administrador1Email, administrador1Password,
+            administrador1TelPref, administrador1TelSuf, administrador1Nombre,
+            administrador1ApPaterno, null,
             LocalDate.of(1990, JANUARY, 20)),
           null);
       }
