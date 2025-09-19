@@ -36,6 +36,17 @@ Ejecutar el script.
 El servidor estara escuchando peticiones http en el puerto especificado
 en su archivo .env (default 8080) http://localhost:8080
 
+#### Comprobacion visual.
+Abra el siguiente link en su navegador y si ve la documentacion de las APIs
+generada por Swagger, entonces la app inicio correctamente.
+http://localhost:8080/swagger-ui.html
+
+<div align="center">
+  <img src="img/swagger-example.png"
+    alt="Logo del Tecnologico Nacional de Mexico"
+    width="70%" height="70%" />
+</div>
+
 ## Inicio manual
 Si prefiere correr la aplicacion sin docker.
 
