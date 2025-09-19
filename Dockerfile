@@ -2,7 +2,12 @@
 FROM maven:3.9.9-eclipse-temurin-24 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+# First download dependencies to cache them
+RUN mvn dependency:go-offline
+# Then compile with annotation processing
+RUN mvn clean compile -DskipTests
+# Finally package
+RUN mvn package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:24

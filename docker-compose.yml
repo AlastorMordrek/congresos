@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:17
@@ -11,10 +9,10 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - ${DB_VOL}:/var/lib/postgresql/data
+      - congresos_postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - ${APP_NAME}_network
+      - congresos_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USR} -d ${DB_NAME}"]
       interval: 10s
@@ -40,9 +38,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - ${APP_NAME}_network
+      - congresos_network
     volumes:
-      - .m2:/root/.m2
+      - m2_cache:/root/.m2
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -50,9 +48,9 @@ services:
       retries: 3
 
 volumes:
-  ${DB_VOL}:
-  .m2:
+  congresos_postgres_data:
+  m2_cache:
 
 networks:
-  ${APP_NAME}_network:
+  congresos_network:
     driver: bridge

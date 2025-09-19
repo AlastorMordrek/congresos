@@ -12,110 +12,110 @@ import static java.time.Month.JANUARY;
 @Configuration
 public class UsuarioConfig {
 
-  @Value("${ADMIN_1_EMAIL}")
+  @Value("${ADMIN_1_EMAIL:admin.1@example.com}")
   private String admin1Email;
-  @Value("${ADMIN_1_PWD}")
+  @Value("${ADMIN_1_PWD:12345}")
   private String admin1Password;
-  @Value("${ADMIN_1_TEL_PREF")
+  @Value("${ADMIN_1_TEL_PREF:52}")
   private String admin1TelPref;
-  @Value("${ADMIN_1_TEL_SUF")
+  @Value("${ADMIN_1_TEL_SUF:6641112222}")
   private String admin1TelSuf;
-  @Value("${ADMIN_1_NOMBRE")
+  @Value("${ADMIN_1_NOMBRE:Administrador}")
   private String admin1Nombre;
-  @Value("${ADMIN_1_AP_PATERNO")
+  @Value("${ADMIN_1_AP_PATERNO:Uno}")
   private String admin1ApPaterno;
 
-  @Value("${ORGANIZADOR_1_EMAIL}")
+  @Value("${ORGANIZADOR_1_EMAIL:organizador.1@example.com}")
   private String organizador1Email;
-  @Value("${ORGANIZADOR_1_PWD}")
+  @Value("${ORGANIZADOR_1_PWD:12345}")
   private String organizador1Password;
-  @Value("${ORGANIZADOR_1_TEL_PREF")
+  @Value("${ORGANIZADOR_1_TEL_PREF:52}")
   private String organizador1TelPref;
-  @Value("${ORGANIZADOR_1_TEL_SUF")
+  @Value("${ORGANIZADOR_1_TEL_SUF:6641113333}")
   private String organizador1TelSuf;
-  @Value("${ORGANIZADOR_1_NOMBRE")
+  @Value("${ORGANIZADOR_1_NOMBRE:Organizador}")
   private String organizador1Nombre;
-  @Value("${ORGANIZADOR_1_AP_PATERNO")
+  @Value("${ORGANIZADOR_1_AP_PATERNO:Uno}")
   private String organizador1ApPaterno;
 
-  @Value("${STAFF_1_EMAIL}")
+  @Value("${STAFF_1_EMAIL:staff.1@example.com}")
   private String staff1Email;
-  @Value("${STAFF_1_PWD}")
+  @Value("${STAFF_1_PWD:12345}")
   private String staff1Password;
-  @Value("${STAFF_1_TEL_PREF")
+  @Value("${STAFF_1_TEL_PREF:52}")
   private String staff1TelPref;
-  @Value("${STAFF_1_TEL_SUF")
+  @Value("${STAFF_1_TEL_SUF:6641114444}")
   private String staff1TelSuf;
-  @Value("${STAFF_1_NOMBRE")
+  @Value("${STAFF_1_NOMBRE:Staff}")
   private String staff1Nombre;
-  @Value("${STAFF_1_AP_PATERNO")
+  @Value("${STAFF_1_AP_PATERNO:Uno}")
   private String staff1ApPaterno;
 
-  @Value("${STAFF_2_EMAIL}")
+  @Value("${STAFF_2_EMAIL:staff.2@example.com}")
   private String staff2Email;
-  @Value("${STAFF_2_PWD}")
+  @Value("${STAFF_2_PWD:12345}")
   private String staff2Password;
-  @Value("${STAFF_2_TEL_PREF")
+  @Value("${STAFF_2_TEL_PREF:52}")
   private String staff2TelPref;
-  @Value("${STAFF_2_TEL_SUF")
+  @Value("${STAFF_2_TEL_SUF:6641115555}")
   private String staff2TelSuf;
-  @Value("${STAFF_2_NOMBRE")
+  @Value("${STAFF_2_NOMBRE:Staff}")
   private String staff2Nombre;
-  @Value("${STAFF_2_AP_PATERNO")
+  @Value("${STAFF_2_AP_PATERNO:Dos}")
   private String staff2ApPaterno;
 
-  @Value("${ALUMNO_1_EMAIL}")
+  @Value("${ALUMNO_1_EMAIL:alumno.1@example.com}")
   private String alumno1Email;
-  @Value("${ALUMNO_1_PWD}")
+  @Value("${ALUMNO_1_PWD:12345}")
   private String alumno1Password;
-  @Value("${ALUMNO_1_TEL_PREF")
+  @Value("${ALUMNO_1_TEL_PREF:52}")
   private String alumno1TelPref;
-  @Value("${ALUMNO_1_TEL_SUF")
+  @Value("${ALUMNO_1_TEL_SUF:6641116666}")
   private String alumno1TelSuf;
-  @Value("${ALUMNO_1_NOMBRE")
+  @Value("${ALUMNO_1_NOMBRE:Alumno}")
   private String alumno1Nombre;
-  @Value("${ALUMNO_1_AP_PATERNO")
+  @Value("${ALUMNO_1_AP_PATERNO:Uno}")
   private String alumno1ApPaterno;
-  @Value("${ALUMNO_1_NO_CONTROL")
+  @Value("${ALUMNO_1_NO_CONTROL:25211001}")
   String alumno1NoControl;
-  @Value("${ALUMNO_1_CODIGO_CARRERA")
+  @Value("${ALUMNO_1_CODIGO_CARRERA:ISC}")
   String alumno1CodigoCarrera;
-  @Value("${ALUMNO_1_SEMESTRE")
+  @Value("${ALUMNO_1_SEMESTRE:1}")
   int alumno1Semestre;
-  @Value("${ALUMNO_1_GRUPO")
+  @Value("${ALUMNO_1_GRUPO:A}")
   String alumno1Grupo;
-  @Value("${ALUMNO_1_EXTERNO")
+  @Value("${ALUMNO_1_EXTERNO:false}")
   boolean alumno1Externo;
-  @Value("${ALUMNO_1_CURP")
+  @Value("${ALUMNO_1_CURP:AAAA050130BBBCCC01}")
   String alumno1Curp;
-  @Value("${ALUMNO_1_EMAIL_INSTITUCIONAL")
+  @Value("${ALUMNO_1_EMAIL_INSTITUCIONAL:alumno.1@example.com}")
   String alumno1EmailInstitucional;
 
-  @Value("${ALUMNO_2_EMAIL}")
+  @Value("${ALUMNO_2_EMAIL:alumno.2@example.com}")
   private String alumno2Email;
-  @Value("${ALUMNO_2_PWD}")
+  @Value("${ALUMNO_2_PWD:12345}")
   private String alumno2Password;
-  @Value("${ALUMNO_2_TEL_PREF")
+  @Value("${ALUMNO_2_TEL_PREF:52}")
   private String alumno2TelPref;
-  @Value("${ALUMNO_2_TEL_SUF")
+  @Value("${ALUMNO_2_TEL_SUF:6641117777}")
   private String alumno2TelSuf;
-  @Value("${ALUMNO_2_NOMBRE")
+  @Value("${ALUMNO_2_NOMBRE:Alumno}")
   private String alumno2Nombre;
-  @Value("${ALUMNO_2_AP_PATERNO")
+  @Value("${ALUMNO_2_AP_PATERNO:Uno}")
   private String alumno2ApPaterno;
-  @Value("${ALUMNO_2_NO_CONTROL")
+  @Value("${ALUMNO_2_NO_CONTROL:25211002}")
   String alumno2NoControl;
-  @Value("${ALUMNO_2_CODIGO_CARRERA")
+  @Value("${ALUMNO_2_CODIGO_CARRERA:IND}")
   String alumno2CodigoCarrera;
-  @Value("${ALUMNO_2_SEMESTRE")
+  @Value("${ALUMNO_2_SEMESTRE:1}")
   int alumno2Semestre;
-  @Value("${ALUMNO_2_GRUPO")
+  @Value("${ALUMNO_2_GRUPO:A}")
   String alumno2Grupo;
-  @Value("${ALUMNO_2_EXTERNO")
+  @Value("${ALUMNO_2_EXTERNO:false}")
   boolean alumno2Externo;
-  @Value("${ALUMNO_2_CURP")
+  @Value("${ALUMNO_2_CURP:AAAA050130BBBCCC02}")
   String alumno2Curp;
-  @Value("${ALUMNO_2_EMAIL_INSTITUCIONAL")
+  @Value("${ALUMNO_2_EMAIL_INSTITUCIONAL:alumno.2@example.com}")
   String alumno2EmailInstitucional;
 
 
