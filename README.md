@@ -18,13 +18,18 @@ git clone https://github.com/AlastorMordrek/congresos.git
 cd congresos
 ```
 ### 2.- Ajusta variables de entorno
+Edite el archivo .env con sus parametros preferidos.
+Puede iniciar con copiar los parametros de muestra.
 ```shell
 cp .env.example .env
-# Edite el archivo .env con sus parametros preferidos
 ```
 ### 3.- Ejecute el script de arranque
+Asegurar permisos de ejecucion del script.
 ```shell
 chmod +x setup.sh
+```
+Ejecutar el script.
+```shell
 ./setup.sh
 ```
 ### 4.- Acceda a la aplicacion
