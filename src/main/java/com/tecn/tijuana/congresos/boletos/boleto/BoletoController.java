@@ -2,11 +2,14 @@ package com.tecn.tijuana.congresos.boletos.boleto;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequestMapping(path = "api/v1/boletos/boleto")
+@Validated
 public class BoletoController {
 
   //----------------------------------------------------------------------------
@@ -223,11 +227,11 @@ public class BoletoController {
     String txt,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
+    @Min(0) @Max(999)
     int page,
 
     @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
+    @Min(1) @Max(100)
     int pageSize
   ) {
     return new ResponseEntity<>(
@@ -263,11 +267,11 @@ public class BoletoController {
     String txt,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
+    @Min(0) @Max(999)
     int page,
 
     @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
+    @Min(1) @Max(100)
     int pageSize,
 
     @AuthenticationPrincipal
@@ -354,11 +358,11 @@ public class BoletoController {
     Long congresoId,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
+    @Min(0) @Max(999)
     int page,
 
     @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
+    @Min(1) @Max(100)
     int pageSize
   ) {
     return new ResponseEntity<>(
@@ -394,11 +398,11 @@ public class BoletoController {
     Long congresoId,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
+    @Min(0) @Max(999)
     int page,
 
     @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
+    @Min(1) @Max(100)
     int pageSize
   ) {
     return new ResponseEntity<>(
@@ -433,11 +437,11 @@ public class BoletoController {
     Long congresoId,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
+    @Min(0) @Max(999)
     int page,
 
     @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
+    @Min(1) @Max(100)
     int pageSize
   ) {
     return new ResponseEntity<>(

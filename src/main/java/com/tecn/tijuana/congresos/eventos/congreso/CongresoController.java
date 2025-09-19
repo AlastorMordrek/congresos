@@ -2,11 +2,14 @@ package com.tecn.tijuana.congresos.eventos.congreso;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +20,7 @@ import java.util.Objects;
 @RestController
 @CrossOrigin
 @RequestMapping(path = "api/v1/eventos/congreso")
+@Validated
 public class CongresoController {
 
   //----------------------------------------------------------------------------
@@ -40,234 +44,8 @@ public class CongresoController {
 
 
 
-  /**
-   * Consulta los CONGRESOS publicados indiscriminadamente.
-   *
-   * @param page {@code [0]}
-   * Numero de pagina.
-   *
-   * @param pageSize {@code [10]}
-   * Tamano de pagina.
-   *
-   * @return
-   * Los registros encontrados.
-   */
-  @GetMapping("publicados")
-
-  public ResponseEntity<List<Congreso>> publicados (
-
-    @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
-    int page,
-
-    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
-    int pageSize
-  ) {
-    return new ResponseEntity<>(
-      conSvc.qPublicados(page, pageSize),
-      HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Consulta los CONGRESOS publicados cuya fecha de terminacion aun es a
-   * futuro, incluyendo aquellos que se encuentran cancelados.
-   *
-   * @param page {@code [0]}
-   * Numero de pagina.
-   *
-   * @param pageSize {@code [10]}
-   * Tamano de pagina.
-   *
-   * @return
-   * Los registros encontrados.
-   */
-  @GetMapping("publicados/proximos")
-
-  public ResponseEntity<List<Congreso>> publicadosProximos (
-
-    @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
-    int page,
-
-    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
-    int pageSize
-  ) {
-    return new ResponseEntity<>(
-      conSvc.qPublicadosProximos(page, pageSize),
-      HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Consulta el CONGRESO publicado con el ID especifico.
-   *
-   * @param id
-   * ID del CONGRESO.
-   *
-   * @return
-   * El registro encontrado o un error HTTP-404.
-   */
-  @GetMapping("publicados/congreso/{id}")
-
-  public ResponseEntity<Congreso> qIdPublicado (
-
-    @PathVariable("id")
-    Long id
-  ) {
-    return new ResponseEntity<>(conSvc.qIdPublicado(id), HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Consulta los CONGRESOS publicados usando una busqueda de texto.
-   *
-   * @param txt {@code [""]}
-   * Texto de busqueda.
-   *
-   * @param page {@code [0]}
-   * Numero de pagina.
-   *
-   * @param pageSize {@code [10]}
-   * Tamano de pagina.
-   *
-   * @return
-   * Los registros encontrados.
-   */
-  @GetMapping("publicados/buscar")
-
-  public ResponseEntity<List<Congreso>> publicadosBuscar (
-
-    @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
-    String txt,
-
-    @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
-    int page,
-
-    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
-    int pageSize
-  ) {
-    return new ResponseEntity<>(
-      conSvc.publicadosBuscar(txt, page, pageSize),
-      HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Consulta el CONGRESO con el ID especifico.
-   *
-   * @param id
-   * ID del CONGRESO.
-   *
-   * @return
-   * El registro encontrado o un error HTTP-404.
-   */
-  @GetMapping("congreso/{id}")
-
-  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_NO_PUBLICADOS)
-
-  public ResponseEntity<Congreso> qId (
-
-    @PathVariable("id")
-    Long id
-  ) {
-    return new ResponseEntity<>(conSvc.afirmar(id), HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Consulta los CONGRESOS indiscriminadamente usando una busqueda de texto.
-   *
-   * @param txt {@code [""]}
-   * Texto de busqueda.
-   *
-   * @param page {@code [0]}
-   * Numero de pagina.
-   *
-   * @param pageSize {@code [10]}
-   * Tamano de pagina.
-   *
-   * @return
-   * Los registros encontrados.
-   */
-  @GetMapping("buscar")
-
-  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_NO_PUBLICADOS)
-
-  public ResponseEntity<List<Congreso>> buscar (
-
-    @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
-    String txt,
-
-    @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
-    int page,
-
-    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
-    int pageSize
-  ) {
-    return new ResponseEntity<>(
-      conSvc.buscar(txt, page, pageSize),
-      HttpStatus.OK);
-  }
-
-
-
-  /**
-   * Permite a un ORGANIZADOR consultar sus propios CONGRESOS usando una
-   * busqueda de texto opcional.
-   *
-   * @param txt {@code [""]}
-   * Texto de busqueda.
-   *
-   * @param page {@code [0]}
-   * Numero de pagina.
-   *
-   * @param pageSize {@code [10]}
-   * Tamano de pagina.
-   *
-   * @return
-   * Los registros encontrados.
-   */
-  @GetMapping("buscar/mios")
-
-  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_PROPIOS)
-
-  public ResponseEntity<List<Congreso>> buscarMios (
-
-    @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
-    String txt,
-
-    @RequestParam(name = "page", required = false, defaultValue = "0")
-    @Size(max = 999)
-    int page,
-
-    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
-    @Size(min = 1, max = 100)
-    int pageSize,
-
-    @AuthenticationPrincipal
-    Usuario actor
-  ) {
-    return new ResponseEntity<>(
-      conSvc.buscarMios(actor, txt, page, pageSize),
-      HttpStatus.OK);
-  }
-
-
+  //----------------------------------------------------------------------------
+  // COMANDOS.
 
   /**
    * Permite a un ORGANIZADOR registrar un nuevo CONGRESO.
@@ -528,5 +306,237 @@ public class CongresoController {
     } else {
       return new ResponseEntity<>(deleted, HttpStatus.OK);
     }
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // CONSULTAS.
+
+  /**
+   * Consulta los CONGRESOS publicados indiscriminadamente.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("publicados")
+
+  public ResponseEntity<List<Congreso>> publicados (
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      conSvc.qPublicados(page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta los CONGRESOS publicados cuya fecha de terminacion aun es a
+   * futuro, incluyendo aquellos que se encuentran cancelados.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("publicados/proximos")
+
+  public ResponseEntity<List<Congreso>> publicadosProximos (
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      conSvc.qPublicadosProximos(page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta el CONGRESO publicado con el ID especifico.
+   *
+   * @param id
+   * ID del CONGRESO.
+   *
+   * @return
+   * El registro encontrado o un error HTTP-404.
+   */
+  @GetMapping("publicados/congreso/{id}")
+
+  public ResponseEntity<Congreso> qIdPublicado (
+
+    @PathVariable("id")
+    Long id
+  ) {
+    return new ResponseEntity<>(conSvc.qIdPublicado(id), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta los CONGRESOS publicados usando una busqueda de texto.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("publicados/buscar")
+
+  public ResponseEntity<List<Congreso>> publicadosBuscar (
+
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(min = 1, max = 30)
+    String txt,
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      conSvc.publicadosBuscar(txt, page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta el CONGRESO con el ID especifico.
+   *
+   * @param id
+   * ID del CONGRESO.
+   *
+   * @return
+   * El registro encontrado o un error HTTP-404.
+   */
+  @GetMapping("congreso/{id}")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_NO_PUBLICADOS)
+
+  public ResponseEntity<Congreso> qId (
+
+    @PathVariable("id")
+    Long id
+  ) {
+    return new ResponseEntity<>(conSvc.afirmar(id), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta los CONGRESOS indiscriminadamente usando una busqueda de texto.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("buscar")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_NO_PUBLICADOS)
+
+  public ResponseEntity<List<Congreso>> buscar (
+
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(min = 1, max = 30)
+    String txt,
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      conSvc.buscar(txt, page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Permite a un ORGANIZADOR consultar sus propios CONGRESOS usando una
+   * busqueda de texto opcional.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("buscar/mios")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_PROPIOS)
+
+  public ResponseEntity<List<Congreso>> buscarMios (
+
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(min = 1, max = 30)
+    String txt,
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      conSvc.buscarMios(actor, txt, page, pageSize),
+      HttpStatus.OK);
   }
 }

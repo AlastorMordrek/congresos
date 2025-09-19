@@ -5,11 +5,13 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuario
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
 @RequestMapping(path = "api/v1/identidad/autenticacion")
+@Validated
 public class AutenticacionController {
 
   //----------------------------------------------------------------------------
@@ -41,6 +43,7 @@ public class AutenticacionController {
    * Objeto con los datos del usuario.
    */
   @PostMapping("iniciar-sesion")
+
   public ResponseEntity<String> login (
     @RequestBody
     Usuario usr

@@ -4,12 +4,14 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuario
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin
 @RequestMapping(path = "api/v1/identidad/validacion")
+@Validated
 public class ValidacionController {
 
   //----------------------------------------------------------------------------
@@ -46,9 +48,12 @@ public class ValidacionController {
    * Si el Usuario es registrado exitosamente retorna {@code HTTP-201}
    */
   @PostMapping("/registrarse")
+
   public ResponseEntity<Usuario> registrarse (
+
     @RequestPart
     Usuario usr,
+
     @RequestPart(required = false)
     MultipartFile img
   ) {
