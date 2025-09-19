@@ -44,7 +44,7 @@ http://localhost:8080/swagger-ui.html
 <div align="center">
   <img src="img/swagger-example.png"
     alt="Logo del Tecnologico Nacional de Mexico"
-    width="70%" height="70%" />
+    width="60%" height="60%" />
 </div>
 
 ## Inicio manual
