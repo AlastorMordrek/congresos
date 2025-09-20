@@ -1,0 +1,16 @@
+# Etapa de desarrollo con mejor manejo de cache.
+FROM maven:3.9.9-eclipse-temurin-24 AS development
+WORKDIR /app
+
+# Copiar solo pom.xml primero para cachear las dependencias.
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copiar codigo fuente.
+COPY src ./src
+
+# Compilar pero no empaquetar (mas rapido para desarrollo).
+RUN mvn compile -DskipTests
+
+# Usar esta imagen para desarrollo con montado de volumen.
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"]

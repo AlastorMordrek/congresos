@@ -1,11 +1,13 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UsuarioDetailsService implements UserDetailsService {
@@ -64,9 +66,35 @@ public class UsuarioDetailsService implements UserDetailsService {
 //      .orElseThrow(() ->
 //        new UsernameNotFoundException("Usuario no encontrado"));
 
-    return usrRep.qEmail(username)
+    var usuario = usrRep.qEmail(username)
       .orElseThrow(() ->
         new UsernameNotFoundException("Usuario no encontrado"));
+
+    if (usuario.isBloqueado()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "Usuario bloqueado");
+    }
+
+    if (usuario.isDeshabilitado()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "Usuario des-habilitado");
+    }
+
+    if (usuario.isCredencialesExpiradas()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "Credenciales de acceso de usuario expiradas");
+    }
+
+    if (usuario.isExpirado()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "Cuenta de usuario expirada");
+    }
+
+    return usuario;
   }
 
 

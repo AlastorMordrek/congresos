@@ -281,6 +281,7 @@ public class Usuario implements UserDetails {
   /**
    * Nombre original del archivo de la imagen que se uso como foto del USUARIO.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de la foto debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -289,6 +290,7 @@ public class Usuario implements UserDetails {
   /**
    * Tipo de archivo multimedia de la foto del USUARIO.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de la foto debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -298,6 +300,7 @@ public class Usuario implements UserDetails {
    * Contenido crudo de la foto del USUARIO.
    * */
   @Lob
+  @JsonIgnore
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "La foto debe pesar entre 1 KB y 2 MB")
@@ -823,6 +826,7 @@ public class Usuario implements UserDetails {
    *
    * @throws IOException Cuando hay algun problema con la imagen.
    */
+  @JsonIgnore
   public Usuario setFoto (
     MultipartFile img
   )

@@ -74,223 +74,9 @@ public class ControlDeUsuariosService {
   }
 
 
-  /**
-   * Consulta todos los registros de la entidad indiscriminadamente usando los
-   * parametros de paginacion por defecto.
-   *
-   * @return
-   * Lista de registros encontrados.
-   *
-   * @see Api#pagina()
-   */
-  public List<Usuario> q () {
-    return q(DEFAULT_PAGE);
-  }
 
-  /**
-   * Consulta todos los registros de la entidad indiscriminadamente usando los
-   * parametros de paginacion especificados.
-   *
-   * @param page
-   * Numero de pagina.
-   *
-   * @return
-   * Lista de registros encontrados.
-   *
-   * @see Api#pagina()
-   */
-  public List<Usuario> q (int page) {
-    return q(page, DEFAULT_PAGE_SIZE);
-  }
-
-  /**
-   * Consulta todos los registros de la entidad indiscriminadamente usando los
-   * parametros de paginacion especificados.
-   *
-   * @param page
-   * Numero de pagina.
-   *
-   * @param pageSize
-   * Tamano de pagina.
-   *
-   * @return
-   * Lista de registros encontrados.
-   */
-  public List<Usuario> q (int page, int pageSize) {
-    return usrRep.
-      findAll(Api.pagina(page, pageSize))
-      .getContent();
-  }
-
-
-
-  /**
-   * Busca registros en la BD cuyos campos tipo String contengan el texto
-   * especificado en {@code txt}, utilizando coincidencia parcial
-   * case-insensitive.
-   * <p>
-   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
-   * aplicando solo la paginacion por defecto.
-   *
-   * @param txt
-   * El texto a buscar.
-   *
-   * @return
-   * Lista de registros encontrados.
-   *
-   * @see ControlDeUsuariosService#buscar(String, int)
-   * @see Api#pagina()
-   */
-  public List<Usuario> buscar (String txt) {
-    return buscar(txt, DEFAULT_PAGE);
-  }
-
-  /**
-   * Busca registros en la BD cuyos campos tipo String contengan el texto
-   * especificado en {@code txt}, utilizando coincidencia parcial
-   * case-insensitive.
-   * <p>
-   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
-   * aplicando solo la paginacion especificada.
-   * <p>
-   * Ejemplo: {@code buscar("juan", 0)} retorna la primera pagina de
-   * usuarios que contengan "juan" en alguno de sus campos.
-   *
-   * @param txt
-   * El texto a buscar.
-   *
-   * @param page
-   * Numero de pagina (0-based)
-   *
-   * @return
-   * Lista de registros encontrados.
-   *
-   * @see ControlDeUsuariosService#buscar(String, int, int)
-   */
-  public List<Usuario> buscar (String txt, int page) {
-    return buscar(txt, page, DEFAULT_PAGE_SIZE);
-  }
-
-  /**
-   * Busca registros en la BD cuyos campos tipo String contengan el texto
-   * especificado en {@code txt}, utilizando coincidencia parcial
-   * case-insensitive.
-   * <p>
-   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
-   * aplicando solo la paginacion especificada.
-   * <p>
-   * Ejemplo: {@code buscar("texto", 0, 10)} retorna la primera pagina de
-   * usuarios que contengan "texto" en alguno de sus campos.
-   *
-   * @param txt
-   * El texto a buscar.
-   *
-   * @param page
-   * Numero de pagina (0-based)
-   *
-   * @param pageSize
-   * Cantidad de resultados por pagina
-   *
-   * @return
-   * Lista de registros encontrados.
-   *
-   * @see UsuarioRepository#buscar(String, Pageable)
-   */
-  public List<Usuario> buscar (String txt, int page, int pageSize) {
-    Pageable defPage = PageRequest.of(page, pageSize);
-
-    if (Objects.isNull(txt) || txt.isBlank()) {
-      return usrRep.findAll(defPage).getContent();
-    }
-
-    return usrRep
-      .buscar(txt.toLowerCase().trim(), defPage)
-      .getContent();
-  }
-
-
-
-  /**
-   * Obtiene el registro con el ID especificado.
-   *
-   * @param id
-   * El ID del registro.
-   *
-   * @return
-   * El registro encontrado o {@code null} si no se encuentra.
-   */
-  public Usuario qId (Long id) {
-
-    return usrRep.findById(id).orElse(null);
-  }
-
-
-
-  /**
-   * Obtiene el registro con el Email especificado.
-   *
-   * @param email
-   * Email del registro.
-   *
-   * @return
-   * El registro encontrado o {@code null} si no se encuentra.
-   */
-  public Usuario qEmail (String email) {
-
-    return usrRep.qEmail(email).orElse(null);
-  }
-
-
-
-  /**
-   * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
-   * existe.
-   *
-   * @param id
-   * El ID del registro.
-   *
-   * @return
-   * El registro encontrado.
-   */
-  public Usuario afirmar (
-    Long id
-  )
-    throws ResponseStatusException {
-
-    return usrRep.findById(id)
-      .orElseThrow(() ->
-        new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          String.format("Usuario con ID: %s no encontrado", id)));
-  }
-
-
-
-  /**
-   * Obtiene el registro con el Numero de Control especificado o causa un error
-   * HTTP-404 si no existe.
-   *
-   * @param noControl
-   * Identificador del registro.
-   *
-   * @return
-   * El registro encontrado.
-   */
-  public Usuario afirmarNoControl (
-    String noControl
-  )
-    throws ResponseStatusException {
-
-    return usrRep.qNoControl(noControl)
-      .orElseThrow(() ->
-        new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          String.format(
-            "Usuario con Numero de Control: %s no encontrado",
-            noControl)));
-  }
-
-
+  //----------------------------------------------------------------------------
+  // COMANDOS.
 
   /**
    * Permite al personal registrar ADMINISTRADORS en el sistema.
@@ -599,7 +385,7 @@ public class ControlDeUsuariosService {
 
     usr.setBloqueado(true);
 
-    return usr;
+    return usrRep.saveAndFlush(usr);
   }
 
 
@@ -638,39 +424,7 @@ public class ControlDeUsuariosService {
 
     usr.setBloqueado(false);
 
-    return usr;
-  }
-
-
-
-  /**
-   * Autentica un Usuario y obtiene sus detalles como roles y estatuses.
-   *
-   * @param usr
-   * El Usuario que se desea autenticar.
-   *
-   * @return
-   * El token (JWT) de acceso unico para el Usuario.
-   */
-  public String verify (Usuario usr)
-    throws BadCredentialsException {
-
-    UserDetails usrDts = usrDSvc.loadUserByUsername(usr.getEmail());
-
-    if (!pwdEnc.matches(usr.getPassword(), usrDts.getPassword())) {
-      throw new BadCredentialsException("Credenciales incorrectas");
-    }
-
-    Authentication auth = new UsernamePasswordAuthenticationToken(
-      usrDts, null, usrDts.getAuthorities());
-
-    SecurityContextHolder.getContext().setAuthentication(auth);
-
-    if (auth.isAuthenticated()) {
-      return jwtSvc.generateToken(usrDts.getUsername());
-    }
-
-    return "No se pudo autenticar";
+    return usrRep.saveAndFlush(usr);
   }
 
 
@@ -703,7 +457,231 @@ public class ControlDeUsuariosService {
         "Error al procesar la imagen");
     }
 
-    return usr;
+    return usrRep.saveAndFlush(usr);
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // CONSULTAS.
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion por defecto.
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see Api#pagina()
+   */
+  public List<Usuario> q () {
+    return q(DEFAULT_PAGE);
+  }
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see Api#pagina()
+   */
+  public List<Usuario> q (int page) {
+    return q(page, DEFAULT_PAGE_SIZE);
+  }
+
+  /**
+   * Consulta todos los registros de la entidad indiscriminadamente usando los
+   * parametros de paginacion especificados.
+   *
+   * @param page
+   * Numero de pagina.
+   *
+   * @param pageSize
+   * Tamano de pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Usuario> q (int page, int pageSize) {
+    return usrRep.
+      findAll(Api.pagina(page, pageSize))
+      .getContent();
+  }
+
+
+
+  /**
+   * Busca registros en la BD cuyos campos tipo String contengan el texto
+   * especificado en {@code txt}, utilizando coincidencia parcial
+   * case-insensitive.
+   * <p>
+   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
+   * aplicando solo la paginacion por defecto.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see ControlDeUsuariosService#buscar(String, int)
+   * @see Api#pagina()
+   */
+  public List<Usuario> buscar (String txt) {
+    return buscar(txt, DEFAULT_PAGE);
+  }
+
+  /**
+   * Busca registros en la BD cuyos campos tipo String contengan el texto
+   * especificado en {@code txt}, utilizando coincidencia parcial
+   * case-insensitive.
+   * <p>
+   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
+   * aplicando solo la paginacion especificada.
+   * <p>
+   * Ejemplo: {@code buscar("juan", 0)} retorna la primera pagina de
+   * usuarios que contengan "juan" en alguno de sus campos.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param page
+   * Numero de pagina (0-based)
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see ControlDeUsuariosService#buscar(String, int, int)
+   */
+  public List<Usuario> buscar (String txt, int page) {
+    return buscar(txt, page, DEFAULT_PAGE_SIZE);
+  }
+
+  /**
+   * Busca registros en la BD cuyos campos tipo String contengan el texto
+   * especificado en {@code txt}, utilizando coincidencia parcial
+   * case-insensitive.
+   * <p>
+   * Si {@code txt} es {@code null} o esta vacio, retorna todos los usuarios
+   * aplicando solo la paginacion especificada.
+   * <p>
+   * Ejemplo: {@code buscar("texto", 0, 10)} retorna la primera pagina de
+   * usuarios que contengan "texto" en alguno de sus campos.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param page
+   * Numero de pagina (0-based)
+   *
+   * @param pageSize
+   * Cantidad de resultados por pagina
+   *
+   * @return
+   * Lista de registros encontrados.
+   *
+   * @see UsuarioRepository#buscar(String, Pageable)
+   */
+  public List<Usuario> buscar (String txt, int page, int pageSize) {
+    Pageable defPage = PageRequest.of(page, pageSize);
+
+    if (Objects.isNull(txt) || txt.isBlank()) {
+      return usrRep.findAll(defPage).getContent();
+    }
+
+    return usrRep
+      .buscar(txt.toLowerCase().trim(), defPage)
+      .getContent();
+  }
+
+
+
+  /**
+   * Obtiene el registro con el ID especificado.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado o {@code null} si no se encuentra.
+   */
+  public Usuario qId (Long id) {
+
+    return usrRep.findById(id).orElse(null);
+  }
+
+
+
+  /**
+   * Obtiene el registro con el Email especificado.
+   *
+   * @param email
+   * Email del registro.
+   *
+   * @return
+   * El registro encontrado o {@code null} si no se encuentra.
+   */
+  public Usuario qEmail (String email) {
+
+    return usrRep.qEmail(email).orElse(null);
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // ASERCIONES.
+
+  /**
+   * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
+   * existe.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado.
+   */
+  public Usuario afirmar (
+    Long id
+  )
+    throws ResponseStatusException {
+
+    return usrRep.findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format("Usuario con ID: %s no encontrado", id)));
+  }
+
+
+
+  /**
+   * Obtiene el registro con el Numero de Control especificado o causa un error
+   * HTTP-404 si no existe.
+   *
+   * @param noControl
+   * Identificador del registro.
+   *
+   * @return
+   * El registro encontrado.
+   */
+  public Usuario afirmarNoControl (
+    String noControl
+  )
+    throws ResponseStatusException {
+
+    return usrRep.qNoControl(noControl)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format(
+            "Usuario con Numero de Control: %s no encontrado",
+            noControl)));
   }
 
 
@@ -729,6 +707,105 @@ public class ControlDeUsuariosService {
 
     return usr;
   }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Usuario afirmarNoBloqueado (
+    Long id
+  ) {
+    return afirmarNoBloqueado(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Usuario afirmarNoBloqueado (
+    Usuario reg
+  ) {
+    // Comprobar que no tiene ya un BOLETO para ese CONGRESO.
+    if (reg.isBloqueado()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El usuario esta bloqueado");
+    }
+
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param noControl
+   * Identificador del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Usuario afirmarNoControlNoBloqueado (
+    String noControl
+  ) {
+    return afirmarNoBloqueado(afirmarNoControl(noControl));
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // AUXILIARES.
+
+  /**
+   * Autentica un Usuario y obtiene sus detalles como roles y estatuses.
+   *
+   * @param usr
+   * El Usuario que se desea autenticar.
+   *
+   * @return
+   * El token (JWT) de acceso unico para el Usuario.
+   */
+  public String verify (Usuario usr)
+    throws BadCredentialsException {
+
+    UserDetails usrDts = usrDSvc.loadUserByUsername(usr.getEmail());
+
+    if (!pwdEnc.matches(usr.getPassword(), usrDts.getPassword())) {
+      throw new BadCredentialsException("Credenciales incorrectas");
+    }
+
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+      usrDts, null, usrDts.getAuthorities());
+
+    SecurityContextHolder.getContext().setAuthentication(auth);
+
+    if (auth.isAuthenticated()) {
+      return jwtSvc.generateToken(usrDts.getUsername());
+    }
+
+    return "No se pudo autenticar";
+  }
+
+
 
   /**
    * Determina si un email ya esta tomado por un Usuario en la BD.
@@ -835,67 +912,5 @@ public class ControlDeUsuariosService {
    */
   public boolean puedeEliminarUsuarios (Usuario actor) {
     return actor.getRol() == Rol.ADMINISTRADOR;
-  }
-
-
-
-  /**
-   * Determina si un registro cumple con los requerimientos nombrados en la
-   * funcion, de lo contrario lanza una excepcion que retorna un error
-   * {@code HTTP-PRECONDITION_FAILED}.
-   *
-   * @param id
-   * El ID del registro a validar.
-   *
-   * @return
-   * El registro validado.
-   */
-  public Usuario afirmarNoBloqueado (
-    Long id
-  ) {
-    return afirmarNoBloqueado(afirmar(id));
-  }
-
-  /**
-   * Determina si un registro cumple con los requerimientos nombrados en la
-   * funcion, de lo contrario lanza una excepcion que retorna un error
-   * {@code HTTP-PRECONDITION_FAILED}.
-   *
-   * @param reg
-   * El registro a validar.
-   *
-   * @return
-   * El registro validado.
-   */
-  public static Usuario afirmarNoBloqueado (
-    Usuario reg
-  ) {
-    // Comprobar que no tiene ya un BOLETO para ese CONGRESO.
-    if (reg.isBloqueado()) {
-      throw new ResponseStatusException(
-        HttpStatus.PRECONDITION_FAILED,
-        "El usuario esta bloqueado");
-    }
-
-    return reg;
-  }
-
-
-
-  /**
-   * Determina si un registro cumple con los requerimientos nombrados en la
-   * funcion, de lo contrario lanza una excepcion que retorna un error
-   * {@code HTTP-PRECONDITION_FAILED}.
-   *
-   * @param noControl
-   * Identificador del registro a validar.
-   *
-   * @return
-   * El registro validado.
-   */
-  public Usuario afirmarNoControlNoBloqueado (
-    String noControl
-  ) {
-    return afirmarNoBloqueado(afirmarNoControl(noControl));
   }
 }
