@@ -6,6 +6,8 @@ import com.tecn.tijuana.congresos.security.JwtService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication
   .UsernamePasswordAuthenticationToken;
@@ -86,16 +88,13 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos del Usuario.
    *
-   * @param img
-   * Posible imagen para usar como foto del Usuario.
-   *
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrar (Usuario actor, Usuario usr, MultipartFile img)
+  public Usuario registrar (Usuario actor, Usuario usr)
     throws ResponseStatusException {
 
     // Marcar al Actor como creador del futuro Usuario.
@@ -109,10 +108,10 @@ public class ControlDeUsuariosService {
     }
 
     return switch (usr.getRol()) {
-      case Rol.ADMINISTRADOR -> registrarAdmin(usr, img);
-      case Rol.ORGANIZADOR   -> registrarOrganizador(usr, img);
-      case Rol.STAFF         -> registrarStaff(usr, img);
-      case Rol.ALUMNO        -> registrarAlumno(usr, img);
+      case Rol.ADMINISTRADOR -> registrarAdmin(usr);
+      case Rol.ORGANIZADOR   -> registrarOrganizador(usr);
+      case Rol.STAFF         -> registrarStaff(usr);
+      case Rol.ALUMNO        -> registrarAlumno(usr);
     };
   }
 
@@ -126,22 +125,17 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos del Usuario.
    *
-   * @param img
-   * Posible imagen para usar como foto del Usuario.
-   *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrarAdmin (Usuario usr, MultipartFile img)
+  public Usuario registrarAdmin (Usuario usr)
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      agregarFoto(
-        Usuario.nuevoAdmin(
-          codificarPassword(
-            afirmarEmailNoTomado(usr),
-            pwdEnc)),
-        img));
+      Usuario.nuevoAdmin(
+        codificarPassword(
+          afirmarEmailNoTomado(usr),
+          pwdEnc)));
   }
 
 
@@ -152,22 +146,17 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos del Usuario.
    *
-   * @param img
-   * Posible imagen para usar como foto del Usuario.
-   *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrarOrganizador (Usuario usr, MultipartFile img)
+  public Usuario registrarOrganizador (Usuario usr)
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      agregarFoto(
-        Usuario.nuevoOrganizador(
-          codificarPassword(
-            afirmarEmailNoTomado(usr),
-            pwdEnc)),
-        img));
+      Usuario.nuevoOrganizador(
+        codificarPassword(
+          afirmarEmailNoTomado(usr),
+          pwdEnc)));
   }
 
 
@@ -178,22 +167,17 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos del Usuario.
    *
-   * @param img
-   * Posible imagen para usar como foto del Usuario.
-   *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrarStaff (Usuario usr, MultipartFile img)
+  public Usuario registrarStaff (Usuario usr)
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      agregarFoto(
-        Usuario.nuevoStaff(
-          codificarPassword(
-            afirmarEmailNoTomado(usr),
-            pwdEnc)),
-        img));
+      Usuario.nuevoStaff(
+        codificarPassword(
+          afirmarEmailNoTomado(usr),
+          pwdEnc)));
   }
 
 
@@ -206,22 +190,17 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos de Usuario del Alumno.
    *
-   * @param img
-   * Posible imagen para usar como foto del Alumno.
-   *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrarAlumno (Usuario usr, MultipartFile img)
+  public Usuario registrarAlumno (Usuario usr)
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      agregarFoto(
-        Usuario.nuevoAlumno(
-          codificarPassword(
-            afirmarEmailNoTomado(usr),
-            pwdEnc)),
-        img));
+      Usuario.nuevoAlumno(
+        codificarPassword(
+          afirmarEmailNoTomado(usr),
+          pwdEnc)));
   }
 
   /**
@@ -230,47 +209,38 @@ public class ControlDeUsuariosService {
    * @param usr
    * Datos de Usuario del Alumno.
    *
-   * @param img
-   * Posible imagen para usar como foto del Alumno.
-   *
    * @return
    * El Usuario recien registrado en la BD.
    */
-  public Usuario registrarseAlumno (Usuario usr, MultipartFile img)
+  public Usuario registrarseAlumno (Usuario usr)
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      agregarFoto(
-        Usuario.nuevoAlumnoAutoRegistrado(
-          codificarPassword(
-            afirmarEmailNoTomado(usr),
-            pwdEnc)),
-        img));
+      Usuario.nuevoAlumnoAutoRegistrado(
+        codificarPassword(
+          afirmarEmailNoTomado(usr),
+          pwdEnc)));
   }
 
 
 
   /**
-   * Actualiza un Usuario en la BD con los nuevos datos provistos, incluyendo
-   * una posible nueva foto opcional.
+   * Actualiza un Registro en la BD con los nuevos datos provistos.
    *
    * @param actor
    * Usuario ejecutor de la operacion.
    *
    * @param id
-   * ID del Usuario a editar.
+   * ID del Registro a editar.
    *
    * @param usr
-   * El Usuario a editar.
-   *
-   * @param img {@code [null]}
-   * Posible imagen a usar como foto de perfil.
+   * El Registro a editar.
    *
    * @return
-   * El Usuario editado.
+   * El Registro editado.
    */
   public Usuario editar (
-    Usuario actor, Long id, Usuario usr, MultipartFile img
+    Usuario actor, Long id, Usuario usr
   ) throws ResponseStatusException {
 
     // Si no tiene los permisos necesarios lanzar error HTTP-401.
@@ -280,11 +250,58 @@ public class ControlDeUsuariosService {
         "No tiene permiso para editar un usuario de ese tipo.");
     }
 
-    return usrRep.saveAndFlush(
-      agregarFoto(
-        afirmar(id).actualizar(usr),
-        img));
+    return usrRep.saveAndFlush(afirmar(id).actualizar(usr));
   }
+
+
+
+  /**
+   * Permite editar un slot de multimedia del registro.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param slot
+   * Slot a editar.
+   *
+   * @param img {@code [null]}
+   * Posible imagen a usar como foto de info.
+   * Si es {@code null} se remueve la imagen de ese slot.
+   *
+   * @return
+   * El registro editado.
+   */
+  public Usuario editarMedia (
+    Usuario actor, Long id, String slot, MultipartFile img
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el Usuario.
+    var usuario = afirmar(id);
+
+    // Si no tiene los permisos necesarios lanzar error HTTP-401.
+    if (!puedeEditarAUsuario(actor, usuario)) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "No tiene permiso para editar un usuario de ese tipo.");
+    }
+
+    try {
+      usuario.setMedia(slot, img);
+    } catch (IOException e) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Error al procesar la imagen");
+    }
+
+    // Actualizar, guardar y retornar el registro.
+    return usrRep.saveAndFlush(usuario);
+  }
+
+
 
   /**
    * Permite a un USUARIO actualizar sus datos, incluyendo una posible nueva
@@ -296,20 +313,52 @@ public class ControlDeUsuariosService {
    * @param usr
    * El objeto Usuario con los nuevos datos.
    *
-   * @param img {@code [null]}
-   * Posible imagen a usar como foto de perfil.
-   *
    * @return
    * El USUARIO perteneciente al {@code actor} actualizado.
    */
   public Usuario editarme (
-    Usuario actor, Usuario usr, MultipartFile img
+    Usuario actor, Usuario usr
   ) throws ResponseStatusException {
 
-    return usrRep.saveAndFlush(
-      agregarFoto(
-        afirmar(actor.getId()).actualizarse(usr),
-        img));
+    return usrRep.saveAndFlush(afirmar(actor.getId()).actualizarse(usr));
+  }
+
+
+
+  /**
+   * Permite editar un slot de multimedia del USUARIO propio.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param slot
+   * El nombre del slot a editar.
+   *
+   * @param img {@code [null]}
+   * Posible imagen a usar como foto de info.
+   * Si es {@code null} se remueve la imagen de ese slot.
+   *
+   * @return
+   * El Congreso editado.
+   */
+  public Usuario editarmeMedia (
+    Usuario actor, String slot, MultipartFile img
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el Congreso.
+    var usuario = afirmar(actor.getId());
+
+    try {
+      usuario.setMedia(slot, img);
+    } catch (IOException e) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Error al procesar la imagen");
+    }
+
+    // Actualizar, guardar y retornar el registro.
+    return usrRep.saveAndFlush(usuario);
   }
 
 
@@ -433,7 +482,7 @@ public class ControlDeUsuariosService {
    * Intenta agregar al Usuario los detalles de la foto especificada.
    * Si hay algun error lanza un error HTTP-400.
    *
-   * @param usr
+   * @param usuario
    * El Usuario al que se agregara la foto.
    *
    * @param img
@@ -442,22 +491,24 @@ public class ControlDeUsuariosService {
    * @return
    * El Usuario con la foto agregada.
    */
-  private Usuario agregarFoto (Usuario usr, MultipartFile img)
+  private Usuario agregarFoto (
+    Usuario usuario, MultipartFile img
+  )
     throws ResponseStatusException {
 
     if (Objects.isNull(img) || img.isEmpty()) {
-      return usr;
+      return usuario;
     }
 
     try {
-      usr.setFoto(img);
+      usuario.setMedia("foto", img);
     } catch (IOException e) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "Error al procesar la imagen");
     }
 
-    return usrRep.saveAndFlush(usr);
+    return usrRep.saveAndFlush(usuario);
   }
 
 
@@ -629,6 +680,66 @@ public class ControlDeUsuariosService {
   public Usuario qEmail (String email) {
 
     return usrRep.qEmail(email).orElse(null);
+  }
+
+
+
+  /**
+   * La imagen de un registro en el slot especificado.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param slot
+   * Slot para multimedia.
+   *
+   * @return
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el registro no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  public ResponseEntity<byte[]> afirmarMedia (
+    Long id, String slot
+  )
+    throws ResponseStatusException {
+
+    // Encontrar registro.
+    Usuario usuario = afirmar(id);
+
+    // Aux.
+    String fotoMimeType;
+
+    // Extraer datos de la foto.
+    byte[] fotoImgData = switch (slot) {
+      case "foto" -> {
+        fotoMimeType = usuario.getFotoMimeType();
+        yield usuario.getFotoImgData();
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Slot no valido.");
+    };
+
+    // Si hay algo malo con la foto, retornar error 404.
+    if (
+      Objects.isNull(fotoImgData) || fotoImgData.length == 0
+        || Objects.isNull(fotoMimeType) || fotoMimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format("Foto del usuario con ID: %s no encontrada.", id));
+    }
+
+    // Retornar respuesta ya lista con el contenido de la foto.
+    return ResponseEntity.ok()
+      .contentType(MediaType.valueOf(fotoMimeType))
+      .body(fotoImgData);
   }
 
 

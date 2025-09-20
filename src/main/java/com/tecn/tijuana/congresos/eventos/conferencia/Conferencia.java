@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -232,6 +233,7 @@ public class Conferencia {
   /**
    * Nombre de archivo de la foto del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -240,6 +242,7 @@ public class Conferencia {
   /**
    * Tipo de archivo multimedia de la foto del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -250,6 +253,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -259,6 +263,7 @@ public class Conferencia {
   /**
    * Nombre de archivo del banner del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -267,6 +272,7 @@ public class Conferencia {
   /**
    * Tipo de archivo multimedia del banner del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -277,6 +283,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -286,6 +293,7 @@ public class Conferencia {
   /**
    * Nombre de archivo del logo de empresa del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -294,6 +302,7 @@ public class Conferencia {
   /**
    * Tipo de archivo multimedia del logo de empresa del conferencista.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -304,6 +313,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -316,6 +326,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 1.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -326,6 +337,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 1.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -338,6 +350,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -350,6 +363,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 2.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -360,6 +374,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 2.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -372,6 +387,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -384,6 +400,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 3.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -394,6 +411,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 3.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -406,6 +424,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -418,6 +437,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 4.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -428,6 +448,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 4.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -440,6 +461,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -452,6 +474,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 5.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -462,6 +485,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 5.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -474,6 +498,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -486,6 +511,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 6.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -496,6 +522,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 6.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -508,6 +535,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -520,6 +548,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 1.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -530,6 +559,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 1.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -542,6 +572,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -554,6 +585,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 2.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -564,6 +596,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 2.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -576,6 +609,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -588,6 +622,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 3.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -598,6 +633,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 3.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -610,6 +646,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -622,6 +659,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 4.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -632,6 +670,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 4.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -644,6 +683,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -656,6 +696,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 5.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -666,6 +707,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 5.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -678,6 +720,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)
@@ -690,6 +733,7 @@ public class Conferencia {
    * <p>
    * Nombre original del archivo de la imagen que se uso como foto 6.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El nombre de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -700,6 +744,7 @@ public class Conferencia {
    * <p>
    * Tipo de archivo multimedia de la foto 6.
    * */
+  @JsonIgnore
   @Size(min = 1, max = 100,
     message = "El tipo de archivo debe tener maximo 100 caracteres")
   @Column(length = 100)
@@ -712,6 +757,7 @@ public class Conferencia {
    * */
   @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
     message = "El archivo debe pesar entre 1 KB y 2 MB")
   @Column(length = 2 * 1024 * 1024)

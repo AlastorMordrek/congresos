@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,9 +53,6 @@ public class ControlDeUsuariosController {
    * @param usuario
    * Objeto con los datos del usuario.
    *
-   * @param img {@code [null]}
-   * Foto de perfil.
-   *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
    *
@@ -67,17 +65,14 @@ public class ControlDeUsuariosController {
 
   public ResponseEntity<Usuario> registrar (
 
-    @RequestPart
+    @RequestBody
     Usuario usuario,
-
-    @RequestPart(required = false)
-    MultipartFile img,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      usrSvc.registrar(actor, usuario, img),
+      usrSvc.registrar(actor, usuario),
       HttpStatus.CREATED);
   }
 
@@ -90,11 +85,8 @@ public class ControlDeUsuariosController {
    * @param id
    * ID del USUARIO a EDITAR.
    *
-   * @param usr
+   * @param usuario
    * Objeto con los datos nuevos del Usuario a EDITAR.
-   *
-   * @param img {@code [null]}
-   * Foto de perfil.
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
@@ -109,8 +101,46 @@ public class ControlDeUsuariosController {
     @PathVariable
     Long id,
 
-    @RequestPart
-    Usuario usr,
+    @RequestBody
+    Usuario usuario,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      usrSvc.editar(actor, id, usuario),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Actualiza el registro en el slot de multimedia especificado.
+   *
+   * @param id
+   * ID del registro a EDITAR.
+   *
+   * @param slot
+   * Nombre del campo a editar.
+   *
+   * @param img {@code [null]}
+   * Posible archivo a poner en el slot, {@code null} si se desea limpiarlo.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro editado.
+   */
+  @PatchMapping("editar/{id}/media/{slot}")
+
+  public ResponseEntity<Usuario> editarMedia (
+
+    @PathVariable
+    Long id,
+
+    @PathVariable
+    String slot,
 
     @RequestPart(required = false)
     MultipartFile img,
@@ -119,7 +149,7 @@ public class ControlDeUsuariosController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      usrSvc.editar(actor, id, usr, img),
+      usrSvc.editarMedia(actor, id, slot, img),
       HttpStatus.OK);
   }
 
@@ -128,11 +158,8 @@ public class ControlDeUsuariosController {
   /**
    * Permite a un USUARIO EDITAR sus propios datos.
    *
-   * @param usr
+   * @param usuario
    * Objeto con los datos nuevos del USUARIO.
-   *
-   * @param img {@code [null]}
-   * Foto de perfil.
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
@@ -144,8 +171,40 @@ public class ControlDeUsuariosController {
 
   public ResponseEntity<Usuario> editarme (
 
-    @RequestPart
-    Usuario usr,
+    @RequestBody
+    Usuario usuario,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      usrSvc.editarme(actor, usuario),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Actualiza el registro en el slot de multimedia especificado.
+   *
+   * @param slot
+   * Nombre del campo a editar.
+   *
+   * @param img {@code [null]}
+   * Posible archivo a poner en el slot, {@code null} si se desea limpiarlo.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro editado.
+   */
+  @PatchMapping("editarme/media/{slot}")
+
+  public ResponseEntity<Usuario> editarmeMedia (
+
+    @PathVariable
+    String slot,
 
     @RequestPart(required = false)
     MultipartFile img,
@@ -154,7 +213,7 @@ public class ControlDeUsuariosController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      usrSvc.editarme(actor, usr, img),
+      usrSvc.editarmeMedia(actor, slot, img),
       HttpStatus.OK);
   }
 
@@ -319,6 +378,45 @@ public class ControlDeUsuariosController {
 
 
   /**
+   * Consulta la foto en slot especificado del USUARIO especificado.
+   *
+   * @param id
+   * ID del USUARIO.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @return
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el registro no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("usuario/{id}/media/{slot}")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
+
+  public ResponseEntity<byte[]> qIdMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot
+  )
+    throws ResponseStatusException {
+
+    return usrSvc.afirmarMedia(id, slot);
+  }
+
+
+
+  /**
    * Consulta el USUARIO propio.
    *
    * @param actor
@@ -335,5 +433,40 @@ public class ControlDeUsuariosController {
     Usuario actor
   ) {
     return new ResponseEntity<>(usrSvc.afirmar(actor.getId()), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la foto en slot especificado del USUARIO propio.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el registro no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("mio/media/{slot}")
+
+  public ResponseEntity<byte[]> qMioMedia (
+
+    @PathVariable("slot")
+    String slot,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return usrSvc.afirmarMedia(actor.getId(), slot);
   }
 }

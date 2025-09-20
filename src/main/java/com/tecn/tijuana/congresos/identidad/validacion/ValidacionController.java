@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @CrossOrigin
@@ -38,11 +38,20 @@ public class ValidacionController {
   /**
    * Permite a un Alumno registrarse en el sistema.
    *
-   * @param usr
+   * @param usuario
    * Objeto con los datos del usuario.
    *
-   * @param img {@code [null]}
-   * Foto de perfil.
+   * @return
+   * El registro creado.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si se proveen parametros incorrectos.
+   * <p>
+   * {@code HTTP-CONFLICT}
+   * Si hay alguna situacion que impida el registro.
+   * Ej: el email ya esta tomado.
    *
    * @apiNote
    * Si el Usuario es registrado exitosamente retorna {@code HTTP-201}
@@ -51,14 +60,13 @@ public class ValidacionController {
 
   public ResponseEntity<Usuario> registrarse (
 
-    @RequestPart
-    Usuario usr,
+    @RequestBody
+    Usuario usuario
+  )
+    throws ResponseStatusException {
 
-    @RequestPart(required = false)
-    MultipartFile img
-  ) {
     return new ResponseEntity<>(
-      usrSvc.registrarseAlumno(usr, img),
+      usrSvc.registrarseAlumno(usuario),
       HttpStatus.CREATED);
   }
 }

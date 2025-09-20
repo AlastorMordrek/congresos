@@ -815,26 +815,57 @@ public class Usuario implements UserDetails {
 
 
   /**
-   * Establecer todos los parametros de imagen para 'foto' en una sola
-   * operacion.
+   * Establecer todos los parametros de imagen para el slot de media
+   * especificado.
+   *
+   * @param slot
+   * El nombre del slot a editar.
    *
    * @param img
-   * El archivo multiparte que contiene la Imagen para la 'foto'.
+   * El archivo multiparte que contiene la imagen.
    *
    * @return
-   * El objeto Usuario actualizado.
+   * El objeto actualizado.
    *
-   * @throws IOException Cuando hay algun problema con la imagen.
+   * @throws IOException
+   * Cuando hay algun problema con la imagen.
    */
-  @JsonIgnore
-  public Usuario setFoto (
-    MultipartFile img
+  public Usuario setMedia (
+    String slot, MultipartFile img
   )
     throws IOException {
 
-    setFotoNombre(img.getOriginalFilename());
-    setFotoMimeType(img.getContentType());
-    setFotoImgData(img.getBytes());
+    if (Objects.isNull(img)) {
+      switch (slot) {
+
+        case "foto":
+          setFotoNombre(null);
+          setFotoMimeType(null);
+          setFotoImgData(null);
+          break;
+
+        default:
+          break;
+      }
+    }
+    else {
+      // Aux.
+      var name = img.getOriginalFilename();
+      var mime = img.getContentType();
+      var bytes = img.getBytes();
+      // Editar el slot indicado.
+      switch (slot) {
+
+        case "foto":
+          setFotoNombre(name);
+          setFotoMimeType(mime);
+          setFotoImgData(bytes);
+          break;
+
+        default:
+          break;
+      }
+    }
 
     return this;
   }

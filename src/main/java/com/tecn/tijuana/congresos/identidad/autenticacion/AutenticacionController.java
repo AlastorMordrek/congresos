@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @CrossOrigin
@@ -39,16 +40,28 @@ public class AutenticacionController {
    * Permite a los usuarios autenticarse en el sistema con sus credenciales de
    * acceso.
    *
-   * @param usr
+   * @param usuario
    * Objeto con los datos del usuario.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si se proveen parametros incorrectos.
+   * <p>
+   * {@code HTTP-UNAUTHORIZED}
+   * Si el USUARIO esta bloqueado o hay alguna otra situacion que le impida
+   * iniciar sesion.
    */
   @PostMapping("iniciar-sesion")
 
   public ResponseEntity<String> login (
+
     @RequestBody
-    Usuario usr
-  ) throws BadCredentialsException {
-    return new ResponseEntity<>(usrSvc.verify(usr), HttpStatus.OK);
+    Usuario usuario
+  )
+    throws BadCredentialsException {
+
+    return new ResponseEntity<>(usrSvc.verify(usuario), HttpStatus.OK);
   }
 
 }

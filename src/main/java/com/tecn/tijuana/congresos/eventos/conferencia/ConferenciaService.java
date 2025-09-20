@@ -1,10 +1,13 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -128,6 +131,22 @@ public class ConferenciaService {
 
 
   /**
+   * Obtiene el registro con el ID especificado.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado o {@code null} si no existe.
+   */
+  public Conferencia qId (Long id) {
+
+    return confRep.findById(id).orElse(null);
+  }
+
+
+
+  /**
    * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
    * existe.
    *
@@ -150,18 +169,105 @@ public class ConferenciaService {
 
 
   /**
-   * Obtiene el registro con el ID especificado.
+   * La imagen de un CONFERENCIA en el slot especificado.
    *
    * @param id
-   * El ID del registro.
+   * ID del registro.
+   *
+   * @param slot
+   * Slot para multimedia.
    *
    * @return
-   * El registro encontrado o {@code null} si no existe.
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el CONFERENCIA no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
    */
-  public Conferencia qId (Long id)
+  public ResponseEntity<byte[]> afirmarMedia (
+    Long id, String slot
+  )
     throws ResponseStatusException {
 
-    return confRep.findById(id).orElse(null);
+    // Encontrar CONFERENCIA.
+    Conferencia conferencia = afirmar(id);
+
+    // Aux.
+    String fotoMimeType;
+
+    // Extraer datos de la foto.
+    byte[] fotoImgData = switch (slot) {
+      case "media1" -> {
+        fotoMimeType = conferencia.getMedia1MimeType();
+        yield conferencia.getMedia1ImgData();
+      }
+      case "media2" -> {
+        fotoMimeType = conferencia.getMedia2MimeType();
+        yield conferencia.getMedia2ImgData();
+      }
+      case "media3" -> {
+        fotoMimeType = conferencia.getMedia3MimeType();
+        yield conferencia.getMedia3ImgData();
+      }
+      case "media4" -> {
+        fotoMimeType = conferencia.getMedia4MimeType();
+        yield conferencia.getMedia4ImgData();
+      }
+      case "media5" -> {
+        fotoMimeType = conferencia.getMedia5MimeType();
+        yield conferencia.getMedia5ImgData();
+      }
+      case "media6" -> {
+        fotoMimeType = conferencia.getMedia6MimeType();
+        yield conferencia.getMedia6ImgData();
+      }
+      case "mediaEvt1" -> {
+        fotoMimeType = conferencia.getMediaEvt1MimeType();
+        yield conferencia.getMediaEvt1ImgData();
+      }
+      case "mediaEvt2" -> {
+        fotoMimeType = conferencia.getMediaEvt2MimeType();
+        yield conferencia.getMediaEvt2ImgData();
+      }
+      case "mediaEvt3" -> {
+        fotoMimeType = conferencia.getMediaEvt3MimeType();
+        yield conferencia.getMediaEvt3ImgData();
+      }
+      case "mediaEvt4" -> {
+        fotoMimeType = conferencia.getMediaEvt4MimeType();
+        yield conferencia.getMediaEvt4ImgData();
+      }
+      case "mediaEvt5" -> {
+        fotoMimeType = conferencia.getMediaEvt5MimeType();
+        yield conferencia.getMediaEvt5ImgData();
+      }
+      case "mediaEvt6" -> {
+        fotoMimeType = conferencia.getMediaEvt6MimeType();
+        yield conferencia.getMediaEvt6ImgData();
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Slot no valido.");
+    };
+
+    // Si hay algo malo con la foto, retornar error 404.
+    if (
+      Objects.isNull(fotoImgData) || fotoImgData.length == 0
+        || Objects.isNull(fotoMimeType) || fotoMimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format("Foto de la conferencia con ID: %s no encontrada.", id));
+    }
+
+    // Retornar respuesta ya lista con el contenido de la foto.
+    return ResponseEntity.ok()
+      .contentType(MediaType.valueOf(fotoMimeType))
+      .body(fotoImgData);
   }
 
 
@@ -177,7 +283,7 @@ public class ConferenciaService {
    * @return
    * El registro encontrado.
    */
-  public Conferencia qIdPublicada (Long id)
+  public Conferencia afirmarIdPublicada (Long id)
     throws ResponseStatusException {
 
     // Encontrar registros.

@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -131,7 +132,7 @@ public class ConferenciaController {
    * @return
    * El registro editado.
    */
-  @PatchMapping("editar/{id}/{slot}")
+  @PatchMapping("editar/{id}/media/{slot}")
 
   @PreAuthorize(ExpresionSeguridad.EDITAR_CONFERENCIAS)
 
@@ -363,7 +364,43 @@ public class ConferenciaController {
     @PathVariable("id")
     Long id
   ) {
-    return new ResponseEntity<>(confSvc.qIdPublicada(id), HttpStatus.OK);
+    return new ResponseEntity<>(confSvc.afirmarIdPublicada(id), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la foto de la CONFERENCIA publicada especificada en el slot de
+   * multimedia especificado.
+   *
+   * @param id
+   * ID de la CONFERENCIA.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si la CONFERENCIA no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("publicadas/conferencia/{id}/media/{slot}")
+
+  public ResponseEntity<byte[]> qIdPublicadaMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot
+  ) {
+    return confSvc.afirmarMedia(id, slot);
   }
 
 
@@ -427,5 +464,43 @@ public class ConferenciaController {
     return new ResponseEntity<>(
       confSvc.buscar(txt, page, pageSize),
       HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la foto de la CONFERENCIA especificada en el slot de multimedia
+   * especificado.
+   *
+   * @param id
+   * ID de la CONFERENCIA.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si la CONFERENCIA no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("congreso/{id}/media/{slot}")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONFERENCIAS_NO_PUBLICADAS)
+
+  public ResponseEntity<byte[]> qIdMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot
+  ) {
+    return confSvc.afirmarMedia(id, slot);
   }
 }

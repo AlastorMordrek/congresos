@@ -105,6 +105,10 @@ Cuando la aplicacion este corriendo, puede acceder a la documentacion
 de APIs generada por swagger en:
 http://localhost:8080/swagger-ui.html
 
+Si desea la documentacion en formato JSON para usar en apps de pruebas como
+POSTMAN, puede consultarla en:
+http://localhost:8080/v3/api-docs
+
 ## Estructura del proyecto
 
 ```shell

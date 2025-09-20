@@ -4,6 +4,8 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -282,7 +284,9 @@ public class CongresoService {
    * @return
    * El registro encontrado.
    */
-  public Congreso qIdPublicado (Long id)
+  public Congreso afirmarPublicado (
+    Long id
+  )
     throws ResponseStatusException {
 
     // Encontrar registro.
@@ -296,6 +300,110 @@ public class CongresoService {
     }
 
     return con;
+  }
+
+
+
+  /**
+   * La imagen de un CONGRESO en el slot especificado.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param slot
+   * Slot para multimedia.
+   *
+   * @return
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el CONGRESO no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  public ResponseEntity<byte[]> afirmarMedia (
+    Long id, String slot
+  )
+    throws ResponseStatusException {
+
+    // Encontrar registro.
+    Congreso congreso = afirmar(id);
+
+    // Aux.
+    String fotoMimeType;
+
+    // Extraer datos de la foto.
+    byte[] fotoImgData = switch (slot) {
+      case "media1" -> {
+        fotoMimeType = congreso.getMedia1MimeType();
+        yield congreso.getMedia1ImgData();
+      }
+      case "media2" -> {
+        fotoMimeType = congreso.getMedia2MimeType();
+        yield congreso.getMedia2ImgData();
+      }
+      case "media3" -> {
+        fotoMimeType = congreso.getMedia3MimeType();
+        yield congreso.getMedia3ImgData();
+      }
+      case "media4" -> {
+        fotoMimeType = congreso.getMedia4MimeType();
+        yield congreso.getMedia4ImgData();
+      }
+      case "media5" -> {
+        fotoMimeType = congreso.getMedia5MimeType();
+        yield congreso.getMedia5ImgData();
+      }
+      case "media6" -> {
+        fotoMimeType = congreso.getMedia6MimeType();
+        yield congreso.getMedia6ImgData();
+      }
+      case "mediaEvt1" -> {
+        fotoMimeType = congreso.getMediaEvt1MimeType();
+        yield congreso.getMediaEvt1ImgData();
+      }
+      case "mediaEvt2" -> {
+        fotoMimeType = congreso.getMediaEvt2MimeType();
+        yield congreso.getMediaEvt2ImgData();
+      }
+      case "mediaEvt3" -> {
+        fotoMimeType = congreso.getMediaEvt3MimeType();
+        yield congreso.getMediaEvt3ImgData();
+      }
+      case "mediaEvt4" -> {
+        fotoMimeType = congreso.getMediaEvt4MimeType();
+        yield congreso.getMediaEvt4ImgData();
+      }
+      case "mediaEvt5" -> {
+        fotoMimeType = congreso.getMediaEvt5MimeType();
+        yield congreso.getMediaEvt5ImgData();
+      }
+      case "mediaEvt6" -> {
+        fotoMimeType = congreso.getMediaEvt6MimeType();
+        yield congreso.getMediaEvt6ImgData();
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Slot no valido.");
+    };
+
+    // Si hay algo malo con la foto, retornar error 404.
+    if (
+      Objects.isNull(fotoImgData) || fotoImgData.length == 0
+        || Objects.isNull(fotoMimeType) || fotoMimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format("Foto del congreso con ID: %s no encontrada.", id));
+    }
+
+    // Retornar respuesta ya lista con el contenido de la foto.
+    return ResponseEntity.ok()
+      .contentType(MediaType.valueOf(fotoMimeType))
+      .body(fotoImgData);
   }
 
 

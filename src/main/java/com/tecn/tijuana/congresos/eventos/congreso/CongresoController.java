@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
@@ -131,7 +132,7 @@ public class CongresoController {
    * @return
    * El registro editado.
    */
-  @PatchMapping("editar/{id}/{slot}")
+  @PatchMapping("editar/{id}/media/{slot}")
 
   @PreAuthorize(ExpresionSeguridad.EDITAR_CONGRESOS)
 
@@ -392,7 +393,7 @@ public class CongresoController {
     @PathVariable("id")
     Long id
   ) {
-    return new ResponseEntity<>(conSvc.qIdPublicado(id), HttpStatus.OK);
+    return new ResponseEntity<>(conSvc.afirmarPublicado(id), HttpStatus.OK);
   }
 
 
@@ -431,6 +432,42 @@ public class CongresoController {
     return new ResponseEntity<>(
       conSvc.publicadosBuscar(txt, page, pageSize),
       HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la foto del CONGRESO publicado especificado en el slot de
+   * multimedia especificado.
+   *
+   * @param id
+   * ID del CONGRESO.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el CONGRESO no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("publicados/congreso/{id}/media/{slot}")
+
+  public ResponseEntity<byte[]> qIdPublicadoMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot
+  ) {
+    return conSvc.afirmarMedia(id, slot);
   }
 
 
@@ -538,5 +575,43 @@ public class CongresoController {
     return new ResponseEntity<>(
       conSvc.buscarMios(actor, txt, page, pageSize),
       HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la foto del CONGRESO especificado en el slot de multimedia
+   * especificado.
+   *
+   * @param id
+   * ID del CONGRESO.
+   *
+   * @param slot
+   * Slot de multimedia.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el CONGRESO no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  @GetMapping("congreso/{id}/media/{slot}")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_NO_PUBLICADOS)
+
+  public ResponseEntity<byte[]> qIdMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot
+  ) {
+    return conSvc.afirmarMedia(id, slot);
   }
 }

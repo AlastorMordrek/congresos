@@ -132,8 +132,7 @@ public class UsuarioConfig {
             null, administrador1Email, administrador1Password,
             administrador1TelPref, administrador1TelSuf, administrador1Nombre,
             administrador1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20)),
-          null);
+            LocalDate.of(1990, JANUARY, 20)));
       }
 
       if (!usrSvc.emailTomado(organizador1Email)) {
@@ -142,8 +141,7 @@ public class UsuarioConfig {
             null, organizador1Email, organizador1Password,
             organizador1TelPref, organizador1TelSuf, organizador1Nombre,
             organizador1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20)),
-          null);
+            LocalDate.of(1990, JANUARY, 20)));
       }
 
       if (!usrSvc.emailTomado(staff1Email)) {
@@ -154,8 +152,7 @@ public class UsuarioConfig {
             LocalDate.of(1990, JANUARY, 20),
             "Staff con todas las responsabilidades",
             true, true, true,
-            true),
-          null);
+            true));
       }
 
       if (!usrSvc.emailTomado(staff2Email)) {
@@ -166,8 +163,7 @@ public class UsuarioConfig {
             LocalDate.of(1990, JANUARY, 20),
             "Staff sin responsabilidades",
             false, false, false,
-            false),
-          null);
+            false));
       }
 
       if (!usrSvc.emailTomado(alumno1Email)) {
@@ -178,8 +174,7 @@ public class UsuarioConfig {
             LocalDate.of(1990, JANUARY, 20),
             alumno1NoControl, alumno1CodigoCarrera, alumno1Semestre,
             alumno1Grupo, alumno1Externo, alumno1Curp,
-            alumno1EmailInstitucional),
-          null);
+            alumno1EmailInstitucional));
       }
 
       if (!usrSvc.emailTomado(alumno2Email)) {
@@ -190,8 +185,7 @@ public class UsuarioConfig {
             LocalDate.of(1990, JANUARY, 20),
             alumno2NoControl, alumno2CodigoCarrera, alumno2Semestre,
             alumno2Grupo, alumno2Externo, alumno2Curp,
-            alumno2EmailInstitucional),
-          null);
+            alumno2EmailInstitucional));
       }
     };
   }
