@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,10 +148,11 @@ public class ExcepcionesDeControladores {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ProblemDetail> handleAllExceptions (
     Exception ex
-  ) {
+  ) throws URISyntaxException {
     ProblemDetail pd =
       ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 
+    pd.setType(new URI("/probs/error-no-controlado"));
     pd.setTitle("Internal Server Error");
     pd.setDetail("An unexpected error occurred");
 
