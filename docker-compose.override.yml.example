@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5005:5005"  # Para el Debugger de Java
+    volumes:
+      - .:/app              # Montar codigo fuente.
+      - m2_cache:/root/.m2  # Cachear dependencias de Maven.
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    command: mvn spring-boot:run -Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
