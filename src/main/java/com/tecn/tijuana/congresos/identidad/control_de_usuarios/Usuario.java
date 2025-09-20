@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
@@ -1093,6 +1094,7 @@ public class Usuario implements UserDetails {
    * @return
    * El nombre completo.
    */
+  @JsonIgnore
   public String getNombreCompleto () {
     return nombre
       + (Objects.nonNull(apellidoPaterno) ? " " + apellidoPaterno : "")
@@ -1104,6 +1106,7 @@ public class Usuario implements UserDetails {
   //----------------------------------------------------------------------------
   // SECCION USER DETAILS.
 
+  @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     List<GrantedAuthority> authorities = new ArrayList<>();
@@ -1129,26 +1132,31 @@ public class Usuario implements UserDetails {
     return authorities;
   }
 
+  @JsonIgnore
   @Override
   public String getUsername() {
     return getEmail();
   }
 
+  @JsonIgnore
   @Override
   public boolean isAccountNonExpired() {
     return !isExpirado();
   }
 
+  @JsonIgnore
   @Override
   public boolean isAccountNonLocked() {
     return !isBloqueado();
   }
 
+  @JsonIgnore
   @Override
   public boolean isCredentialsNonExpired() {
     return !isCredencialesExpiradas();
   }
 
+  @JsonIgnore
   @Override
   public boolean isEnabled() {
     return !isDeshabilitado();

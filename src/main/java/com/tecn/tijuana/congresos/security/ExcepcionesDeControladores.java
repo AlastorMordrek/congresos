@@ -4,11 +4,13 @@ package com.tecn.tijuana.congresos.security;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,10 +19,17 @@ public class ExcepcionesDeControladores {
 
 
   @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity<String> handleResponseStatusException (
+  public ResponseEntity<ProblemDetail> handleResponseStatusException (
     ResponseStatusException ex
   ) {
-    return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
+    ProblemDetail pd = ProblemDetail.forStatus(ex.getStatusCode());
+
+    pd.setTitle(ex.getReason());
+    pd.setDetail(ex.getReason());
+
+    pd.setProperty("timestamp", Instant.now());
+
+    return new ResponseEntity<>(pd, ex.getStatusCode());
   }
 
 
