@@ -10,9 +10,9 @@ if [ "$1" = "--dev" ]; then
         if [ -f "docker-compose.override.yml.example" ]; then
             echo "Creando archivo de override personalizado desde la plantilla..."
             cp docker-compose.override.yml.example docker-compose.override.yml
-            echo "Por favor, revisa docker-compose.override.yml y ajusta según tu entorno de desarrollo."
+            echo "Por favor, revisa docker-compose.override.yml y ajusta segun tu entorno de desarrollo."
         else
-            echo "Error: No se encontró el archivo docker-compose.override.yml o un archivo docker-compose.override.yml.example dese el cual derivarlo."
+            echo "Error: No se encontro el archivo docker-compose.override.yml o un archivo docker-compose.override.yml.example dese el cual derivarlo."
             exit 1
         fi
     fi

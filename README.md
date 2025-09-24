@@ -134,42 +134,42 @@ ajustadas en su archivo .env
 
 ## Desarrollo con Docker
 
-Esta guía te ayudará a configurar y utilizar el entorno de desarrollo Docker
+Esta guia te ayudara a configurar y utilizar el entorno de desarrollo Docker
 para el proyecto.
 
-### Configuración Inicial
+### Configuracion Inicial
 
-1.- Primera ejecución:
+1.- Primera ejecucion:
 ```shell
 ./setup.sh --dev
 ```
 Este comando:
- - Creará automáticamente un archivo `docker-compose.override.yml` desde la
+ - Creara automaticamente un archivo `docker-compose.override.yml` desde la
 plantilla
- - Construirá las imágenes de Docker necesarias
- - Iniciará todos los contenedores (aplicación y base de datos)
+ - Construira las imagenes de Docker necesarias
+ - Iniciara todos los contenedores (aplicacion y base de datos)
 
-2.- Personalización del entorno:
- - Edita el archivo `docker-compose.override.yml` según tus necesidades de
+2.- Personalizacion del entorno:
+ - Edita el archivo `docker-compose.override.yml` segun tus necesidades de
 desarrollo
- - El archivo personalizado está ignorado en git para evitar conflictos entre
+ - El archivo personalizado esta ignorado en git para evitar conflictos entre
 desarrolladores
 
 ### Flujo de Trabajo Diario
 
-### Control de la Aplicación
+### Control de la Aplicacion
 
-Hemos creado un script de control para gestionar específicamente la aplicación:
+Hemos creado un script de control para gestionar especificamente la aplicacion:
 
-Detener solo la aplicación (la base de datos permanece activa).
+Detener solo la aplicacion (la base de datos permanece activa).
 ```shell
 ./app-control.sh stop
 ```
-Reiniciar la aplicación sin recompilar.
+Reiniciar la aplicacion sin recompilar.
 ```shell
 ./app-control.sh restart
 ```
-Recompilar y reiniciar la aplicación (después de cambios en el código).
+Recompilar y reiniciar la aplicacion (despues de cambios en el codigo).
 ```shell
 ./app-control.sh rebuild
 ```
@@ -182,23 +182,23 @@ Ver el estado de los contenedores.
 
 Cuando trabajes en el proyecto:
 
-1.- Realiza tus cambios en el código fuente.
+1.- Realiza tus cambios en el codigo fuente.
 
 2.- Para aplicar cambios menores, usa:.
 ```shell
 ./app-control.sh restart
 ```
-3.- Para cambios significativos que requieran recompilación:
+3.- Para cambios significativos que requieran recompilacion:
 ```shell
 ./app-control.sh rebuild
 ```
-4.- Para depuración, conecta tu IDE al puerto 5005 (configurado en el override).
+4.- Para depuracion, conecta tu IDE al puerto 5005 (configurado en el override).
 
-### Finalización del Día de Trabajo
+### Finalizacion del Dia de Trabajo
 
 Al terminar tu jornada:
 
-Detener solo la aplicación.
+Detener solo la aplicacion.
 ```shell
 ./app-control.sh stop
 ```
@@ -207,11 +207,11 @@ O detener todos los contenedores (incluyendo la base de datos).
 docker-compose down
 ```
 
-### Reanudación del Trabajo
+### Reanudacion del Trabajo
 
-Para continuar trabajando después de haber detenido los contenedores:
+Para continuar trabajando despues de haber detenido los contenedores:
 
-Si solo detuviste la aplicación.
+Si solo detuviste la aplicacion.
 ```shell
 ./app-control.sh restart
 ```
@@ -235,9 +235,9 @@ docker volume rm nombre_proyecto_m2_cache
 ./setup.sh --dev
 ```
 
-### Si la aplicación no se inicia correctamente:
+### Si la aplicacion no se inicia correctamente:
 
-Ver los logs de la aplicación.
+Ver los logs de la aplicacion.
 ```shell
 docker-compose logs app
 ```
@@ -246,29 +246,29 @@ O ver los logs en tiempo real.
 docker-compose logs -f app
 ```
 
-### Personalización Avanzada
+### Personalizacion Avanzada
 
 El archivo docker-compose.override.yml te permite:
 
- - Cambiar puertos de depuración.
- - Modificar variables de entorno específicas para desarrollo.
- - Configurar montajes de volúmenes adicionales.
+ - Cambiar puertos de depuracion.
+ - Modificar variables de entorno especificas para desarrollo.
+ - Configurar montajes de volumenes adicionales.
  - Ajustar configuraciones de rendimiento.
 
 Recuerda que este archivo no se versiona, por lo que cada desarrollador puede
-tener su propia configuración sin afectar a los demás.
+tener su propia configuracion sin afectar a los demas.
 
 ### Notas Importantes
 
  - La base de datos utiliza un volumen persistente, por lo que tus datos se
-conservarán entre reinicios.
+conservaran entre reinicios.
  - Las dependencias de Maven se cachean en un volumen para acelerar
 recompilaciones.
- - Los cambios en el código se reflejan inmediatamente gracias al montaje de
-volúmenes.
+ - Los cambios en el codigo se reflejan inmediatamente gracias al montaje de
+volumenes.
 
-Este flujo de trabajo está diseñado para maximizar la productividad en desarrollo mientras mantiene una configuración consistente entre todos los entornos.
+Este flujo de trabajo esta diseñado para maximizar la productividad en desarrollo mientras mantiene una configuracion consistente entre todos los entornos.
 
 # Licencia
 Este proyecto esta desarrollado para fines educativos y uso exclusivo
-del TecNM - Instituto Tecnológico de Tijuana.
+del TecNM - Instituto Tecnologico de Tijuana.

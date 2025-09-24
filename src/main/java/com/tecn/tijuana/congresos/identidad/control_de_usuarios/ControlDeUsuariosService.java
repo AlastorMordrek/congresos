@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
+import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
 import com.tecn.tijuana.congresos.utils.Api;
 import com.tecn.tijuana.congresos.security.JwtService;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -203,6 +204,8 @@ public class ControlDeUsuariosService {
           pwdEnc)));
   }
 
+
+
   /**
    * Permite a un nuevo Alumno registrarse por su propia cuenta en el sistema.
    *
@@ -220,6 +223,36 @@ public class ControlDeUsuariosService {
         codificarPassword(
           afirmarEmailNoTomado(usr),
           pwdEnc)));
+  }
+
+  /**
+   * Permite a un nuevo Alumno registrarse por su propia cuenta en el sistema.
+   *
+   * @return
+   * El Usuario recien registrado en la BD.
+   */
+  public Usuario registrarseAlumno (
+    RegistroAlumnoDto dto
+  )
+    throws ResponseStatusException {
+
+    return registrarseAlumno(
+      Usuario.nuevoAlumnoAutoRegistrado(
+        dto.email,
+        dto.password,
+        dto.telPref,
+        dto.telSuf,
+        dto.nombre,
+        dto.apellidoPaterno,
+        dto.apellidoMaterno,
+        dto.fechaNacimiento,
+        dto.noControl,
+        dto.codigoCarrera,
+        dto.semestre,
+        dto.grupo,
+        dto.externo,
+        dto.curp,
+        dto.emailInstitucional));
   }
 
 
