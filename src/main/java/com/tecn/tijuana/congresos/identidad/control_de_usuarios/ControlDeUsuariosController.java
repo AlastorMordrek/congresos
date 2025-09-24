@@ -1,7 +1,6 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsuarioDto;
-import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
+//import java.util.Objects;
 
 
 @RestController
@@ -77,7 +76,7 @@ public class ControlDeUsuariosController {
       required = true,
       content = @Content(
         mediaType = "application/json",
-        schema = @Schema(implementation = RegistroAlumnoDto.class),
+        schema = @Schema(implementation = RegistroUsuarioDto.class),
         examples = {
           @ExampleObject(
             name = "Registrar Administrador",
@@ -359,13 +358,42 @@ public class ControlDeUsuariosController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * El registro editado.
    */
   @PatchMapping("editar/{id}/media/{slot}")
 
-  public ResponseEntity<Usuario> editarMedia (
+  @Operation(
+    summary = "Editar slot de multimedia",
+    description = "Edita el contenido multimedoa del registro en el slot especificado.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Contenido del archivo multimedia",
+      required = true,
+      content = @Content(
+        mediaType = "multipart/form-data",
+        examples = {
+          @ExampleObject(
+            name = "Nueva imagen",
+            description = "Ejemplo de peticion para poner una nueva imagen en el slot",
+            value = """
+{
+  "img": <CONTENIDO DEL ARCHIVO>
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Remover",
+            description = "Ejemplo de peticion para remover la imagen del slot",
+            value = """
+{
+  "img": null
+}
+"""
+          )
+        }
+      )
+    )
+  )
+
+  public void editarMedia (
 
     @PathVariable
     Long id,
@@ -379,9 +407,8 @@ public class ControlDeUsuariosController {
     @AuthenticationPrincipal
     Usuario actor
   ) {
-    return new ResponseEntity<>(
-      usrSvc.editarMedia(actor, id, slot, img),
-      HttpStatus.OK);
+    // Actualizar el slot.
+    usrSvc.editarMedia(actor, id, slot, img);
   }
 
 
@@ -426,13 +453,42 @@ public class ControlDeUsuariosController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * El registro editado.
    */
   @PatchMapping("editarme/media/{slot}")
 
-  public ResponseEntity<Usuario> editarmeMedia (
+  @Operation(
+    summary = "Editar slot de multimedia",
+    description = "Edita el contenido multimedoa del registro en el slot especificado.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Contenido del archivo multimedia",
+      required = true,
+      content = @Content(
+        mediaType = "multipart/form-data",
+        examples = {
+          @ExampleObject(
+            name = "Nueva imagen",
+            description = "Ejemplo de peticion para poner una nueva imagen en el slot",
+            value = """
+{
+  "img": <CONTENIDO DEL ARCHIVO>
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Remover",
+            description = "Ejemplo de peticion para remover la imagen del slot",
+            value = """
+{
+  "img": null
+}
+"""
+          )
+        }
+      )
+    )
+  )
+
+  public void editarmeMedia (
 
     @PathVariable
     String slot,
@@ -443,9 +499,8 @@ public class ControlDeUsuariosController {
     @AuthenticationPrincipal
     Usuario actor
   ) {
-    return new ResponseEntity<>(
-      usrSvc.editarmeMedia(actor, slot, img),
-      HttpStatus.OK);
+    // Actualizar el slot.
+    usrSvc.editarmeMedia(actor, slot, img);
   }
 
 
@@ -459,13 +514,10 @@ public class ControlDeUsuariosController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * Respuesta HTTP acorde.
    */
   @DeleteMapping("eliminar/{id}")
 
-  public ResponseEntity<Usuario> eliminar (
+  public void eliminar (
 
     @PathVariable("id")
     Long id,
@@ -474,11 +526,11 @@ public class ControlDeUsuariosController {
     Usuario actor
   ) {
     var deleted = usrSvc.eliminar(actor, id);
-    if (Objects.isNull(deleted)) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } else {
-      return new ResponseEntity<>(deleted, HttpStatus.OK);
-    }
+//    if (Objects.isNull(deleted)) {
+//      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    } else {
+//      return new ResponseEntity<>(deleted, HttpStatus.OK);
+//    }
   }
 
 
