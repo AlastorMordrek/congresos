@@ -2,6 +2,8 @@ package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsuarioDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -174,6 +176,8 @@ public class Usuario implements UserDetails {
   @Temporal(TemporalType.DATE)
   @Column(nullable = false)
   private LocalDate fechaNacimiento;
+
+
 
   /**
    * Numero de control ALUMNO.
@@ -384,6 +388,45 @@ public class Usuario implements UserDetails {
     this.staffCustodio = staffCustodio;
     this.staffAlumnos = staffAlumnos;
     this.staffInscripciones = staffInscripciones;
+  }
+
+
+
+  /**
+   * Funcion constructora alternativa para crear Usuarios.
+   *
+   * @return
+   * El nuevo objeto Usuario.
+   */
+  public static Usuario nuevoUsuario (RegistroUsuarioDto dto) {
+    return new Usuario(
+      dto.rol,
+      null,
+      dto.email,
+      dto.password,
+      dto.bloqueado,
+      dto.expirado,
+      dto.credencialesExpiradas,
+      dto.deshabilitado,
+      dto.telPref,
+      dto.telSuf,
+      dto.nombre,
+      dto.apellidoPaterno,
+      dto.apellidoMaterno,
+      dto.fechaNacimiento,
+      dto.noControl,
+      dto.codigoCarrera,
+      dto.semestre,
+      dto.grupo,
+      dto.externo,
+      dto.curp,
+      dto.emailInstitucional,
+      dto.staffResponsabilidades,
+      dto.staffAutorizado,
+      dto.staffCustodio,
+      dto.staffAlumnos,
+      dto.staffInscripciones
+    );
   }
 
 
@@ -635,6 +678,34 @@ public class Usuario implements UserDetails {
   }
 
 
+
+  /**
+   * Version alternativa de nuevoAlumnoAutoRegistrado/n.
+   *
+   * @return
+   * El nuevo objeto Usuario tipo ALUMNO.
+   */
+  public static Usuario nuevoAlumnoAutoRegistrado (
+    RegistroAlumnoDto dto
+  ) {
+    return Usuario.nuevoAlumnoAutoRegistrado(
+      dto.email,
+      dto.password,
+      dto.telPref,
+      dto.telSuf,
+      dto.nombre,
+      dto.apellidoPaterno,
+      dto.apellidoMaterno,
+      dto.fechaNacimiento,
+      dto.noControl,
+      dto.codigoCarrera,
+      dto.semestre,
+      dto.grupo,
+      dto.externo,
+      dto.curp,
+      dto.emailInstitucional
+    );
+  }
 
   /**
    * Version alternativa de nuevoAlumnoAutoRegistrado/n.

@@ -55,6 +55,7 @@ public class ExcepcionesDeControladores {
    * </ul>
    */
   @ExceptionHandler(ResponseStatusException.class)
+
   public ResponseEntity<ProblemDetail> handleResponseStatusException (
     ResponseStatusException ex
   ) {
@@ -96,6 +97,7 @@ public class ExcepcionesDeControladores {
    * </ul>
    */
   @ExceptionHandler(ConstraintViolationException.class)
+
   public ResponseEntity<Map<String, String>> handleConstraintViolation (
     ConstraintViolationException ex
   ) {
@@ -146,9 +148,12 @@ public class ExcepcionesDeControladores {
    * </ul>
    */
   @ExceptionHandler(Exception.class)
+
   public ResponseEntity<ProblemDetail> handleAllExceptions (
     Exception ex
-  ) throws URISyntaxException {
+  )
+    throws URISyntaxException {
+
     ProblemDetail pd =
       ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
 

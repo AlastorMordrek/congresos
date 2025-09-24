@@ -42,45 +42,11 @@ public class ValidacionController {
 
 
 
-//  /**
-//   * Permite a un Alumno registrarse en el sistema.
-//   *
-//   * @param usuario
-//   * Objeto con los datos del usuario.
-//   *
-//   * @return
-//   * El registro creado.
-//   *
-//   * @throws ResponseStatusException
-//   * <p>
-//   * {@code HTTP-BAD_REQUEST}
-//   * Si se proveen parametros incorrectos.
-//   * <p>
-//   * {@code HTTP-CONFLICT}
-//   * Si hay alguna situacion que impida el registro.
-//   * Ej: el email ya esta tomado.
-//   *
-//   * @apiNote
-//   * Si el Usuario es registrado exitosamente retorna {@code HTTP-201}
-//   */
-//  @PostMapping("/registrarse")
-//
-//  public ResponseEntity<Usuario> registrarse (
-//
-//    @RequestBody
-//    Usuario usuario
-//  )
-//    throws ResponseStatusException {
-//
-//    return new ResponseEntity<>(
-//      usrSvc.registrarseAlumno(usuario),
-//      HttpStatus.CREATED);
-//  }
-
-
-
   /**
    * Permite a un ALUMNO registrarse en el sistema.
+   *
+   * @param dto
+   * Datos del USUARIO.
    *
    * @return
    * El registro creado.
@@ -221,7 +187,6 @@ public class ValidacionController {
   "instance": "/api/v1/identidad/validacion/registrarse",
   "timestamp": "2025-09-24T02:59:21.450858486Z"
 }
-
 """
         )
       )
@@ -244,7 +209,6 @@ public class ValidacionController {
   "timestamp": "2025-09-24T03:01:37.181558255Z",
   "exceptionType": "DataIntegrityViolationException"
 }
-
 """
         )
       )

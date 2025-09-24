@@ -1,6 +1,14 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsuarioDto;
+import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -48,10 +56,10 @@ public class ControlDeUsuariosController {
   // COMANDOS.
 
   /**
-   * Permite a un miembro del personal REGISTRAR a otro usuario.
+   * Permite a un miembro del personal REGISTRAR a otro USUARIO.
    *
-   * @param usuario
-   * Objeto con los datos del usuario.
+   * @param dto
+   * Objeto con los datos del USUARIO.
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
@@ -61,18 +69,241 @@ public class ControlDeUsuariosController {
    */
   @PostMapping("registrar")
 
+  @Operation(
+    summary = "Registrar un nuevo usuario",
+    description = "Permite a un miembro del personal registrar a otro usuario.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Datos del usuario a registrar",
+      required = true,
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = RegistroAlumnoDto.class),
+        examples = {
+          @ExampleObject(
+            name = "Registrar Administrador",
+            description = "Ejemplo de peticion para registrar un Administrador",
+            value = """
+{
+  "rol": "ADMINISTRADOR",
+  
+  "email": "usuario.nuevo@tijuana.tecnm.mx",
+  "password": "claveSegura123",
+  
+  "telPref": "52",
+  "telSuf": "6641112222",
+  
+  "nombre": "Jose",
+  "apellidoPaterno": "Perez",
+  "apellidoMaterno": "Perez",
+  "fechaNacimiento": "2001-01-01"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Registrar Organizador",
+            description = "Ejemplo de peticion para registrar un Organizador",
+            value = """
+{
+  "rol": "ORGANIZADOR",
+  
+  "email": "usuario.nuevo@tijuana.tecnm.mx",
+  "password": "claveSegura123",
+  
+  "telPref": "52",
+  "telSuf": "6641112222",
+  
+  "nombre": "Jose",
+  "apellidoPaterno": "Perez",
+  "apellidoMaterno": "Perez",
+  "fechaNacimiento": "2001-01-01"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Registrar Staff",
+            description = "Ejemplo de peticion para registrar un Staff",
+            value = """
+{
+  "rol": "STAFF",
+  
+  "email": "usuario.nuevo@tijuana.tecnm.mx",
+  "password": "claveSegura123",
+  
+  "telPref": "52",
+  "telSuf": "6641112222",
+  
+  "nombre": "Jose",
+  "apellidoPaterno": "Perez",
+  "apellidoMaterno": "Perez",
+  "fechaNacimiento": "2001-01-01",
+  
+  "staffResponsabilidades": "Este Staff tendra que hacer de todo",
+  "staffAutorizado": true,
+  "staffCustodio": true,
+  "staffAlumnos": true,
+  "staffInscripciones": true
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Registrar Alumno",
+            description = "Ejemplo de peticion para registrar un Alumno",
+            value = """
+{
+  "rol": "ALUMNO",
+  
+  "email": "usuario.nuevo@tijuana.tecnm.mx",
+  "password": "claveSegura123",
+  
+  "telPref": "52",
+  "telSuf": "6641112222",
+  
+  "nombre": "Jose",
+  "apellidoPaterno": "Perez",
+  "apellidoMaterno": "Perez",
+  "fechaNacimiento": "2001-01-01",
+  
+  "noControl": "12345678",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD010101MTSRRNA0",
+  "emailInstitucional": "usuario.nuevo@tijuana.tecnm.mx"
+}
+"""
+          )
+        }
+      )
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "201",
+      description = "Registro exitoso",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Alumno registrado exitosamente",
+          value = """
+{
+    "id": 18,
+    "fechaCreacion": "2025-09-24",
+    "creadorId": null,
+    "rol": "ALUMNO",
+    "email": "lalelilolu@pm.me",
+    "bloqueado": false,
+    "expirado": false,
+    "credencialesExpiradas": false,
+    "deshabilitado": false,
+    "telPref": "52",
+    "telSuf": "6641112222",
+    "nombre": "Silas",
+    "apellidoPaterno": "Mordrek",
+    "apellidoMaterno": "Tres",
+    "fechaNacimiento": "2000-01-11",
+    "noControl": "11211522",
+    "codigoCarrera": "ISC",
+    "semestre": 1,
+    "grupo": "A",
+    "externo": false,
+    "curp": "ABCD900121HMNSRL01",
+    "emailInstitucional": "lalelilolu@pm.me",
+    "staffResponsabilidades": null,
+    "staffAutorizado": false,
+    "staffCustodio": false,
+    "staffAlumnos": false,
+    "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Error de validacion",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Parametros incorrectos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for object='registroUsuarioDto'. Error count: 2",
+  "instance": "/api/v1/identidad/control-de-usuarios/registrar",
+  "timestamp": "2025-09-24T01:14:16.801076563Z",
+  "campos": {
+    "registroUsuarioDto.email": "Email invalido",
+    "registroUsuarioDto.password": "La clave debe tener entre 8 y 100 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "409",
+      description = "Conflicto",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El email ya esta registrado",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Email no disponible",
+  "status": 409,
+  "detail": "Email no disponible",
+  "instance": "/api/v1/identidad/control-de-usuarios/registrar",
+  "timestamp": "2025-09-24T02:59:21.450858486Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/registrar",
+  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.REGISTRAR_USUARIOS)
 
   public ResponseEntity<Usuario> registrar (
 
     @RequestBody
-    Usuario usuario,
+    RegistroUsuarioDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      usrSvc.registrar(actor, usuario),
+      usrSvc.registrar(actor, dto),
       HttpStatus.CREATED);
   }
 

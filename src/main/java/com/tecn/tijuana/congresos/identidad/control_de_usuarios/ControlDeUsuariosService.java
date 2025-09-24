@@ -1,6 +1,8 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
+import com.tecn.tijuana.congresos.identidad.autenticacion.dto.LoginDto;
 import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsuarioDto;
 import com.tecn.tijuana.congresos.utils.Api;
 import com.tecn.tijuana.congresos.security.JwtService;
 //import org.springframework.beans.factory.annotation.Autowired;
@@ -82,18 +84,36 @@ public class ControlDeUsuariosService {
   // COMANDOS.
 
   /**
-   * Permite al personal registrar ADMINISTRADORS en el sistema.
-   * <p>
-   * Para uso exlusivo de Usuarios ADMINISTRADOR.
+   * Permite al personal registrar USUARIOS en el sistema.
    *
-   * @param usr
-   * Datos del Usuario.
+   * @param dto
+   * Datos del USUARIO.
    *
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
    * @return
-   * El Usuario recien registrado en la BD.
+   * El USUARIO recien registrado en la BD.
+   */
+  public Usuario registrar (
+    Usuario actor, RegistroUsuarioDto dto
+  )
+    throws ResponseStatusException {
+
+    return registrar(actor, Usuario.nuevoUsuario(dto));
+  }
+
+  /**
+   * Permite al personal registrar USUARIOS en el sistema.
+   *
+   * @param usr
+   * Datos del USUARIO.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @return
+   * El USUARIO recien registrado en la BD.
    */
   public Usuario registrar (Usuario actor, Usuario usr)
     throws ResponseStatusException {
@@ -209,6 +229,24 @@ public class ControlDeUsuariosService {
   /**
    * Permite a un nuevo Alumno registrarse por su propia cuenta en el sistema.
    *
+   * @param dto
+   * Datos de Usuario del Alumno.
+   *
+   * @return
+   * El Usuario recien registrado en la BD.
+   */
+  public Usuario registrarseAlumno (
+    RegistroAlumnoDto dto
+  )
+    throws ResponseStatusException {
+
+    return registrarseAlumno(
+      Usuario.nuevoAlumnoAutoRegistrado(dto));
+  }
+
+  /**
+   * Permite a un nuevo Alumno registrarse por su propia cuenta en el sistema.
+   *
    * @param usr
    * Datos de Usuario del Alumno.
    *
@@ -223,36 +261,6 @@ public class ControlDeUsuariosService {
         codificarPassword(
           afirmarEmailNoTomado(usr),
           pwdEnc)));
-  }
-
-  /**
-   * Permite a un nuevo Alumno registrarse por su propia cuenta en el sistema.
-   *
-   * @return
-   * El Usuario recien registrado en la BD.
-   */
-  public Usuario registrarseAlumno (
-    RegistroAlumnoDto dto
-  )
-    throws ResponseStatusException {
-
-    return registrarseAlumno(
-      Usuario.nuevoAlumnoAutoRegistrado(
-        dto.email,
-        dto.password,
-        dto.telPref,
-        dto.telSuf,
-        dto.nombre,
-        dto.apellidoPaterno,
-        dto.apellidoMaterno,
-        dto.fechaNacimiento,
-        dto.noControl,
-        dto.codigoCarrera,
-        dto.semestre,
-        dto.grupo,
-        dto.externo,
-        dto.curp,
-        dto.emailInstitucional));
   }
 
 
@@ -922,19 +930,25 @@ public class ControlDeUsuariosService {
   /**
    * Autentica un Usuario y obtiene sus detalles como roles y estatuses.
    *
-   * @param usr
-   * El Usuario que se desea autenticar.
+   * @param dto
+   * Credenciales del USUARIO.
    *
    * @return
-   * El token (JWT) de acceso unico para el Usuario.
+   * El token (JWT) de acceso unico para el USUARIO.
    */
-  public String verify (Usuario usr)
+  public String verify (
+    LoginDto dto
+  )
     throws BadCredentialsException {
 
-    UserDetails usrDts = usrDSvc.loadUserByUsername(usr.getEmail());
+    UserDetails usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
 
-    if (!pwdEnc.matches(usr.getPassword(), usrDts.getPassword())) {
-      throw new BadCredentialsException("Credenciales incorrectas");
+    if (!pwdEnc.matches(dto.getPassword(), usrDts.getPassword())) {
+//      throw new BadCredentialsException("Credenciales incorrectas");
+
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "Credenciales incorrectas");
     }
 
     Authentication auth = new UsernamePasswordAuthenticationToken(

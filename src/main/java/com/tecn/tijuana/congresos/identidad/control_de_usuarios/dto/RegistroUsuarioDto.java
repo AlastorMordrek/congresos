@@ -1,8 +1,8 @@
-package com.tecn.tijuana.congresos.identidad.validacion.dto;
+package com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto;
 
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 
 /**
- * DTO para el registro de ALUMNOS,
+ * DTO para el registro de USUARIOS,
  * exponiendo solo los campos necesarios.
  */
 @Data
@@ -20,7 +20,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-public class RegistroAlumnoDto {
+public  class RegistroUsuarioDto {
+
+  /**
+   * Rol del USUARIO.
+   * */
+  @NotNull(message = "El rol es obligatorio")
+  @Enumerated(EnumType.STRING)
+  public Rol rol = Rol.ALUMNO;
+
+
 
   /**
    * Email del USUARIO.
@@ -38,6 +47,28 @@ public class RegistroAlumnoDto {
   @Size(min = 8, max = 100,
     message = "La clave debe tener entre 8 y 100 caracteres")
   public String password;
+
+
+
+  /**
+   * Determina si el USUARIO esta bloqueado, impidiendole hacer uso del sistema.
+   * */
+  public boolean bloqueado = false;
+
+  /**
+   * Determina si la cuenta del USUARIO esta expirada.
+   * */
+  public boolean expirado = false;
+
+  /**
+   * Determina si las credenciales de acceso del USUARIO estan expiradas.
+   * */
+  public boolean credencialesExpiradas = false;
+
+  /**
+   * Determina si la cuenta del USUARIO esta deshabilitada.
+   * */
+  public boolean deshabilitado = false;
 
 
 
@@ -146,5 +177,42 @@ public class RegistroAlumnoDto {
   @Size(min = 6, max = 100,
     message = "Email debe tener entre 6 y 100 caracteres")
   public String emailInstitucional;
-}
 
+
+
+  /**
+   * Describe textualmente las responsabilidades que tiene un miembro del STAFF.
+   * Solo es informativo y no afecta comportamiento del sistema.
+   * Solo aplica para USUARIOS tipo STAFF.
+   * */
+  @Size(max = 200,
+    message = "Responsabilidades debe tener maximo 200 caracteres")
+  public String staffResponsabilidades;
+
+  /**
+   * Interruptor general de STAFF, sin este no puede ejercer sus funciones.
+   * Solo aplica para USUARIOS tipo STAFF.
+   * */
+  public boolean staffAutorizado = false;
+
+  /**
+   * Determins si el STAFF puede realizar tareas de custodio, es decir, validar
+   * la entrada de ALUMNOS a eventos de Congresos y Conferencias.
+   * Solo aplica para USUARIOS tipo STAFF.
+   * */
+  public boolean staffCustodio = false;
+
+  /**
+   * Determina si el STAFF puede realizar operaciones sobre los ALUMNOS, como
+   * registros, ediciones, bloqueos, etc...
+   * Solo aplica para USUARIOS tipo STAFF.
+   * */
+  public boolean staffAlumnos = false;
+
+  /**
+   * Determina si el STAFF puede inscribir ALUMNOS a eventos y realizar
+   * operaciones relacionadas.
+   * Solo aplica para USUARIOS tipo STAFF.
+   * */
+  public boolean staffInscripciones = false;
+}
