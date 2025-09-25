@@ -324,7 +324,6 @@ public class BoletoController {
   public ResponseEntity<Boleto> qFolio (
 
     @RequestParam(name = "folio")
-    @Size(min = 20, max = 20)
     String folio
   ) {
     return new ResponseEntity<>(

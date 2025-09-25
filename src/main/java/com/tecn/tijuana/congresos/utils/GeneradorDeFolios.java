@@ -100,6 +100,21 @@ public class GeneradorDeFolios implements BeforeExecutionGenerator {
   private String generateRandomBase36 (
     int longitud
   ) {
+    return folio(longitud);
+  }
+
+
+
+  /**
+   * Un Token string aleatorio con la longitud especificada.
+   *
+   * @param longitud
+   * La longitud del Token deseada.
+   *
+   * @return
+   * El Token generado.
+   */
+  public static String folio (int longitud) {
 
     // Contenedor para los random bytes.
     byte[] randomBytes = new byte[longitud * 2];

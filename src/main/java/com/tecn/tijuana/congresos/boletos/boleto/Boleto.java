@@ -3,7 +3,7 @@ package com.tecn.tijuana.congresos.boletos.boleto;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
-import com.tecn.tijuana.congresos.utils.FolioGenerado;
+import com.tecn.tijuana.congresos.utils.GeneradorDeFolios;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -57,7 +57,6 @@ public class Boleto {
    * */
   @NotBlank(message = "El folio es obligatorio")
   @Size(min = 6, max = 6, message = "El folio debe tener 6 caracteres")
-  @FolioGenerado()
   @Column(unique = true, nullable = false, updatable = false, length = 6)
   private String folio;
 
@@ -67,7 +66,6 @@ public class Boleto {
    * */
   @NotBlank(message = "El folio largo es obligatorio")
   @Size(min = 20, max = 20, message = "El folio debe tener 20 caracteres")
-  @FolioGenerado(longitud = 20)
   @Column(unique = true, nullable = false, updatable = false, length = 20)
   private String folioLargo;
 
@@ -187,6 +185,8 @@ public class Boleto {
     String alumnoNoControl,
     String alumnoNombre
   ) {
+    this.folio               = GeneradorDeFolios.folio(6);
+    this.folioLargo          = GeneradorDeFolios.folio(20);
     this.fechaCreacion       = LocalDateTime.now();
     this.creadorId           = creadorId;
     this.congresoId          = congresoId;
