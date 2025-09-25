@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.congreso;
 
+import com.tecn.tijuana.congresos.eventos.congreso.dto.RegistroCongresoDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import jakarta.validation.constraints.Max;
@@ -51,8 +52,8 @@ public class CongresoController {
   /**
    * Permite a un ORGANIZADOR registrar un nuevo CONGRESO.
    *
-   * @param congreso
-   * Objeto con los datos del congreso.
+   * @param dto
+   * Objeto con los datos del CONGRESO.
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
@@ -66,14 +67,14 @@ public class CongresoController {
 
   public ResponseEntity<Congreso> registrar (
 
-    @RequestPart
-    Congreso congreso,
+    @RequestBody
+    RegistroCongresoDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      conSvc.registrar(actor, congreso),
+      conSvc.registrar(actor, dto),
       HttpStatus.CREATED);
   }
 
@@ -103,7 +104,7 @@ public class CongresoController {
     @PathVariable
     Long id,
 
-    @RequestPart
+    @RequestBody
     Congreso congreso,
 
     @AuthenticationPrincipal

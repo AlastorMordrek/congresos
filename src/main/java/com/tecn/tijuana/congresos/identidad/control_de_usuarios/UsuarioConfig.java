@@ -5,7 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static java.time.Month.JANUARY;
 
@@ -132,7 +132,8 @@ public class UsuarioConfig {
             null, administrador1Email, administrador1Password,
             administrador1TelPref, administrador1TelSuf, administrador1Nombre,
             administrador1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20)));
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1)));
       }
 
       if (!usrSvc.emailTomado(organizador1Email)) {
@@ -141,7 +142,8 @@ public class UsuarioConfig {
             null, organizador1Email, organizador1Password,
             organizador1TelPref, organizador1TelSuf, organizador1Nombre,
             organizador1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20)));
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1)));
       }
 
       if (!usrSvc.emailTomado(staff1Email)) {
@@ -149,7 +151,8 @@ public class UsuarioConfig {
           Usuario.nuevoStaff(
             null, staff1Email, staff1Password, staff1TelPref,
             staff1TelSuf, staff1Nombre, staff1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20),
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1),
             "Staff con todas las responsabilidades",
             true, true, true,
             true));
@@ -160,7 +163,8 @@ public class UsuarioConfig {
           Usuario.nuevoStaff(
             null, staff2Email, staff2Password, staff2TelPref,
             staff2TelSuf, staff2Nombre, staff2ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20),
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1),
             "Staff sin responsabilidades",
             false, false, false,
             false));
@@ -171,7 +175,8 @@ public class UsuarioConfig {
           Usuario.nuevoAlumno(
             null, alumno1Email, alumno1Password, alumno1TelPref,
             alumno1TelSuf, alumno1Nombre, alumno1ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20),
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1),
             alumno1NoControl, alumno1CodigoCarrera, alumno1Semestre,
             alumno1Grupo, alumno1Externo, alumno1Curp,
             alumno1EmailInstitucional));
@@ -182,7 +187,8 @@ public class UsuarioConfig {
           Usuario.nuevoAlumno(
             null, alumno2Email, alumno2Password, alumno2TelPref,
             alumno2TelSuf, alumno2Nombre, alumno2ApPaterno, null,
-            LocalDate.of(1990, JANUARY, 20),
+            LocalDateTime.of(
+              1990, JANUARY, 20, 1, 1, 1),
             alumno2NoControl, alumno2CodigoCarrera, alumno2Semestre,
             alumno2Grupo, alumno2Externo, alumno2Curp,
             alumno2EmailInstitucional));

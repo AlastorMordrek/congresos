@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.congreso;
 
+import com.tecn.tijuana.congresos.eventos.congreso.dto.RegistroCongresoDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -414,11 +415,29 @@ public class CongresoService {
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
-   * @param congreso
-   * Datos del Congreso.
+   * @param dto
+   * Datos del CONGRESO.
    *
    * @return
-   * El Congreso recien registrado en la BD.
+   * El CONGRESO recien registrado en la BD.
+   */
+  public Congreso registrar (Usuario actor, RegistroCongresoDto dto)
+    throws ResponseStatusException {
+
+    return registrar(actor, Congreso.nuevo(actor.getId(), dto));
+  }
+
+  /**
+   * Permite ORGANIZADORES registrar nuevos CONGRESOS.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param congreso
+   * Datos del CONGRESO.
+   *
+   * @return
+   * El CONGRESO recien registrado en la BD.
    */
   public Congreso registrar (Usuario actor, Congreso congreso)
     throws ResponseStatusException {
@@ -723,8 +742,8 @@ public class CongresoService {
    * true = correcto.
    * true = incorrecto.
    */
-  public static boolean periodoFuturo (LocalDate inicio, LocalDate fin) {
-    var now = LocalDate.now();
+  public static boolean periodoFuturo (LocalDateTime inicio, LocalDateTime fin) {
+    var now = LocalDateTime.now();
 
     return inicio.isAfter(now) && fin.isAfter(now);
   }
@@ -743,7 +762,7 @@ public class CongresoService {
    * true = correcto.
    * true = incorrecto.
    */
-  public static boolean periodoOrdenCorrecto (LocalDate inicio, LocalDate fin) {
+  public static boolean periodoOrdenCorrecto (LocalDateTime inicio, LocalDateTime fin) {
     return fin.isAfter(inicio);
   }
 
@@ -767,11 +786,11 @@ public class CongresoService {
    * true = invalido.
    */
   public static boolean periodoRangoValido (
-    LocalDate inicio, LocalDate fin, int minSecs, int maxSecs
+    LocalDateTime inicio, LocalDateTime fin, int minSecs, int maxSecs
   ) {
-    var dur = Duration.between(inicio, fin);
+    var secs = Duration.between(inicio, fin).toSeconds();
 
-    return dur.toSeconds() >= minSecs && dur.toSeconds() <= maxSecs;
+    return secs >= minSecs && secs <= maxSecs;
   }
 
 
@@ -951,7 +970,7 @@ public class CongresoService {
   public static Congreso afirmarEnPeriodoDeInscripciones (
     Congreso reg
   ) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
     if (
       now.isBefore(reg.getInscripcionesFechaInicio())
         || now.isAfter(reg.getInscripcionesFechaFin())
@@ -995,7 +1014,7 @@ public class CongresoService {
    * El registro validado.
    */
   public static Congreso afirmarFechaFinFutura (Congreso reg) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
     if (now.isAfter(reg.getFechaFin())) {
       throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
@@ -1016,7 +1035,7 @@ public class CongresoService {
    * El registro validado.
    */
   public static Congreso afirmarFechaInicioFutura (Congreso reg) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
     if (now.isAfter(reg.getFechaInicio())) {
       throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
@@ -1039,7 +1058,7 @@ public class CongresoService {
   public static Congreso afirmarEnCurso (
     Congreso reg
   ) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
     if (
       now.isBefore(reg.getFechaInicio())
         || now.isAfter(reg.getFechaFin())

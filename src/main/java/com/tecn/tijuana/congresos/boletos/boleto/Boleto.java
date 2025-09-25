@@ -2,13 +2,15 @@ package com.tecn.tijuana.congresos.boletos.boleto;
 
 import com.tecn.tijuana.congresos.utils.FolioGenerado;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 /**
@@ -72,7 +74,7 @@ public class Boleto {
    * Cuando fue creado el registro.
    * */
   @Column(nullable = false, updatable = false)
-  private LocalDate fechaCreacion;
+  private LocalDateTime fechaCreacion;
 
   /**
    * Posible creador del registro.
@@ -100,16 +102,14 @@ public class Boleto {
   /**
    * Cuando iniciara el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate congresoFechaInicio;
+  private LocalDateTime congresoFechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate congresoFechaFin;
+  private LocalDateTime congresoFechaFin;
 
   /**
    * Direccion donde tendra lugar el evento.
@@ -162,8 +162,7 @@ public class Boleto {
   /**
    * A cuantas CONFERENCIAS unicas asistio con este registro.
    * */
-  @Size(max = 100,
-    message = "Las asistencias deben ser menos de 100")
+  @Min(0) @Max(100)
   @Column(nullable = false)
   private int asistencias;
 
@@ -177,15 +176,15 @@ public class Boleto {
 
     Long congresoId,
     String congresoNombre,
-    LocalDate congresoFechaInicio,
-    LocalDate congresoFechaFin,
+    LocalDateTime congresoFechaInicio,
+    LocalDateTime congresoFechaFin,
     String congresoDireccion,
 
     Long alumnoId,
     String alumnoNoControl,
     String alumnoNombre
   ) {
-    this.fechaCreacion       = LocalDate.now();
+    this.fechaCreacion       = LocalDateTime.now();
     this.creadorId           = creadorId;
     this.congresoId          = congresoId;
     this.congresoNombre      = congresoNombre;

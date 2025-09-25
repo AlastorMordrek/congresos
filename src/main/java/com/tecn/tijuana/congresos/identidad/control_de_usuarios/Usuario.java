@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,7 +55,7 @@ public class Usuario implements UserDetails {
    * Cuando fue creado el registro.
    * */
   @Column(nullable = false, updatable = false)
-  private LocalDate fechaCreacion;
+  private LocalDateTime fechaCreacion;
 
   /**
    * Posible creador del registro.
@@ -173,9 +173,8 @@ public class Usuario implements UserDetails {
    * Fecha de nacimiento del USUARIO.
    * */
   @Past
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate fechaNacimiento;
+  private LocalDateTime fechaNacimiento;
 
 
 
@@ -338,7 +337,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento,
+    LocalDateTime fechaNacimiento,
 
     String noControl,
     String codigoCarrera,
@@ -356,7 +355,7 @@ public class Usuario implements UserDetails {
   ) {
     this.rol = rol;
 
-    this.fechaCreacion = LocalDate.now();
+    this.fechaCreacion = LocalDateTime.now();
     this.creadorId = creadorId;
 
     this.email = email;
@@ -469,7 +468,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento
+    LocalDateTime fechaNacimiento
   ) {
     return new Usuario(
       Rol.ADMINISTRADOR,
@@ -548,7 +547,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento
+    LocalDateTime fechaNacimiento
   ) {
     return new Usuario(
       Rol.ORGANIZADOR,
@@ -632,7 +631,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento,
+    LocalDateTime fechaNacimiento,
 
     String staffResponsabilidades,
     boolean staffAutorizado,
@@ -752,7 +751,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento,
+    LocalDateTime fechaNacimiento,
 
     String noControl,
     String codigoCarrera,
@@ -836,7 +835,7 @@ public class Usuario implements UserDetails {
     String nombre,
     String apellidoPaterno,
     String apellidoMaterno,
-    LocalDate fechaNacimiento,
+    LocalDateTime fechaNacimiento,
 
     String noControl,
     String codigoCarrera,

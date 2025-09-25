@@ -1,14 +1,13 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 /**
@@ -18,9 +17,8 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 
-public  class RegistroUsuarioDto {
+public class RegistroUsuarioDto {
 
   /**
    * Rol del USUARIO.
@@ -116,8 +114,7 @@ public  class RegistroUsuarioDto {
    * Fecha de nacimiento del USUARIO.
    * */
   @Past
-  @Temporal(TemporalType.DATE)
-  public LocalDate fechaNacimiento;
+  public LocalDateTime fechaNacimiento;
 
 
 

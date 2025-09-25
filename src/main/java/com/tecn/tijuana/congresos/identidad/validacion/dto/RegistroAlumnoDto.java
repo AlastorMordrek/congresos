@@ -1,6 +1,5 @@
 package com.tecn.tijuana.congresos.identidad.validacion.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.*;
@@ -8,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 /**
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class RegistroAlumnoDto {
 
@@ -85,8 +83,7 @@ public class RegistroAlumnoDto {
    * Fecha de nacimiento del USUARIO.
    * */
   @Past
-  @Temporal(TemporalType.DATE)
-  public LocalDate fechaNacimiento;
+  public LocalDateTime fechaNacimiento;
 
 
 

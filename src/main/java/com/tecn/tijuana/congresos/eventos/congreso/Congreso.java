@@ -2,7 +2,10 @@ package com.tecn.tijuana.congresos.eventos.congreso;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tecn.tijuana.congresos.eventos.congreso.dto.RegistroCongresoDto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,7 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -62,7 +65,7 @@ public class Congreso {
    * Cuando fue creado el registro.
    * */
   @Column(nullable = false, updatable = false)
-  private LocalDate fechaCreacion;
+  private LocalDateTime fechaCreacion;
 
   /**
    * Posible creador del registro.
@@ -118,16 +121,14 @@ public class Congreso {
   /**
    * Cuando iniciara el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate fechaInicio;
+  private LocalDateTime fechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate fechaFin;
+  private LocalDateTime fechaFin;
 
 
   /**
@@ -151,9 +152,8 @@ public class Congreso {
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate inscripcionesFechaInicio;
+  private LocalDateTime inscripcionesFechaInicio;
 
   /**
    * Cuando termina el periodo de inscripciones para el CONGRESO.
@@ -163,33 +163,29 @@ public class Congreso {
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate inscripcionesFechaFin;
+  private LocalDateTime inscripcionesFechaFin;
 
 
 
   /**
    * Cuantos espacios para inscripciones hay para el CONGRESO.
    * */
-  @Size(max = 5000,
-    message = "El cupo debe ser menor o igual a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int cupo;
 
   /**
    * Cuantos ALUMNOS han sido inscritos al CONGRESO.
    * */
-  @Size(max = 5000,
-    message = "El numero de inscripciones debe ser menor o igual a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int inscritos;
 
   /**
    * Cuantos ALUMNOS asistieron al CONGRESO cuando sucedio.
    * */
-  @Size(max = 5000,
-    message = "El numero de asistencias debe ser menor o igual a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int asistencias;
 
@@ -198,8 +194,7 @@ public class Congreso {
   /**
    * Cuantos integrantes de STAFF se requeriran en el CONGRESO.
    * */
-  @Size(max = 100,
-    message = "La cantidad de staff debe ser menor o igual a 100")
+  @Min(0) @Max(100)
   @Column(nullable = false)
   private int staffCantidad;
 
@@ -668,15 +663,15 @@ public class Congreso {
     String resumen,
     String descripcion,
     String direccion,
-    LocalDate fechaInicio,
-    LocalDate fechaFin,
-    LocalDate inscripcionesFechaInicio,
-    LocalDate inscripcionesFechaFin,
+    LocalDateTime fechaInicio,
+    LocalDateTime fechaFin,
+    LocalDateTime inscripcionesFechaInicio,
+    LocalDateTime inscripcionesFechaFin,
     int cupo,
     int staffCantidad,
     String staffRequerimientos
   ) {
-    this.fechaCreacion            = LocalDate.now();
+    this.fechaCreacion            = LocalDateTime.now();
     this.creadorId                = creadorId;
     this.organizadorId            = organizadorId;
     this.nombre                   = nombre;
@@ -693,6 +688,33 @@ public class Congreso {
   }
 
 
+
+  /**
+   * Funcion constructora alternativa para crear Congresos.
+   *
+   * @return
+   * El nuevo Congreso.
+   */
+  public static Congreso nuevo (
+    Long creadorId,
+    RegistroCongresoDto dto
+  ) {
+    return new Congreso(
+      creadorId,
+      creadorId,
+      dto.getNombre(),
+      dto.getResumen(),
+      dto.getDescripcion(),
+      dto.getDireccion(),
+      dto.getFechaInicio(),
+      dto.getFechaFin(),
+      dto.getInscripcionesFechaInicio(),
+      dto.getInscripcionesFechaFin(),
+      dto.getCupo(),
+      dto.getStaffCantidad(),
+      dto.getStaffRequerimientos()
+    );
+  }
 
   /**
    * Funcion constructora alternativa para crear Congresos.

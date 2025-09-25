@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -616,7 +616,7 @@ public class ConferenciaService {
   public static Conferencia afirmarEnCurso (
     Conferencia reg
   ) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
     if (
       now.isBefore(reg.getFechaInicio())
         || now.isAfter(reg.getFechaFin())

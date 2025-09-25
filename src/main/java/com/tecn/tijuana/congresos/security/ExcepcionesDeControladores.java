@@ -6,6 +6,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
@@ -121,6 +122,43 @@ public class ExcepcionesDeControladores {
 
     // Retornar la respuesta de error con todas las validaciones.
     return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+  }
+
+
+  /**
+   * Maneja excepciones de tipo {@link AccessDeniedException} transformandolas
+   * en respuestas HTTP estandarizadas con formato Problem Details.
+   * <p>
+   * Este metodo captura excepciones que contienen explicitamente un codigo de
+   * estado HTTP y un mensaje de razon, convirtiendolas en una respuesta
+   * estructurada que incluye timestamp y detalles del error.
+   * </p>
+   *
+   * @param ex
+   * Excepcion de tipo {@link AccessDeniedException} que contiene el codigo
+   * de estado HTTP y el mensaje de error.
+   *
+   * @return
+   * Respuesta HTTP con formato Problem Details que incluye:
+   * <ul>
+   *   <li>Codigo de estado HTTP de la excepcion</li>
+   *   <li>Titulo y detalle del error</li>
+   *   <li>Timestamp del momento en que ocurrio el error</li>
+   * </ul>
+   */
+  @ExceptionHandler(AccessDeniedException.class)
+
+  public ResponseEntity<ProblemDetail> handleAccessDeniedException (
+    AccessDeniedException ex
+  ) {
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+
+    pd.setTitle("Acceso denegado");
+    pd.setDetail("No tiene permiso de realizar esa operacion");
+
+    pd.setProperty("timestamp", Instant.now());
+
+    return new ResponseEntity<>(pd, HttpStatus.UNAUTHORIZED);
   }
 
 

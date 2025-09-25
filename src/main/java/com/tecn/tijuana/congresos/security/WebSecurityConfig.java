@@ -72,10 +72,10 @@ public class WebSecurityConfig {
             "/api/v1/eventos/conferencia/publicadas/**",
 
             // Endpoints de Boletos publicos.
-            "api/v1/boletos/boleto/publico/**",
+            "/api/v1/boletos/boleto/publico/**",
 
             // Endpoints de Asistencias publicos.
-            "api/v1/asistencias/asistencia/publico/**"
+            "/api/v1/asistencias/asistencia/publico/**"
           )
           .permitAll()
 

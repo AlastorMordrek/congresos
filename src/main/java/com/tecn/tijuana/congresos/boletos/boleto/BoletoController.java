@@ -66,7 +66,7 @@ public class BoletoController {
 
   public ResponseEntity<Boleto> inscribirse (
 
-    @RequestPart
+    @RequestBody
     Boleto boleto,
 
     @AuthenticationPrincipal
@@ -96,7 +96,7 @@ public class BoletoController {
 
   public ResponseEntity<Boleto> inscribir (
 
-    @RequestPart
+    @RequestBody
     Boleto boleto,
 
     @AuthenticationPrincipal

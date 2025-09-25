@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -47,7 +47,7 @@ public class Asistencia {
    * Cuando fue creado el registro.
    * */
   @Column(nullable = false, updatable = false)
-  private LocalDate fechaCreacion;
+  private LocalDateTime fechaCreacion;
 
   /**
    * ID del creador del registro.
@@ -158,10 +158,10 @@ public class Asistencia {
    * Cuando fue la ultima vez que registro entrada a la CONFERENCIA.
    * */
   @Column
-  private LocalDate fechaUltimaEntrada;
+  private LocalDateTime fechaUltimaEntrada;
 
   /**
-   * Suma del tiempo que paso en la CONFERENCIA.
+   * Suma del tiempo que paso en la CONFERENCIA en segundos.
    * */
   @Column
   private Duration tiempoAsistido;
@@ -189,7 +189,7 @@ public class Asistencia {
     String alumnoNoControl,
     String alumnoNombre
   ) {
-    var now = LocalDate.now();
+    var now = LocalDateTime.now();
 
     this.fechaCreacion       = now;
     this.creadorId           = creadorId;
@@ -287,7 +287,7 @@ public class Asistencia {
     }
 
     // Registrar fecha de entrada actual.
-    setFechaUltimaEntrada(LocalDate.now());
+    setFechaUltimaEntrada(LocalDateTime.now());
 
     // Retornar objeto actualizado.
     return this;
@@ -316,7 +316,7 @@ public class Asistencia {
     }
 
     // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, LocalDate.now());
+    var duracion = Duration.between(ultima, LocalDateTime.now());
 
     // Tiempo total asistido a la conferencia especifica actualmente.
     var asistido = getTiempoAsistido();

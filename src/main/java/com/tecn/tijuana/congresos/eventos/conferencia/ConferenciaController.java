@@ -66,7 +66,7 @@ public class ConferenciaController {
 
   public ResponseEntity<Conferencia> registrar (
 
-    @RequestPart
+    @RequestBody
     Conferencia conferencia,
 
     @AuthenticationPrincipal
@@ -103,7 +103,7 @@ public class ConferenciaController {
     @PathVariable
     Long id,
 
-    @RequestPart
+    @RequestBody
     Conferencia conferencia,
 
     @AuthenticationPrincipal

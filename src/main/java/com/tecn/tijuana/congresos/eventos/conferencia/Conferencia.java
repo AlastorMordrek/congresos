@@ -3,6 +3,8 @@ package com.tecn.tijuana.congresos.eventos.conferencia;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 
@@ -59,7 +61,7 @@ public class Conferencia {
    * Cuando fue creado el registro.
    * */
   @Column(nullable = false, updatable = false)
-  private LocalDate fechaCreacion;
+  private LocalDateTime fechaCreacion;
 
   /**
    * Posible creador del registro.
@@ -115,16 +117,14 @@ public class Conferencia {
   /**
    * Cuando iniciara el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate fechaInicio;
+  private LocalDateTime fechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
-  @Temporal(TemporalType.DATE)
   @Column(nullable = false)
-  private LocalDate fechaFin;
+  private LocalDateTime fechaFin;
 
 
 
@@ -144,24 +144,21 @@ public class Conferencia {
   /**
    * Cuantos espacios para inscripciones hay para la CONFERENCIA.
    * */
-  @Size(max = 5000,
-    message = "El cupo debe ser menor o igual a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int cupo;
 
   /**
    * Cuantos ALUMNOS han sido inscritos a la CONFERENCIA.
    * */
-  @Size(max = 5000,
-    message = "El numero de inscripciones debe ser menor o igual a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int inscritos;
 
   /**
    * Cuantos ALUMNOS asistieron al CONGRESO cuando sucedio.
    * */
-  @Size(max = 5000,
-    message = "El numero de asistencias debe ser menor o igual a a 5000")
+  @Min(0) @Max(5000)
   @Column(nullable = false)
   private int asistencias;
 
@@ -170,8 +167,7 @@ public class Conferencia {
   /**
    * Cuantos integrantes de STAFF se requeriran.
    * */
-  @Size(max = 100,
-    message = "La cantidad de staff debe ser menor o igual a 100")
+  @Min(0) @Max(100)
   @Column(nullable = false)
   private int staffCantidad;
 
@@ -777,8 +773,8 @@ public class Conferencia {
     String descripcion,
     String sala,
 
-    LocalDate fechaInicio,
-    LocalDate fechaFin,
+    LocalDateTime fechaInicio,
+    LocalDateTime fechaFin,
 
     int cupo,
     int staffCantidad,
@@ -790,7 +786,7 @@ public class Conferencia {
     String conferencistaTelSuf,
     String conferencistaSemblanza
   ) {
-    this.fechaCreacion            = LocalDate.now();
+    this.fechaCreacion            = LocalDateTime.now();
     this.creadorId                = creadorId;
     this.congresoId               = congresoId;
     this.nombre                   = nombre;
