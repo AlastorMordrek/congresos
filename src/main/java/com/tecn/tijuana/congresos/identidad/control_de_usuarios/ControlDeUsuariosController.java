@@ -558,7 +558,9 @@ public class ControlDeUsuariosController {
     @AuthenticationPrincipal
     Usuario actor
   ) {
-    return new ResponseEntity<>(usrSvc.bloquear(actor, id), HttpStatus.OK);
+    return new ResponseEntity<>(
+      usrSvc.bloquear(actor, id),
+      HttpStatus.OK);
   }
 
 
