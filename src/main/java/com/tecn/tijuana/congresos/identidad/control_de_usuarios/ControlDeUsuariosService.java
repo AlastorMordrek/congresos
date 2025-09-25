@@ -463,7 +463,7 @@ public class ControlDeUsuariosService {
     // Si intenta bloquearse a si mismo, lanzar error HTTP-401.
     if (Objects.equals(actor.getId(), usr.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED, "No bloquearse a si mismo.");
+        HttpStatus.UNAUTHORIZED, "No puede bloquearse a si mismo.");
     }
 
     // Si no tiene los permisos necesarios, lanzar error HTTP-401.
@@ -502,7 +502,7 @@ public class ControlDeUsuariosService {
     // Si intenta bloquearse a si mismo, lanzar error HTTP-401.
     if (Objects.equals(actor.getId(), usr.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED, "No des-bloquearse a si mismo.");
+        HttpStatus.UNAUTHORIZED, "No puede des-bloquearse a si mismo.");
     }
 
     // Si no tiene los permisos necesarios, lanzar error HTTP-401.

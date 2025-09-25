@@ -717,7 +717,9 @@ public class ControlDeUsuariosController {
     @AuthenticationPrincipal
     Usuario actor
   ) {
-    return new ResponseEntity<>(usrSvc.afirmar(actor.getId()), HttpStatus.OK);
+    return new ResponseEntity<>(
+      usrSvc.afirmar(actor.getId()),
+      HttpStatus.OK);
   }
 
 

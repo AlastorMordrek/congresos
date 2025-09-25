@@ -1091,7 +1091,7 @@ public class CongresoService {
   )
     throws ResponseStatusException {
 
-    if (!Objects.equals(reg.getId(), actor.getId())) {
+    if (!Objects.equals(reg.getOrganizadorId(), actor.getId())) {
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
         "No es el organizador asignado.");

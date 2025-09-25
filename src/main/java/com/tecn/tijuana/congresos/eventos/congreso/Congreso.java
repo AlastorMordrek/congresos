@@ -236,7 +236,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 1.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -273,7 +272,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 2.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -310,7 +308,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 3.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -347,7 +344,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 4.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -384,7 +380,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 5.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -421,7 +416,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 6.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -458,7 +452,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 1.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -495,7 +488,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 2.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -532,7 +524,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 3.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -569,7 +560,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 4.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -606,7 +596,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 5.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,
@@ -643,7 +632,6 @@ public class Congreso {
    * <p>
    * Contenido crudo de la foto 6.
    * */
-  @Lob
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @JsonIgnore
   @Size(min = 1024, max = 2 * 1024 * 1024,

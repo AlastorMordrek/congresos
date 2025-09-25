@@ -302,7 +302,6 @@ public class Usuario implements UserDetails {
   /**
    * Contenido crudo de la foto del USUARIO.
    * */
-  @Lob
   @JsonIgnore
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @Size(min = 1024, max = 2 * 1024 * 1024,
