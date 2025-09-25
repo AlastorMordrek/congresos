@@ -1,5 +1,8 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.FolioGenerado;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -204,17 +207,22 @@ public class Boleto {
    * @return
    * El nuevo registro.
    */
-  public static Boleto nuevo (Boleto reg) {
+  public static Boleto nuevo (
+    Usuario actor,
+    RegistroBoletoDto dto,
+    Congreso congreso,
+    Usuario alumno
+  ) {
     return new Boleto(
-      reg.getCreadorId(),
-      reg.getCongresoId(),
-      reg.getCongresoNombre(),
-      reg.getCongresoFechaInicio(),
-      reg.getCongresoFechaFin(),
-      reg.getCongresoDireccion(),
-      reg.getAlumnoId(),
-      reg.getAlumnoNoControl(),
-      reg.getAlumnoNombre()
+      actor.getId(),
+      congreso.getId(),
+      congreso.getNombre(),
+      congreso.getFechaInicio(),
+      congreso.getFechaFin(),
+      congreso.getDireccion(),
+      alumno.getId(),
+      alumno.getNoControl(),
+      alumno.getNombre()
     );
   }
 

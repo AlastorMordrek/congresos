@@ -725,78 +725,21 @@ public class ControlDeUsuariosService {
 
 
 
-  /**
-   * La imagen de un registro en el slot especificado.
-   *
-   * @param id
-   * ID del registro.
-   *
-   * @param slot
-   * Slot para multimedia.
-   *
-   * @return
-   * La imagen.
-   *
-   * @throws ResponseStatusException
-   * <p>
-   * {@code HTTP-NOT_FOUND}
-   * Si el registro no existe o si no tiene una foto.
-   * <p>
-   * {@code HTTP-BAD_REQUEST}
-   * Si el slot especificado no existe.
-   */
-  public ResponseEntity<byte[]> afirmarMedia (
-    Long id, String slot
-  )
-    throws ResponseStatusException {
-
-    // Encontrar registro.
-    Usuario usuario = afirmar(id);
-
-    // Aux.
-    String fotoMimeType;
-
-    // Extraer datos de la foto.
-    byte[] fotoImgData = switch (slot) {
-      case "foto" -> {
-        fotoMimeType = usuario.getFotoMimeType();
-        yield usuario.getFotoImgData();
-      }
-      default -> throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST,
-        "Slot no valido.");
-    };
-
-    // Si hay algo malo con la foto, retornar error 404.
-    if (
-      Objects.isNull(fotoImgData) || fotoImgData.length == 0
-        || Objects.isNull(fotoMimeType) || fotoMimeType.isBlank()
-    ) {
-      throw new ResponseStatusException(
-        HttpStatus.NOT_FOUND,
-        String.format("Foto del usuario con ID: %s no encontrada.", id));
-    }
-
-    // Retornar respuesta ya lista con el contenido de la foto.
-    return ResponseEntity.ok()
-      .contentType(MediaType.valueOf(fotoMimeType))
-      .body(fotoImgData);
-  }
-
-
-
   //----------------------------------------------------------------------------
   // ASERCIONES.
 
   /**
-   * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
-   * existe.
+   * Comprueba que el USUARIO con el ID especificado existe.
    *
    * @param id
    * El ID del registro.
    *
    * @return
    * El registro encontrado.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND} si no existe.
    */
   public Usuario afirmar (
     Long id
@@ -813,27 +756,84 @@ public class ControlDeUsuariosService {
 
 
   /**
-   * Obtiene el registro con el Numero de Control especificado o causa un error
-   * HTTP-404 si no existe.
+   * Comprueba que el USUARIO con el ID especificado existe y que es un ALUMNO.
+   *
+   * @param id
+   * El ID del registro.
+   *
+   * @return
+   * El registro encontrado.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND} si no existe.
+   * <p>
+   * {@code HTTP-PRECONDITION_FAILED} si no es un ALUMNO.
+   */
+  public Usuario afirmarAlumno (
+    Long id
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el USUARIO.
+    var usr = usrRep.findById(id)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format("Usuario con ID: %s no encontrado", id)));
+
+    // Comprobar que es un ALUMNO.
+    if (usr.getRol() != Rol.ALUMNO) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        String.format("Usuario con ID: %s no es un alumno", id));
+    }
+
+    return usr;
+  }
+
+
+
+  /**
+   * Comprueba que el USUARIO con el Numero de Control especificado existe y que
+   * es un ALUMNO.
    *
    * @param noControl
    * Identificador del registro.
    *
    * @return
    * El registro encontrado.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND} si no existe.
+   * <p>
+   * {@code HTTP-PRECONDITION_FAILED} si no es un ALUMNO.
    */
-  public Usuario afirmarNoControl (
+  public Usuario afirmarNoControlAlumno (
     String noControl
   )
     throws ResponseStatusException {
 
-    return usrRep.qNoControl(noControl)
+    // Encontrar USUARIO.
+    var usr = usrRep.qNoControl(noControl)
       .orElseThrow(() ->
         new ResponseStatusException(
           HttpStatus.NOT_FOUND,
           String.format(
             "Usuario con Numero de Control: %s no encontrado",
             noControl)));
+
+    // Comprobar que es un ALUMNO.
+    if (usr.getRol() != Rol.ALUMNO) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        String.format(
+          "Usuario con Numero de Control: %s no es un alumno",
+          noControl));
+    }
+
+    return usr;
   }
 
 
@@ -919,7 +919,67 @@ public class ControlDeUsuariosService {
   public Usuario afirmarNoControlNoBloqueado (
     String noControl
   ) {
-    return afirmarNoBloqueado(afirmarNoControl(noControl));
+    return afirmarNoBloqueado(afirmarNoControlAlumno(noControl));
+  }
+
+
+
+  /**
+   * La imagen de un registro en el slot especificado.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param slot
+   * Slot para multimedia.
+   *
+   * @return
+   * La imagen.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND}
+   * Si el registro no existe o si no tiene una foto.
+   * <p>
+   * {@code HTTP-BAD_REQUEST}
+   * Si el slot especificado no existe.
+   */
+  public ResponseEntity<byte[]> afirmarMedia (
+    Long id, String slot
+  )
+    throws ResponseStatusException {
+
+    // Encontrar registro.
+    Usuario usuario = afirmar(id);
+
+    // Aux.
+    String fotoMimeType;
+
+    // Extraer datos de la foto.
+    byte[] fotoImgData = switch (slot) {
+      case "foto" -> {
+        fotoMimeType = usuario.getFotoMimeType();
+        yield usuario.getFotoImgData();
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Slot no valido.");
+    };
+
+    // Si hay algo malo con la foto, retornar error 404.
+    if (
+      Objects.isNull(fotoImgData) || fotoImgData.length == 0
+        || Objects.isNull(fotoMimeType) || fotoMimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format("Foto del usuario con ID: %s no encontrada.", id));
+    }
+
+    // Retornar respuesta ya lista con el contenido de la foto.
+    return ResponseEntity.ok()
+      .contentType(MediaType.valueOf(fotoMimeType))
+      .body(fotoImgData);
   }
 
 

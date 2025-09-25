@@ -184,7 +184,7 @@ public class Usuario implements UserDetails {
    * */
   @Size(min = 8, max = 8,
     message = "El numero de control debe tener 8 caracteres")
-  @Column(length = 8)
+  @Column(unique = true, length = 8)
   private String noControl;
 
   /**
@@ -280,15 +280,6 @@ public class Usuario implements UserDetails {
   private boolean staffInscripciones = false;
 
 
-
-  /**
-   * Nombre original del archivo de la imagen que se uso como foto del USUARIO.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de la foto debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String fotoNombre;
 
   /**
    * Tipo de archivo multimedia de la foto del USUARIO.
@@ -908,7 +899,6 @@ public class Usuario implements UserDetails {
       switch (slot) {
 
         case "foto":
-          setFotoNombre(null);
           setFotoMimeType(null);
           setFotoImgData(null);
           break;
@@ -919,14 +909,12 @@ public class Usuario implements UserDetails {
     }
     else {
       // Aux.
-      var name = img.getOriginalFilename();
       var mime = img.getContentType();
       var bytes = img.getBytes();
       // Editar el slot indicado.
       switch (slot) {
 
         case "foto":
-          setFotoNombre(name);
           setFotoMimeType(mime);
           setFotoImgData(bytes);
           break;

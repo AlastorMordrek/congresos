@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
+import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import jakarta.validation.constraints.Max;
@@ -15,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @RestController
@@ -51,7 +51,7 @@ public class ConferenciaController {
   /**
    * Permite a un ORGANIZADOR registrar una nueva CONFERENCIA.
    *
-   * @param conferencia
+   * @param dto
    * Objeto con los datos del nuevo registro.
    *
    * @param actor
@@ -67,13 +67,13 @@ public class ConferenciaController {
   public ResponseEntity<Conferencia> registrar (
 
     @RequestBody
-    Conferencia conferencia,
+    RegistroConferenciaDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      confSvc.registrar(actor, conferencia),
+      confSvc.registrar(actor, dto),
       HttpStatus.CREATED);
   }
 
@@ -285,15 +285,12 @@ public class ConferenciaController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * El posible registro eliminado, la respuesta puede estar vacia.
    */
   @DeleteMapping("eliminar/{id}")
 
   @PreAuthorize(ExpresionSeguridad.ELIMINAR_CONFERENCIAS)
 
-  public ResponseEntity<Conferencia> eliminar (
+  public void eliminar (
 
     @PathVariable("id")
     Long id,
@@ -302,11 +299,6 @@ public class ConferenciaController {
     Usuario actor
   ) {
     var deleted = confSvc.eliminar(actor, id);
-    if (Objects.isNull(deleted)) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } else {
-      return new ResponseEntity<>(deleted, HttpStatus.OK);
-    }
   }
 
 

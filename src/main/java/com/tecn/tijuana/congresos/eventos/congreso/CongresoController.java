@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @RestController
@@ -286,15 +285,12 @@ public class CongresoController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * El posible CONGRESO eliminado, la respuesta puede estar vacia.
    */
   @DeleteMapping("eliminar/{id}")
 
   @PreAuthorize(ExpresionSeguridad.ELIMINAR_CONGRESOS)
 
-  public ResponseEntity<Congreso> eliminar (
+  public void eliminar (
 
     @PathVariable("id")
     Long id,
@@ -303,11 +299,6 @@ public class CongresoController {
     Usuario actor
   ) {
     var deleted = conSvc.eliminar(actor, id);
-    if (Objects.isNull(deleted)) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } else {
-      return new ResponseEntity<>(deleted, HttpStatus.OK);
-    }
   }
 
 

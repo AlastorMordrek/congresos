@@ -1,6 +1,5 @@
 package com.tecn.tijuana.congresos.eventos.congreso.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,40 +25,40 @@ public  class RegistroCongresoDto {
   @NotBlank(message = "Nombre vacio")
   @Size(min = 1, max = 100,
     message = "El nombre debe tener entre 1 y 100 caracteres")
-  private String nombre;
+  public String nombre;
 
   /**
    * Descripcion corta del CONGRESO.
    * */
   @Size(max = 100,
     message = "El resumen debe tener entre 0 y 100 caracteres")
-  private String resumen;
+  public String resumen;
 
   /**
    * Descripcion detallada del CONGRESO.
    * */
   @Size(max = 500,
     message = "La descripcion debe tener entre 0 y 500 caracteres")
-  private String descripcion;
+  public String descripcion;
 
   /**
    * Direccion donde tendra lugar el CONGRESO.
    * */
   @Size(max = 200,
     message = "La direccion debe tener entre 0 y 200 caracteres")
-  private String direccion;
+  public String direccion;
 
 
 
   /**
    * Cuando iniciara el evento.
    * */
-  private LocalDateTime fechaInicio;
+  public LocalDateTime fechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
-  private LocalDateTime fechaFin;
+  public LocalDateTime fechaFin;
 
 
 
@@ -71,7 +70,7 @@ public  class RegistroCongresoDto {
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
-  private LocalDateTime inscripcionesFechaInicio;
+  public LocalDateTime inscripcionesFechaInicio;
 
   /**
    * Cuando termina el periodo de inscripciones para el CONGRESO.
@@ -81,7 +80,7 @@ public  class RegistroCongresoDto {
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
-  private LocalDateTime inscripcionesFechaFin;
+  public LocalDateTime inscripcionesFechaFin;
 
 
 
@@ -89,7 +88,7 @@ public  class RegistroCongresoDto {
    * Cuantos espacios para inscripciones hay para el CONGRESO.
    * */
   @Min(0) @Max(5000)
-  private int cupo;
+  public int cupo;
 
 
 
@@ -97,7 +96,7 @@ public  class RegistroCongresoDto {
    * Cuantos integrantes de STAFF se requeriran en el CONGRESO.
    * */
   @Min(0) @Max(100)
-  private int staffCantidad;
+  public int staffCantidad;
 
   /**
    * Cuantos integrantes de STAFF se requeriran en el CONGRESO.
@@ -105,5 +104,5 @@ public  class RegistroCongresoDto {
   @Size(max = 500,
     message = "La descripcion de requerimientos de staff debe ser menor" +
       " o igual a 500 caracteres")
-  private String staffRequerimientos;
+  public String staffRequerimientos;
 }

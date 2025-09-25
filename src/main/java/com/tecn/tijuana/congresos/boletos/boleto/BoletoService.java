@@ -1,6 +1,8 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuariosService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
@@ -24,6 +26,7 @@ public class BoletoService {
 
   private final BoletoRepository bolRep;
   private final CongresoService congSvc;
+  private final ControlDeUsuariosService usrSvc;
 
 
   /**
@@ -36,14 +39,19 @@ public class BoletoService {
    *
    * @param congSvc
    * Servicio de la entidad de CONGRESO.
+   *
+   * @param usrSvc
+   * Servicio de la entidad de USUARIO.
    */
 //  @Autowired
   public BoletoService (
     BoletoRepository bolRep,
-    CongresoService congSvc
+    CongresoService congSvc,
+    ControlDeUsuariosService usrSvc
   ) {
     this.bolRep = bolRep;
     this.congSvc = congSvc;
+    this.usrSvc = usrSvc;
   }
 
 
@@ -57,30 +65,27 @@ public class BoletoService {
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
-   * @param bol
+   * @param dto
    * Datos del registro.
    *
    * @return
    * El registro creado.
    */
   public Boleto inscribirse (
-    Usuario actor, Boleto bol
+    Usuario actor, RegistroBoletoDto dto
   )
     throws ResponseStatusException {
 
     // Comprobar que el ALUMNO no esta inscrito ya a ese CONGRESO.
-    afirmarAlumnoNoInscrito(bol.getCongresoId(), actor.getId());
+    afirmarAlumnoNoInscrito(dto.getCongresoId(), actor.getId());
 
     // Comprobar que el CONGRESO existe y validarlo.
     var congreso = congSvc
       .afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible(
-        bol.getCongresoId());
-
-    // Marcar al Actor como creador del registro.
-    bol.setCreadorId(actor.getId());
+        dto.getCongresoId());
 
     // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(bol));
+    return bolRep.saveAndFlush(Boleto.nuevo(actor, dto, congreso, actor));
   }
 
 
@@ -91,19 +96,37 @@ public class BoletoService {
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
-   * @param bol
+   * @param dto
    * Datos del registro.
    *
    * @return
    * El registro creado.
    */
   public Boleto inscribir (
-    Usuario actor, Boleto bol
+    Usuario actor, RegistroBoletoDto dto
   )
     throws ResponseStatusException {
 
+    // Aux.
+    Usuario alumno;
+
+    // Encontrar el ALUMNO mediante el identificador provisto.
+    if (Objects.nonNull(dto.getAlumnoId())) {
+      alumno = usrSvc.afirmarAlumno(dto.getAlumnoId());
+    }
+    else if (Objects.nonNull(dto.getAlumnoNoControl())) {
+      alumno = usrSvc.afirmarNoControlAlumno(dto.getAlumnoNoControl());
+    } else {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Debe especificar un ID o Numero de Control de alumno");
+    }
+
+    // Aux.
+    var alumnoId = alumno.getId();
+
     // Encontrar CONGRESO.
-    var congreso = congSvc.afirmar(bol.getCongresoId());
+    var congreso = congSvc.afirmar(dto.getCongresoId());
 
     // Comprobar acceso.
     if (actor.getRol() == Rol.ORGANIZADOR) {
@@ -111,17 +134,14 @@ public class BoletoService {
     }
 
     // Comprobar que el ALUMNO no esta inscrito ya a ese CONGRESO.
-    afirmarAlumnoNoInscrito(bol.getCongresoId(), bol.getAlumnoId());
+    afirmarAlumnoNoInscrito(dto.getCongresoId(), alumnoId);
 
     // Comprobar que el CONGRESO existe y validarlo.
     CongresoService.afirmarNoCanceladoConCupoDisponibleFechaFinFutura(
       congreso);
 
-    // Marcar al Actor como creador del registro.
-    bol.setCreadorId(actor.getId());
-
     // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(bol));
+    return bolRep.saveAndFlush(Boleto.nuevo(actor, dto, congreso, alumno));
   }
 
 

@@ -212,17 +212,6 @@ public class Congreso {
   /**
    * Slot de multimedia informativa previa al CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 1.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media1Nombre;
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 1.
    * */
   @JsonIgnore
@@ -244,17 +233,6 @@ public class Congreso {
   private byte[] media1ImgData;
 
 
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 2.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media2Nombre;
 
   /**
    * Slot de multimedia informativa previa al CONGRESO.
@@ -284,17 +262,6 @@ public class Congreso {
   /**
    * Slot de multimedia informativa previa al CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 3.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media3Nombre;
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 3.
    * */
   @JsonIgnore
@@ -316,17 +283,6 @@ public class Congreso {
   private byte[] media3ImgData;
 
 
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 4.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media4Nombre;
 
   /**
    * Slot de multimedia informativa previa al CONGRESO.
@@ -356,17 +312,6 @@ public class Congreso {
   /**
    * Slot de multimedia informativa previa al CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 5.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media5Nombre;
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 5.
    * */
   @JsonIgnore
@@ -388,17 +333,6 @@ public class Congreso {
   private byte[] media5ImgData;
 
 
-
-  /**
-   * Slot de multimedia informativa previa al CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 6.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String media6Nombre;
 
   /**
    * Slot de multimedia informativa previa al CONGRESO.
@@ -428,17 +362,6 @@ public class Congreso {
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 1.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt1Nombre;
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 1.
    * */
   @JsonIgnore
@@ -460,17 +383,6 @@ public class Congreso {
   private byte[] mediaEvt1ImgData;
 
 
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 2.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt2Nombre;
 
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
@@ -500,17 +412,6 @@ public class Congreso {
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 3.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt3Nombre;
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 3.
    * */
   @JsonIgnore
@@ -532,17 +433,6 @@ public class Congreso {
   private byte[] mediaEvt3ImgData;
 
 
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 4.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt4Nombre;
 
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
@@ -572,17 +462,6 @@ public class Congreso {
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
    * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 5.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt5Nombre;
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
    * Tipo de archivo multimedia de la foto 5.
    * */
   @JsonIgnore
@@ -604,17 +483,6 @@ public class Congreso {
   private byte[] mediaEvt5ImgData;
 
 
-
-  /**
-   * Slot de multimedia para subir durante o despues del CONGRESO.
-   * <p>
-   * Nombre original del archivo de la imagen que se uso como foto 6.
-   * */
-  @JsonIgnore
-  @Size(min = 1, max = 100,
-    message = "El nombre de archivo debe tener maximo 100 caracteres")
-  @Column(length = 100)
-  private String mediaEvt6Nombre;
 
   /**
    * Slot de multimedia para subir durante o despues del CONGRESO.
@@ -791,73 +659,61 @@ public class Congreso {
       switch (slot) {
 
         case "media1":
-          setMedia1Nombre(null);
           setMedia1MimeType(null);
           setMedia1ImgData(null);
           break;
 
         case "media2":
-          setMedia2Nombre(null);
           setMedia2MimeType(null);
           setMedia2ImgData(null);
           break;
 
         case "media3":
-          setMedia3Nombre(null);
           setMedia3MimeType(null);
           setMedia3ImgData(null);
           break;
 
         case "media4":
-          setMedia4Nombre(null);
           setMedia4MimeType(null);
           setMedia4ImgData(null);
           break;
 
         case "media5":
-          setMedia5Nombre(null);
           setMedia5MimeType(null);
           setMedia5ImgData(null);
           break;
 
         case "media6":
-          setMedia6Nombre(null);
           setMedia6MimeType(null);
           setMedia6ImgData(null);
           break;
 
         case "mediaEvt1":
-          setMediaEvt1Nombre(null);
           setMediaEvt1MimeType(null);
           setMediaEvt1ImgData(null);
           break;
 
         case "mediaEvt2":
-          setMediaEvt2Nombre(null);
           setMediaEvt2MimeType(null);
           setMediaEvt2ImgData(null);
           break;
 
         case "mediaEvt3":
-          setMediaEvt3Nombre(null);
           setMediaEvt3MimeType(null);
           setMediaEvt3ImgData(null);
           break;
 
         case "mediaEvt4":
-          setMediaEvt4Nombre(null);
           setMediaEvt4MimeType(null);
           setMediaEvt4ImgData(null);
           break;
 
         case "mediaEvt5":
-          setMediaEvt5Nombre(null);
           setMediaEvt5MimeType(null);
           setMediaEvt5ImgData(null);
           break;
 
         case "mediaEvt6":
-          setMediaEvt6Nombre(null);
           setMediaEvt6MimeType(null);
           setMediaEvt6ImgData(null);
           break;
@@ -875,73 +731,61 @@ public class Congreso {
       switch (slot) {
 
         case "media1":
-          setMedia1Nombre(name);
           setMedia1MimeType(mime);
           setMedia1ImgData(bytes);
           break;
 
         case "media2":
-          setMedia2Nombre(name);
           setMedia2MimeType(mime);
           setMedia2ImgData(bytes);
           break;
 
         case "media3":
-          setMedia3Nombre(name);
           setMedia3MimeType(mime);
           setMedia3ImgData(bytes);
           break;
 
         case "media4":
-          setMedia4Nombre(name);
           setMedia4MimeType(mime);
           setMedia4ImgData(bytes);
           break;
 
         case "media5":
-          setMedia5Nombre(name);
           setMedia5MimeType(mime);
           setMedia5ImgData(bytes);
           break;
 
         case "media6":
-          setMedia6Nombre(name);
           setMedia6MimeType(mime);
           setMedia6ImgData(bytes);
           break;
 
         case "mediaEvt1":
-          setMediaEvt1Nombre(name);
           setMediaEvt1MimeType(mime);
           setMediaEvt1ImgData(bytes);
           break;
 
         case "mediaEvt2":
-          setMediaEvt2Nombre(name);
           setMediaEvt2MimeType(mime);
           setMediaEvt2ImgData(bytes);
           break;
 
         case "mediaEvt3":
-          setMediaEvt3Nombre(name);
           setMediaEvt3MimeType(mime);
           setMediaEvt3ImgData(bytes);
           break;
 
         case "mediaEvt4":
-          setMediaEvt4Nombre(name);
           setMediaEvt4MimeType(mime);
           setMediaEvt4ImgData(bytes);
           break;
 
         case "mediaEvt5":
-          setMediaEvt5Nombre(name);
           setMediaEvt5MimeType(mime);
           setMediaEvt5ImgData(bytes);
           break;
 
         case "mediaEvt6":
-          setMediaEvt6Nombre(name);
           setMediaEvt6MimeType(mime);
           setMediaEvt6ImgData(bytes);
           break;

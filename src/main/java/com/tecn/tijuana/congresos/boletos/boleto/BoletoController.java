@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import jakarta.validation.constraints.Max;
@@ -51,7 +52,7 @@ public class BoletoController {
   /**
    * Permite a un ALUMNO inscribirse a CONGRESO, generando su BOLETO.
    *
-   * @param boleto
+   * @param dto
    * Objeto con los datos del BOLETO.
    *
    * @param actor
@@ -67,13 +68,13 @@ public class BoletoController {
   public ResponseEntity<Boleto> inscribirse (
 
     @RequestBody
-    Boleto boleto,
+    RegistroBoletoDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.inscribirse(actor, boleto),
+      bolSvc.inscribirse(actor, dto),
       HttpStatus.CREATED);
   }
 
@@ -81,7 +82,7 @@ public class BoletoController {
    * Permite al personal autorizado inscribir un ALUMNO a un CONGRESO, generando
    * su BOLETO.
    *
-   * @param boleto
+   * @param dto
    * Objeto con los datos del BOLETO.
    *
    * @param actor
@@ -97,13 +98,13 @@ public class BoletoController {
   public ResponseEntity<Boleto> inscribir (
 
     @RequestBody
-    Boleto boleto,
+    RegistroBoletoDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.inscribir(actor, boleto),
+      bolSvc.inscribir(actor, dto),
       HttpStatus.CREATED);
   }
 

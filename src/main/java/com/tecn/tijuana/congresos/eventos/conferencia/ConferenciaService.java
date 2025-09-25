@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
+import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
@@ -308,11 +309,29 @@ public class ConferenciaService {
    * @param actor
    * USUARIO ejecutor de la operacion.
    *
-   * @param conferencia
-   * Datos del Conferencia.
+   * @param dto
+   * Datos del CONFERENCIA.
    *
    * @return
-   * El Conferencia recien registrado en la BD.
+   * El nuevo registro.
+   */
+  public Conferencia registrar (Usuario actor, RegistroConferenciaDto dto)
+    throws ResponseStatusException {
+
+    return registrar(actor, Conferencia.nueva(actor.getId(), dto));
+  }
+
+  /**
+   * Permite ORGANIZADORES registrar nuevas CONFERENCIAS.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param conferencia
+   * Datos del CONFERENCIA.
+   *
+   * @return
+   * El nuevo registro.
    */
   public Conferencia registrar (Usuario actor, Conferencia conferencia)
     throws ResponseStatusException {
