@@ -924,4 +924,19 @@ public class Conferencia {
     }
     return this;
   }
+
+
+
+  /**
+   * Incrementa el contador de asistencias.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Conferencia sumarAsistencia () {
+
+    setAsistencias(getAsistencias() + 1);
+
+    return this;
+  }
 }

@@ -796,4 +796,19 @@ public class Congreso {
     }
     return this;
   }
+
+
+
+  /**
+   * Incrementa el contador de asistencias.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarAsistencia () {
+
+    setAsistencias(getAsistencias() + 1);
+
+    return this;
+  }
 }

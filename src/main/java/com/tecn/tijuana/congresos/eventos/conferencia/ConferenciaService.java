@@ -529,6 +529,39 @@ public class ConferenciaService {
 
 
   /**
+   * Incrementa el contador de asistencias.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Conferencia sumarAsistencia (
+    Long id
+  ) {
+    return sumarAsistencia(afirmar(id));
+  }
+
+  /**
+   * Incrementa el contador de asistencias.
+   *
+   * @param conferencia
+   * El registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Conferencia sumarAsistencia (
+    Conferencia conferencia
+  ) {
+    // Actualizar, guardar y retornar el registro.
+    return confRep.saveAndFlush(conferencia.sumarAsistencia());
+  }
+
+
+
+  /**
    * Determina si el actor es el ORGANIZADOR del registro especificado.
    * Sino, lanza error HTTP-401.
    *

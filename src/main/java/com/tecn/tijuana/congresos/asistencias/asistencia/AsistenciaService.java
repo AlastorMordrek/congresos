@@ -170,6 +170,9 @@ public class AsistenciaService {
       return boleto;
     }
 
+    // Incrementar contador de asistencias del CONGRESO.
+    congSvc.sumarAsistencia(congreso);
+
     // Actualizar, guardar y retornar el registro.
     return bolSvc.marcar(boleto);
   }
@@ -304,6 +307,14 @@ public class AsistenciaService {
     // Comprobar que la CONFERENCIA este en curso actualmente.
     ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
 
+    if (!boleto.isUsado()) {
+      // Marcar el BOLETO.
+      bolSvc.marcar(boleto);
+
+      // Incrementar contador de asistencias del CONGRESO.
+      congSvc.sumarAsistencia(congreso);
+    }
+
     // Intentar encontrar una ASISTENCIA existente.
     var asistencia = qConferenciaIdAlumnoId(
       conferencia.getId(), boleto.getAlumnoId());
@@ -322,6 +333,9 @@ public class AsistenciaService {
 
     // Estampar el BOLETO.
     bolSvc.estampar(boleto);
+
+    // Incrementar contador de asistencias de la CONFERENCIA.
+    confSvc.sumarAsistencia(conferencia);
 
     // Registrar y retornar la nueva AISTENCIA.
     return astRep.saveAndFlush(Asistencia.nuevo(
@@ -608,8 +622,13 @@ public class AsistenciaService {
     // Comprobar que la CONFERENCIA este en curso actualmente.
     ConferenciaService.afirmarNoCanceladaConcluida(conferencia);
 
-    // Marcar el BOLETO.
-    bolSvc.marcar(boleto);
+    if (!boleto.isUsado()) {
+      // Marcar el BOLETO.
+      bolSvc.marcar(boleto);
+
+      // Incrementar contador de asistencias del CONGRESO.
+      congSvc.sumarAsistencia(congreso);
+    }
 
     // Intentar encontrar una ASISTENCIA existente.
     var asistencia = qConferenciaIdAlumnoId(
@@ -622,6 +641,9 @@ public class AsistenciaService {
 
       // Estampar el BOLETO.
       bolSvc.estampar(boleto);
+
+      // Incrementar contador de asistencias de la CONFERENCIA.
+      confSvc.sumarAsistencia(conferencia);
     }
 
     // Actualizar, guardar y retornar el registro.

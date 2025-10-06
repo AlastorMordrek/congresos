@@ -661,6 +661,39 @@ public class CongresoService {
 
 
   /**
+   * Incrementa el contador de asistencias.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarAsistencia (
+    Long id
+  ) {
+    return sumarAsistencia(afirmar(id));
+  }
+
+  /**
+   * Incrementa el contador de asistencias.
+   *
+   * @param congreso
+   * El registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarAsistencia (
+    Congreso congreso
+  ) {
+    // Actualizar, guardar y retornar el registro.
+    return conRep.saveAndFlush(congreso.sumarAsistencia());
+  }
+
+
+
+  /**
    * Determina si el registro tiene un rango de fechas valido.
    *
    * @param congreso
