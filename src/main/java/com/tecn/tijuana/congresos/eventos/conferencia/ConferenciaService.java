@@ -659,6 +659,47 @@ public class ConferenciaService {
    * @return
    * El registro validado.
    */
+  public Conferencia afirmarConcluida (
+    Long id
+  ) {
+    return afirmarConcluida(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarConcluida (
+    Conferencia reg
+  ) {
+    if (LocalDateTime.now().isBefore(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "La conferencia no ha concluido");
+    }
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
   public Conferencia afirmarNoCancelada (
     Long id
   ) {
@@ -721,5 +762,41 @@ public class ConferenciaService {
     Conferencia reg
   ) {
     return afirmarEnCurso(afirmarNoCancelada(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarNoCanceladaConcluida (
+    Long id
+  ) {
+    return afirmarNoCanceladaConcluida(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarNoCanceladaConcluida (
+    Conferencia reg
+  ) {
+    return afirmarConcluida(afirmarNoCancelada(reg));
   }
 }

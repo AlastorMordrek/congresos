@@ -161,7 +161,7 @@ public class AsistenciaService {
     var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
 
     // Comprobar que el CONGRESO no este CANCELADO.
-    // Comproabr que el CONGRESO este en curso actualmente.
+    // Comprobar que el CONGRESO este en curso actualmente.
     CongresoService.afirmarNoCanceladoEnCurso(congreso);
 
     // Si el BOLETO ya esta marcado, no es necesario repetir la operacion,
@@ -289,7 +289,7 @@ public class AsistenciaService {
     }
 
     // Comprobar que el CONGRESO no este CANCELADO.
-    // Comproabr que el CONGRESO este en curso actualmente.
+    // Comprobar que el CONGRESO este en curso actualmente.
     CongresoService.afirmarNoCanceladoEnCurso(congreso);
 
     // Comprobar que el BOLETO no este CANCELADO.
@@ -301,7 +301,7 @@ public class AsistenciaService {
 
     // Encontrar la CONFERENCIA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
-    // Comproabr que la CONFERENCIA este en curso actualmente.
+    // Comprobar que la CONFERENCIA este en curso actualmente.
     ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
 
     // Intentar encontrar una ASISTENCIA existente.
@@ -443,7 +443,7 @@ public class AsistenciaService {
     }
 
     // Comprobar que el CONGRESO no este CANCELADO.
-    // Comproabr que el CONGRESO este en curso actualmente.
+    // Comprobar que el CONGRESO este en curso actualmente.
     CongresoService.afirmarNoCanceladoEnCurso(congreso);
 
     // Comprobar que el BOLETO no este CANCELADO.
@@ -455,7 +455,7 @@ public class AsistenciaService {
 
     // Encontrar la CONFERENCIA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
-    // Comproabr que la CONFERENCIA este en curso actualmente.
+    // Comprobar que la CONFERENCIA este en curso actualmente.
     ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
 
     // Encontrar la ASISTENCIA existente.
@@ -593,7 +593,7 @@ public class AsistenciaService {
     }
 
     // Comprobar que el CONGRESO no este CANCELADO.
-    // Comproabr que el CONGRESO este en curso actualmente.
+    // Comprobar que el CONGRESO este en curso actualmente.
     CongresoService.afirmarNoCanceladoEnCurso(congreso);
 
     // Comprobar que el BOLETO no este CANCELADO.
@@ -605,12 +605,24 @@ public class AsistenciaService {
 
     // Encontrar la CONFERENCIA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
-    // Comproabr que la CONFERENCIA este en curso actualmente.
-    ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
+    // Comprobar que la CONFERENCIA este en curso actualmente.
+    ConferenciaService.afirmarNoCanceladaConcluida(conferencia);
 
-    // Encontrar la ASISTENCIA existente.
+    // Marcar el BOLETO.
+    bolSvc.marcar(boleto);
+
+    // Intentar encontrar una ASISTENCIA existente.
     var asistencia = qConferenciaIdAlumnoId(
       conferencia.getId(), boleto.getAlumnoId());
+
+    // Si no tenia ASISTENCIA previa registrarla.
+    if (Objects.isNull(asistencia)) {
+      asistencia = astRep.saveAndFlush(Asistencia.nuevo(
+        actor, alumno, congreso, conferencia, boleto));
+
+      // Estampar el BOLETO.
+      bolSvc.estampar(boleto);
+    }
 
     // Actualizar, guardar y retornar el registro.
     return astRep.saveAndFlush(

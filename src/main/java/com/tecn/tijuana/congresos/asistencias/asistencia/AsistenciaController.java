@@ -286,6 +286,46 @@ public class AsistenciaController {
 
 
 
+  /**
+   * Permite al personal autorizado indicar que un ALUMNO asistio a una
+   * CONFERENCIA completa.
+   *
+   * @param conferenciaId
+   * ID de la CONFERENCIA.
+   *
+   * @param noControlAlumno
+   * Numero de Control del ALUMNO.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * La ASISTENCIA registrada/actualizada.
+   */
+  @PostMapping("asistioConferenciaCompleta/{conferenciaId}/" +
+    "noControlAlumno/{noControlAlumno}")
+
+  @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
+
+  public ResponseEntity<Asistencia> asistioConferenciaCompletaConNoControl (
+
+    @PathVariable
+    Long conferenciaId,
+
+    @PathVariable
+    String noControlAlumno,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      astSvc.alumnoAsistioConferenciaCompletaConNoControl(
+        actor, conferenciaId, noControlAlumno),
+      HttpStatus.CREATED);
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 
