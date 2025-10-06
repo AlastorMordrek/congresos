@@ -173,6 +173,28 @@ public class CongresoService {
       .getContent();
   }
 
+
+
+  /**
+   * Permite a un ORGANIZADOR consultar sus propios CONGRESOS.
+   *
+   * @param page
+   * Numero de pagina (0-based).
+   *
+   * @param pageSize
+   * Cantidad de resultados por pagina.
+   *
+   * @return
+   * Lista de registros encontrados.
+   */
+  public List<Congreso> mios (
+    Usuario actor, int page, int pageSize
+  ) {
+    return conRep
+      .porOrganizador(actor.getId(), Api.pagina(page, pageSize))
+      .getContent();
+  }
+
   /**
    * Permite consultar los CONGRESOS de un ORGANIZADOR usando una posible
    * busqueda de texto.
@@ -204,6 +226,8 @@ public class CongresoService {
       .buscarPorOrganizador(actor.getId(), txt.toLowerCase().trim(), pg)
       .getContent();
   }
+
+
 
   /**
    * Consulta los CONGRESOS publicados usando una busqueda de texto.
@@ -656,11 +680,11 @@ public class CongresoService {
     var inicio = congreso.getInscripcionesFechaInicio();
     var fin = congreso.getInscripcionesFechaFin();
 
-    if (!periodoFuturo(inicio, fin)) {
-      throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST,
-        "Las fechas de inscripciones deben ser en el futuro.");
-    }
+//    if (!periodoFuturo(inicio, fin)) {
+//      throw new ResponseStatusException(
+//        HttpStatus.BAD_REQUEST,
+//        "Las fechas de inscripciones deben ser en el futuro.");
+//    }
 
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
@@ -674,14 +698,15 @@ public class CongresoService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion del congreso debe ser al menos 1 hora y maximo 7 dias.");
+        "La duracion del congreso debe ser" +
+          " al menos 1 hora y maximo 30 dias.");
     }
 
-    if (!periodoOrdenCorrecto(fin, congreso.getFechaInicio())) {
+    if (!periodoOrdenCorrecto(fin, congreso.getFechaFin())) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "La fecha de terminacion de inscripciones debe ser antes que la fecha" +
-          " de inicio del ccongreso.");
+          " de terminacion del congreso.");
     }
 
     return congreso;
@@ -705,11 +730,11 @@ public class CongresoService {
     var inicio = congreso.getFechaInicio();
     var fin = congreso.getFechaFin();
 
-    if (!periodoFuturo(inicio, fin)) {
-      throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST,
-        "Las fechas deben ser en el futuro.");
-    }
+//    if (!periodoFuturo(inicio, fin)) {
+//      throw new ResponseStatusException(
+//        HttpStatus.BAD_REQUEST,
+//        "Las fechas deben ser en el futuro.");
+//    }
 
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
@@ -728,25 +753,27 @@ public class CongresoService {
     return congreso;
   }
 
-  /**
-   * Determina si el periodo descrito por la fecha de inicio y la fecha de
-   * terminacion especificadas es en el futuro.
-   *
-   * @param inicio
-   * Fecha de inicio.
-   *
-   * @param fin
-   * Fecha de terminacion.
-   *
-   * @return
-   * true = correcto.
-   * true = incorrecto.
-   */
-  public static boolean periodoFuturo (LocalDateTime inicio, LocalDateTime fin) {
-    var now = LocalDateTime.now();
-
-    return inicio.isAfter(now) && fin.isAfter(now);
-  }
+//  /**
+//   * Determina si el periodo descrito por la fecha de inicio y la fecha de
+//   * terminacion especificadas es en el futuro.
+//   *
+//   * @param inicio
+//   * Fecha de inicio.
+//   *
+//   * @param fin
+//   * Fecha de terminacion.
+//   *
+//   * @return
+//   * true = correcto.
+//   * true = incorrecto.
+//   */
+//  public static boolean periodoFuturo (
+//    LocalDateTime inicio, LocalDateTime fin
+//  ) {
+//    var now = LocalDateTime.now();
+//
+//    return inicio.isAfter(now) && fin.isAfter(now);
+//  }
 
   /**
    * Determina si el periodo descrito por la fecha de inicio y la fecha de

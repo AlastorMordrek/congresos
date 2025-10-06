@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public  class RegistroBoletoDto {
+public class RegistroBoletoDto {
 
 
   /**

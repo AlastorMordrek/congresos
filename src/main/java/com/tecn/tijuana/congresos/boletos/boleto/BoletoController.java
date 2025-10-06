@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.boletos.boleto.dto.BoletoInscribirseDto;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
@@ -68,7 +69,7 @@ public class BoletoController {
   public ResponseEntity<Boleto> inscribirse (
 
     @RequestBody
-    RegistroBoletoDto dto,
+    BoletoInscribirseDto dto,
 
     @AuthenticationPrincipal
     Usuario actor
@@ -241,6 +242,40 @@ public class BoletoController {
   }
 
 
+
+  /**
+   * Permite a un ALUMNO consultar sus boletos.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("mios")
+
+  @PreAuthorize("hasRole('ALUMNO')")
+
+  public ResponseEntity<List<Boleto>> mios (
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.qMios(actor, page, pageSize),
+      HttpStatus.OK);
+  }
 
   /**
    * Permite a un ALUMNO consultar sus boletos usando una busqueda de texto.

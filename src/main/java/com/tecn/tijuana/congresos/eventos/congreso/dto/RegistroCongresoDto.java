@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public  class RegistroCongresoDto {
+public class RegistroCongresoDto {
 
 
   /**

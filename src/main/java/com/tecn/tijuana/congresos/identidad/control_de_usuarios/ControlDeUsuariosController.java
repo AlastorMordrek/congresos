@@ -597,6 +597,39 @@ public class ControlDeUsuariosController {
   // CONSULTAS.
 
   /**
+   * Consulta los USUARIOS en general.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   */
+  @GetMapping("listar")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
+
+  public ResponseEntity<List<Usuario>> listar (
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      usrSvc.q(page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
    * Consulta los USUARIOS en general, opcionalmente usando una busqueda de
    * texto.
    *

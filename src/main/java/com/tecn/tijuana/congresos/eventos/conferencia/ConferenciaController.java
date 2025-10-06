@@ -309,6 +309,9 @@ public class ConferenciaController {
   /**
    * Consulta los registros publicados de un CONGRESO indiscriminadamente.
    *
+   * @param congresoId
+   * Id del CONGRESO.
+   *
    * @param page {@code [0]}
    * Numero de pagina.
    *
@@ -318,11 +321,11 @@ public class ConferenciaController {
    * @return
    * Los registros encontrados.
    */
-  @GetMapping("publicadas")
+  @GetMapping("publicadas/congreso/{congresoId}")
 
-  public ResponseEntity<List<Conferencia>> publicadosCongreso (
+  public ResponseEntity<List<Conferencia>> qCongresoIdPublicado (
 
-    @RequestParam(name = "congresoId")
+    @PathVariable("congresoId")
     Long congresoId,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
@@ -334,7 +337,7 @@ public class ConferenciaController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      confSvc.qCongresoPublicadas(congresoId, page, pageSize),
+      confSvc.qCongresoIdPublicadas(congresoId, page, pageSize),
       HttpStatus.OK);
   }
 
@@ -416,6 +419,45 @@ public class ConferenciaController {
     Long id
   ) {
     return new ResponseEntity<>(confSvc.afirmar(id), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta los registros de un CONGRESO indiscriminadamente.
+   *
+   * @param congresoId
+   * Id del CONGRESO.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("congreso/{congresoId}")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONFERENCIAS_NO_PUBLICADAS)
+
+  public ResponseEntity<List<Conferencia>> qCongresoId (
+
+    @PathVariable("congresoId")
+    Long congresoId,
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize
+  ) {
+    return new ResponseEntity<>(
+      confSvc.qCongresoId(congresoId, page, pageSize),
+      HttpStatus.OK);
   }
 
 

@@ -528,6 +528,40 @@ public class CongresoController {
 
 
   /**
+   * Permite a un ORGANIZADOR consultar sus propios CONGRESOS.
+   *
+   * @param page {@code [0]}
+   * Numero de pagina.
+   *
+   * @param pageSize {@code [10]}
+   * Tamano de pagina.
+   *
+   * @return
+   * Los registros encontrados.
+   */
+  @GetMapping("mios")
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_CONGRESOS_PROPIOS)
+
+  public ResponseEntity<List<Congreso>> mios (
+
+    @RequestParam(name = "page", required = false, defaultValue = "0")
+    @Min(0) @Max(999)
+    int page,
+
+    @RequestParam(name = "pageSize", required = false, defaultValue = "10")
+    @Min(1) @Max(100)
+    int pageSize,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      conSvc.mios(actor, page, pageSize),
+      HttpStatus.OK);
+  }
+
+  /**
    * Permite a un ORGANIZADOR consultar sus propios CONGRESOS usando una
    * busqueda de texto opcional.
    *

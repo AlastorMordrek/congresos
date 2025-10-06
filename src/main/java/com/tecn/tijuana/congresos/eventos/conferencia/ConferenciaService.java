@@ -1,7 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
 import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
-import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
@@ -66,7 +65,7 @@ public class ConferenciaService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Conferencia> qCongreso (
+  public List<Conferencia> qCongresoId (
     Long congresoId,
     int page,
     int pageSize
@@ -90,7 +89,7 @@ public class ConferenciaService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Conferencia> qCongresoPublicadas (
+  public List<Conferencia> qCongresoIdPublicadas (
     Long congresoId,
     int page,
     int pageSize
@@ -579,11 +578,11 @@ public class ConferenciaService {
     var inicio = conferencia.getFechaInicio();
     var fin = conferencia.getFechaFin();
 
-    if (!CongresoService.periodoFuturo(inicio, fin)) {
-      throw new ResponseStatusException(
-        HttpStatus.BAD_REQUEST,
-        "Las fechas deben ser en el futuro.");
-    }
+//    if (!CongresoService.periodoFuturo(inicio, fin)) {
+//      throw new ResponseStatusException(
+//        HttpStatus.BAD_REQUEST,
+//        "Las fechas deben ser en el futuro.");
+//    }
 
     if (!CongresoService.periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(

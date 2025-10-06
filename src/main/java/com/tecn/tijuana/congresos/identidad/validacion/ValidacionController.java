@@ -66,7 +66,7 @@ public class ValidacionController {
   @PostMapping(path = "registrarse")
 
   @Operation(
-    summary = "Registrar un nuevo alumno",
+    summary = "Registrarse como alumno",
     description = "Permite a un alumno registrarse en el sistema",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "Datos del alumno a registrar",

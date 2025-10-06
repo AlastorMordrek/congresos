@@ -164,7 +164,7 @@ public class Asistencia {
    * Suma del tiempo que paso en la CONFERENCIA en segundos.
    * */
   @Column
-  private Duration tiempoAsistido;
+  private Long tiempoAsistido = 0L;
 
 
 
@@ -316,16 +316,16 @@ public class Asistencia {
     }
 
     // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, LocalDateTime.now());
+    var duracion = Duration.between(ultima, LocalDateTime.now()).toSeconds();
 
     // Tiempo total asistido a la conferencia especifica actualmente.
     var asistido = getTiempoAsistido();
 
     // Sumar la nueva duracion al tiempo total asistido.
-    if (Objects.isNull(asistido)) {
+    if (Objects.isNull(asistido) || asistido == 0) {
       setTiempoAsistido(duracion);
     } else {
-      setTiempoAsistido(asistido.plus(duracion));
+      setTiempoAsistido(asistido + duracion);
     }
 
     // Remover fecha de entrada previa.
@@ -351,9 +351,12 @@ public class Asistencia {
 
     // Establecer tiempo asistido total como la duracion completa de la
     // CONFERENCIA.
-    setTiempoAsistido(Duration.between(
-      conferencia.getFechaInicio(),
-      conferencia.getFechaFin()));
+    setTiempoAsistido(
+      Duration.between(
+          conferencia.getFechaInicio(),
+          conferencia.getFechaFin())
+        .toSeconds()
+    );
 
     // Retornar objeto actualizado.
     return this;

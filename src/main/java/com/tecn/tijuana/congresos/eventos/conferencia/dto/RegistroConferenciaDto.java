@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public  class RegistroConferenciaDto {
+public class RegistroConferenciaDto {
 
 
   /**

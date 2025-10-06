@@ -30,7 +30,7 @@ public class Conferencia {
   //----------------------------------------------------------------------------
   // Variables auxiliares de clase.
 
-  public static final int DURACION_MIN = 30 * 60; // 30m
+  public static final int DURACION_MIN = 60 * 60; // 1h
   public static final int DURACION_MAX = 8 * 60 * 60; // 8h
 
   public static final boolean PUBLICADA = true;

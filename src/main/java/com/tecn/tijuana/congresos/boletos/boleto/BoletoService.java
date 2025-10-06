@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.boletos.boleto.dto.BoletoInscribirseDto;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuariosService;
@@ -66,26 +67,46 @@ public class BoletoService {
    * USUARIO ejecutor de la operacion.
    *
    * @param dto
-   * Datos del registro.
+   * Objeto con los datos del BOLETO.
    *
    * @return
    * El registro creado.
    */
   public Boleto inscribirse (
-    Usuario actor, RegistroBoletoDto dto
+    Usuario actor, BoletoInscribirseDto dto
+  )
+    throws ResponseStatusException {
+
+    return inscribirse(actor, dto.congresoId);
+  }
+
+  /**
+   * Permite ALUMNOS inscribirse a un CONGRESO.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param congresoId
+   * ID del CONGRESO al que desea inscribirse.
+   *
+   * @return
+   * El registro creado.
+   */
+  public Boleto inscribirse (
+    Usuario actor, Long congresoId
   )
     throws ResponseStatusException {
 
     // Comprobar que el ALUMNO no esta inscrito ya a ese CONGRESO.
-    afirmarAlumnoNoInscrito(dto.getCongresoId(), actor.getId());
+    afirmarAlumnoNoInscrito(congresoId, actor.getId());
 
     // Comprobar que el CONGRESO existe y validarlo.
     var congreso = congSvc
       .afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible(
-        dto.getCongresoId());
+        congresoId);
 
     // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(actor, dto, congreso, actor));
+    return bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, actor));
   }
 
 
@@ -141,7 +162,7 @@ public class BoletoService {
       congreso);
 
     // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(actor, dto, congreso, alumno));
+    return bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, alumno));
   }
 
 

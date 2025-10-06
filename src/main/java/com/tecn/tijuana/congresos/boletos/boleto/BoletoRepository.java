@@ -65,7 +65,7 @@ public interface BoletoRepository
 
 
   @Query("SELECT r FROM Boleto r WHERE" +
-    " r.congresoId = ?1" +
+    " r.alumnoId = ?1" +
     " AND (" +
     "   lower(r.folio)                like %:txt%"+
     "   OR lower(r.folioLargo)        like %:txt%"+
