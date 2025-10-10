@@ -1,6 +1,7 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
-import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsuarioDto;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto
+  .RegistroUsuarioDto;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -94,7 +95,7 @@ public class ControlDeUsuariosController {
   "nombre": "Jose",
   "apellidoPaterno": "Perez",
   "apellidoMaterno": "Perez",
-  "fechaNacimiento": "2001-01-01"
+  "fechaNacimiento": "2001-01-01T00:00:00"
 }
 """
           ),
@@ -114,7 +115,7 @@ public class ControlDeUsuariosController {
   "nombre": "Jose",
   "apellidoPaterno": "Perez",
   "apellidoMaterno": "Perez",
-  "fechaNacimiento": "2001-01-01"
+  "fechaNacimiento": "2001-01-01T00:00:00"
 }
 """
           ),
@@ -134,7 +135,7 @@ public class ControlDeUsuariosController {
   "nombre": "Jose",
   "apellidoPaterno": "Perez",
   "apellidoMaterno": "Perez",
-  "fechaNacimiento": "2001-01-01",
+  "fechaNacimiento": "2001-01-01T00:00:00",
   
   "staffResponsabilidades": "Este Staff tendra que hacer de todo",
   "staffAutorizado": true,
@@ -160,7 +161,7 @@ public class ControlDeUsuariosController {
   "nombre": "Jose",
   "apellidoPaterno": "Perez",
   "apellidoMaterno": "Perez",
-  "fechaNacimiento": "2001-01-01",
+  "fechaNacimiento": "2001-01-01T00:00:00",
   
   "noControl": "12345678",
   "codigoCarrera": "ISC",
@@ -190,7 +191,7 @@ public class ControlDeUsuariosController {
           value = """
 {
     "id": 18,
-    "fechaCreacion": "2025-09-24",
+    "fechaCreacion": "2025-09-24T00:00:00",
     "creadorId": null,
     "rol": "ALUMNO",
     "email": "lalelilolu@pm.me",
@@ -203,7 +204,7 @@ public class ControlDeUsuariosController {
     "nombre": "Silas",
     "apellidoPaterno": "Mordrek",
     "apellidoMaterno": "Tres",
-    "fechaNacimiento": "2000-01-11",
+    "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
     "codigoCarrera": "ISC",
     "semestre": 1,
@@ -225,7 +226,9 @@ public class ControlDeUsuariosController {
       responseCode = "400",
       description = "Error de validacion",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Parametros incorrectos",
@@ -238,8 +241,9 @@ public class ControlDeUsuariosController {
   "instance": "/api/v1/identidad/control-de-usuarios/registrar",
   "timestamp": "2025-09-24T01:14:16.801076563Z",
   "campos": {
-    "registroUsuarioDto.email": "Email invalido",
-    "registroUsuarioDto.password": "La clave debe tener entre 8 y 100 caracteres"
+    "registroUsuarioDto.emailInstitucional": "Email invalido",
+    "registroUsuarioDto.password":
+     "La clave debe tener entre 8 y 100 caracteres"
   }
 }
 """
@@ -250,7 +254,9 @@ public class ControlDeUsuariosController {
       responseCode = "409",
       description = "Conflicto",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "El email ya esta registrado",
@@ -271,7 +277,9 @@ public class ControlDeUsuariosController {
       responseCode = "500",
       description = "Error interno",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Ejemplo de error no controlado",
@@ -326,6 +334,152 @@ public class ControlDeUsuariosController {
    */
   @PatchMapping("editar/{id}")
 
+  @Operation(
+    summary = "Editar usuario",
+    description = "Permite a un personal autorizado editar a otro usuario",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Datos del usuario editado",
+      required = true,
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Editar",
+          description = "Ejemplo de peticion para editar usuario",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": false,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Usuario editado exitosamente",
+          value = """
+{
+    "id": 18,
+    "fechaCreacion": "2025-09-24T00:00:00",
+    "creadorId": null,
+    "rol": "ALUMNO",
+    "email": "lalelilolu@pm.me",
+    "bloqueado": false,
+    "expirado": false,
+    "credencialesExpiradas": false,
+    "deshabilitado": false,
+    "telPref": "52",
+    "telSuf": "6641112222",
+    "nombre": "Silas",
+    "apellidoPaterno": "Mordrek",
+    "apellidoMaterno": "Tres",
+    "fechaNacimiento": "2000-01-11T00:00:00",
+    "noControl": "11211522",
+    "codigoCarrera": "ISC",
+    "semestre": 1,
+    "grupo": "A",
+    "externo": false,
+    "curp": "ABCD900121HMNSRL01",
+    "emailInstitucional": "lalelilolu@pm.me",
+    "staffResponsabilidades": null,
+    "staffAutorizado": false,
+    "staffCustodio": false,
+    "staffAlumnos": false,
+    "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Error de validacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Parametros incorrectos o validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for object='Usuario'. Error count: 1",
+  "instance": "/api/v1/identidad/validacion/registrarse",
+  "timestamp": "2025-09-24T01:14:16.801076563Z",
+  "campos": {
+    "Usuario.emailInstitucional": "Email invalido"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/validacion/registrarse",
+  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
+
   public ResponseEntity<Usuario> editar (
 
     @PathVariable
@@ -363,7 +517,8 @@ public class ControlDeUsuariosController {
 
   @Operation(
     summary = "Editar slot de multimedia",
-    description = "Edita el contenido multimedoa del registro en el slot especificado.",
+    description = "Edita el contenido multimedia del registro en el slot" +
+      " especificado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "Contenido del archivo multimedia",
       required = true,
@@ -372,7 +527,8 @@ public class ControlDeUsuariosController {
         examples = {
           @ExampleObject(
             name = "Nueva imagen",
-            description = "Ejemplo de peticion para poner una nueva imagen en el slot",
+            description = "Ejemplo de peticion para poner una nueva imagen" +
+              " en el slot",
             value = """
 {
   "img": <CONTENIDO DEL ARCHIVO>
@@ -392,6 +548,8 @@ public class ControlDeUsuariosController {
       )
     )
   )
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
 
   public void editarMedia (
 
@@ -427,6 +585,150 @@ public class ControlDeUsuariosController {
    */
   @PatchMapping("editarme")
 
+  @Operation(
+    summary = "Editar usuario propio",
+    description = "Permite a un usuario editar sus datos",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Datos nuevos",
+      required = true,
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Editar",
+          description = "Ejemplo de peticion para editar sus propios datos",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": false,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Operacion exitosa",
+          value = """
+{
+    "id": 18,
+    "fechaCreacion": "2025-09-24T00:00:00",
+    "creadorId": null,
+    "rol": "ALUMNO",
+    "email": "lalelilolu@pm.me",
+    "bloqueado": false,
+    "expirado": false,
+    "credencialesExpiradas": false,
+    "deshabilitado": false,
+    "telPref": "52",
+    "telSuf": "6641112222",
+    "nombre": "Silas",
+    "apellidoPaterno": "Mordrek",
+    "apellidoMaterno": "Tres",
+    "fechaNacimiento": "2000-01-11T00:00:00",
+    "noControl": "11211522",
+    "codigoCarrera": "ISC",
+    "semestre": 1,
+    "grupo": "A",
+    "externo": false,
+    "curp": "ABCD900121HMNSRL01",
+    "emailInstitucional": "lalelilolu@pm.me",
+    "staffResponsabilidades": null,
+    "staffAutorizado": false,
+    "staffCustodio": false,
+    "staffAlumnos": false,
+    "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Error de validacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Parametros incorrectos o validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for object='Usuario'. Error count: 1",
+  "instance": "/api/v1/identidad/validacion/registrarse",
+  "timestamp": "2025-09-24T01:14:16.801076563Z",
+  "campos": {
+    "Usuario.emailInstitucional": "Email invalido"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/validacion/registrarse",
+  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   public ResponseEntity<Usuario> editarme (
 
     @RequestBody
@@ -457,8 +759,9 @@ public class ControlDeUsuariosController {
   @PatchMapping("editarme/media/{slot}")
 
   @Operation(
-    summary = "Editar slot de multimedia",
-    description = "Edita el contenido multimedoa del registro en el slot especificado.",
+    summary = "Editar slot de multimedia propio",
+    description = "Permite a un usuario editar sus propiedades tipo" +
+      " multimedia (ej: foto de perfil).",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "Contenido del archivo multimedia",
       required = true,
@@ -467,7 +770,8 @@ public class ControlDeUsuariosController {
         examples = {
           @ExampleObject(
             name = "Nueva imagen",
-            description = "Ejemplo de peticion para poner una nueva imagen en el slot",
+            description = "Ejemplo de peticion para poner una nueva imagen" +
+              " en el slot",
             value = """
 {
   "img": <CONTENIDO DEL ARCHIVO>
@@ -517,6 +821,100 @@ public class ControlDeUsuariosController {
    */
   @DeleteMapping("eliminar/{id}")
 
+  @Operation(
+    summary = "Eliminar usuario",
+    description = "Permite a un usuario con los permisos suficientes eliminar" +
+      " a otro usuario del sistema."
+  )
+  
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "204",
+      description = "Usuario eliminado exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Eliminacion exitosa, sin contenido en la respuesta",
+          value = "{}"
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para" +
+            " eliminar a otros usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/eliminar/7",
+  "timestamp": "2025-09-24T03:21:45.501858123Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario con el ID especificado no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 7",
+  "instance": "/api/v1/identidad/control-de-usuarios/eliminar/7",
+  "timestamp": "2025-09-24T03:22:17.701247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/eliminar/7",
+  "timestamp": "2025-09-24T03:23:09.145127600Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+  
+  @PreAuthorize(ExpresionSeguridad.ELIMINAR_USUARIOS)
+
   public void eliminar (
 
     @PathVariable("id")
@@ -526,11 +924,6 @@ public class ControlDeUsuariosController {
     Usuario actor
   ) {
     var deleted = usrSvc.eliminar(actor, id);
-//    if (Objects.isNull(deleted)) {
-//      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    } else {
-//      return new ResponseEntity<>(deleted, HttpStatus.OK);
-//    }
   }
 
 
@@ -549,6 +942,131 @@ public class ControlDeUsuariosController {
    * Respuesta HTTP acorde.
    */
   @PatchMapping("bloquear/{id}")
+
+  @Operation(
+    summary = "Bloquear usuario",
+    description = "Permite a un usuario con permisos suficientes bloquear a" +
+      " otro usuario, impidiendo su acceso al sistema."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Usuario bloqueado exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al bloquear un usuario",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": true,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para" +
+            " bloquear a otros usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/bloquear/18",
+  "timestamp": "2025-09-24T03:45:12.501858123Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario con el ID especificado no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 18",
+  "instance": "/api/v1/identidad/control-de-usuarios/bloquear/18",
+  "timestamp": "2025-09-24T03:46:17.701247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/bloquear/18",
+  "timestamp": "2025-09-24T03:47:09.145127600Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
 
   public ResponseEntity<Usuario> bloquear (
 
@@ -580,6 +1098,131 @@ public class ControlDeUsuariosController {
    */
   @PatchMapping("desbloquear/{id}")
 
+  @Operation(
+    summary = "Desbloquear usuario",
+    description = "Permite a un usuario con permisos suficientes desbloquear" +
+      " a otro usuario previamente bloqueado, restaurando su acceso al sistema."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Usuario desbloqueado exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al desbloquear un usuario",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": false,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para" +
+            " desbloquear a otros usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/desbloquear/18",
+  "timestamp": "2025-09-24T03:52:12.501858123Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario con el ID especificado no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 18",
+  "instance": "/api/v1/identidad/control-de-usuarios/desbloquear/18",
+  "timestamp": "2025-09-24T03:53:17.701247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/desbloquear/18",
+  "timestamp": "2025-09-24T03:54:09.145127600Z",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
+
   public ResponseEntity<Usuario> desbloquear (
 
     @PathVariable("id")
@@ -609,6 +1252,135 @@ public class ControlDeUsuariosController {
    * Respuesta HTTP acorde.
    */
   @GetMapping("listar")
+
+  @Operation(
+    summary = "Listar usuarios",
+    description = "Consulta paginada de los usuarios registrados en el" +
+      " sistema. Permite especificar numero de pagina y tamaño de pagina. " +
+      "Solo accesible para usuarios con permisos de consulta de usuarios."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta con una lista de usuarios" +
+            " paginada",
+          value = """
+[
+  {
+    "id": 18,
+    "fechaCreacion": "2025-09-24T00:00:00",
+    "creadorId": null,
+    "rol": "ALUMNO",
+    "email": "lalelilolu@pm.me",
+    "bloqueado": false,
+    "expirado": false,
+    "credencialesExpiradas": false,
+    "deshabilitado": false,
+    "telPref": "52",
+    "telSuf": "6641112222",
+    "nombre": "Silas",
+    "apellidoPaterno": "Mordrek",
+    "apellidoMaterno": "Tres",
+    "fechaNacimiento": "2000-01-11T00:00:00",
+    "noControl": "11211522",
+    "codigoCarrera": "ISC",
+    "semestre": 1,
+    "grupo": "A",
+    "externo": false,
+    "curp": "ABCD900121HMNSRL01",
+    "emailInstitucional": "lalelilolu@pm.me",
+    "staffResponsabilidades": null,
+    "staffAutorizado": false,
+    "staffCustodio": false,
+    "staffAlumnos": false,
+    "staffInscripciones": false
+  }
+]
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros de paginacion invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error por parametros fuera de rango",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for query parameters 'page' or 'pageSize'.",
+  "instance": "/api/v1/identidad/control-de-usuarios/listar",
+  "timestamp": "2025-09-24T04:12:43.201958613Z",
+  "campos": {
+    "pageSize": "must be less than or equal to 100"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para listar" +
+            " usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/listar",
+  "timestamp": "2025-09-24T04:13:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la consulta",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/listar",
+  "timestamp": "2025-09-24T04:14:09.145127600Z",
+  "exceptionType": "DataAccessException"
+}
+"""
+        )
+      )
+    )
+  })
 
   @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
 
@@ -647,6 +1419,139 @@ public class ControlDeUsuariosController {
    */
   @GetMapping("buscar")
 
+  @Operation(
+    summary = "Buscar usuarios",
+    description = "Permite consultar usuarios de forma paginada aplicando un" +
+      " filtro de texto opcional. " +
+      "Si no se especifica texto de busqueda, se devuelven los usuarios de" +
+      " la pagina indicada. " +
+      "Requiere permisos de consulta de usuarios."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al buscar usuarios con el" +
+            " texto 'Silas'",
+          value = """
+[
+  {
+    "id": 18,
+    "fechaCreacion": "2025-09-24T00:00:00",
+    "creadorId": null,
+    "rol": "ALUMNO",
+    "email": "lalelilolu@pm.me",
+    "bloqueado": false,
+    "expirado": false,
+    "credencialesExpiradas": false,
+    "deshabilitado": false,
+    "telPref": "52",
+    "telSuf": "6641112222",
+    "nombre": "Silas",
+    "apellidoPaterno": "Mordrek",
+    "apellidoMaterno": "Tres",
+    "fechaNacimiento": "2000-01-11T00:00:00",
+    "noControl": "11211522",
+    "codigoCarrera": "ISC",
+    "semestre": 1,
+    "grupo": "A",
+    "externo": false,
+    "curp": "ABCD900121HMNSRL01",
+    "emailInstitucional": "lalelilolu@pm.me",
+    "staffResponsabilidades": null,
+    "staffAutorizado": false,
+    "staffCustodio": false,
+    "staffAlumnos": false,
+    "staffInscripciones": false
+  }
+]
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros de busqueda o paginacion invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error por texto de busqueda demasiado" +
+            " largo o paginacion invalida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail":
+   "Validation failed for query parameters 'txt', 'page', or 'pageSize'.",
+  "instance": "/api/v1/identidad/control-de-usuarios/buscar",
+  "timestamp": "2025-09-24T04:25:13.501258613Z",
+  "campos": {
+    "txt": "size must be between 1 and 30"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para buscar" +
+            " usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/buscar?txt=Silas",
+  "timestamp": "2025-09-24T04:26:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la busqueda",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/buscar",
+  "timestamp": "2025-09-24T04:27:09.145127600Z",
+  "exceptionType": "DataAccessException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
 
   public ResponseEntity<List<Usuario>> buscar (
@@ -683,6 +1588,131 @@ public class ControlDeUsuariosController {
    */
   @GetMapping("usuario/{id}")
 
+  @Operation(
+    summary = "Consultar usuario por ID",
+    description = "Permite obtener los datos completos de un usuario" +
+      " especificado por su identificador unico (ID). " +
+      "Requiere permisos de consulta de usuarios."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al consultar un usuario por ID",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": false,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para" +
+            " consultar usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18",
+  "timestamp": "2025-09-24T04:35:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario con el ID especificado no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 18",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18",
+  "timestamp": "2025-09-24T04:36:17.701247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la consulta" +
+            " por ID",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18",
+  "timestamp": "2025-09-24T04:37:09.145127600Z",
+  "exceptionType": "DataAccessException"
+}
+"""
+        )
+      )
+    )
+  })
+
+
   @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
 
   public ResponseEntity<Usuario> qId (
@@ -717,6 +1747,147 @@ public class ControlDeUsuariosController {
    */
   @GetMapping("usuario/{id}/media/{slot}")
 
+  @Operation(
+    summary = "Consultar multimedia de un usuario",
+    description = "Obtiene el archivo multimedia (por ejemplo, foto de" +
+      " perfil) correspondiente al slot especificado " +
+      "de un usuario identificado por su ID. " +
+      "Requiere permisos de consulta de usuarios."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Archivo multimedia obtenido exitosamente",
+      content = @Content(
+        mediaType = "image/jpeg",
+        schema = @Schema(type = "string", format = "binary"),
+        examples = {
+          @ExampleObject(
+            name = "Imagen JPEG (u otro)",
+            description = "Ejemplo de respuesta con una imagen en formato" +
+              " JPEG u otro, segun el formato del archivo original que fue" +
+              " puesto en ese slot",
+            value = "<BYTES_DE_IMAGEN>"
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Slot de multimedia invalido",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El nombre del slot especificado no corresponde a un" +
+            " campo de multimedia valido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "El slot 'foto' no es valido para este usuario",
+  "instance":
+   "/api/v1/identidad/control-de-usuarios/usuario/18/media/foto",
+  "timestamp": "2025-09-24T04:45:13.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario o multimedia no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Usuario no encontrado",
+            description = "El usuario especificado no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 18",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18/media/foto",
+  "timestamp": "2025-09-24T04:46:17.701247985Z"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Sin multimedia",
+            description = "El usuario existe, pero no tiene imagen registrada" +
+              " en el slot solicitado",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "El usuario con ID 18 no tiene archivo en el slot 'foto'",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18/media/foto",
+  "timestamp": "2025-09-24T04:46:55.308312658Z"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para " +
+            "consultar archivos multimedia de otros usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18/media/foto",
+  "timestamp": "2025-09-24T04:47:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la lectura" +
+            " del archivo multimedia",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred while retrieving media",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/18/media/foto",
+  "timestamp": "2025-09-24T04:48:09.145127600Z",
+  "exceptionType": "IOException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
 
   public ResponseEntity<byte[]> qIdMedia (
@@ -744,6 +1915,133 @@ public class ControlDeUsuariosController {
    * Respuesta HTTP acorde.
    */
   @GetMapping("mio")
+
+  @Operation(
+    summary = "Consultar usuario propio",
+    description = "Obtiene los datos completos del usuario actualmente" +
+      " autenticado en el sistema. " +
+      "No requiere parametros adicionales, ya que la identidad se obtiene" +
+      " del contexto de autenticacion."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al consultar los datos del " +
+            "usuario autenticado",
+          value = """
+{
+  "id": 18,
+  "fechaCreacion": "2025-09-24T00:00:00",
+  "creadorId": null,
+  "rol": "ALUMNO",
+  "email": "lalelilolu@pm.me",
+  "bloqueado": false,
+  "expirado": false,
+  "credencialesExpiradas": false,
+  "deshabilitado": false,
+  "telPref": "52",
+  "telSuf": "6641112222",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "fechaNacimiento": "2000-01-11T00:00:00",
+  "noControl": "11211522",
+  "codigoCarrera": "ISC",
+  "semestre": 1,
+  "grupo": "A",
+  "externo": false,
+  "curp": "ABCD900121HMNSRL01",
+  "emailInstitucional": "lalelilolu@pm.me",
+  "staffResponsabilidades": null,
+  "staffAutorizado": false,
+  "staffCustodio": false,
+  "staffAlumnos": false,
+  "staffInscripciones": false
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "No autenticado o sesion invalida",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario no ha iniciado sesion o su token es" +
+            " invalido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "El token de autenticacion no es valido o ha expirado",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio",
+  "timestamp": "2025-09-24T04:52:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario autenticado no encontrado en base de datos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no existe en el sistema" +
+            " (registro eliminado o inconsistencia de datos)",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el registro del usuario autenticado con ID 18",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio",
+  "timestamp": "2025-09-24T04:53:17.701247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la obtencion" +
+            " de datos del usuario autenticado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio",
+  "timestamp": "2025-09-24T04:54:09.145127600Z",
+  "exceptionType": "DataAccessException"
+}
+"""
+        )
+      )
+    )
+  })
 
   public ResponseEntity<Usuario> qMio (
 
@@ -778,6 +2076,131 @@ public class ControlDeUsuariosController {
    * Si el slot especificado no existe.
    */
   @GetMapping("mio/media/{slot}")
+
+  @Operation(
+    summary = "Consultar multimedia del usuario propio",
+    description = "Obtiene el archivo multimedia (por ejemplo, foto de" +
+      " perfil) correspondiente al slot especificado del usuario" +
+      " actualmente autenticado. " +
+      "No requiere parametros adicionales, ya que la identidad se obtiene" +
+      " del contexto de autenticacion."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Archivo multimedia obtenido exitosamente",
+      content = @Content(
+        mediaType = "image/jpeg",
+        schema = @Schema(type = "string", format = "binary"),
+        examples = {
+          @ExampleObject(
+            name = "Imagen JPEG (u otro)",
+            description = "Ejemplo de respuesta con una imagen en formato" +
+              " JPEG u otro, segun el formato del archivo original que fue" +
+              " puesto en ese slot",
+            value = "<BYTES_DE_IMAGEN>"
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Slot de multimedia invalido",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El nombre del slot especificado no corresponde a un" +
+            " campo de multimedia valido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "El slot 'foto' no es valido para este usuario",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio/media/foto",
+  "timestamp": "2025-09-24T04:45:13.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Multimedia no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Sin multimedia",
+          description = "El usuario autenticado no tiene imagen registrada" +
+            " en el slot solicitado",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "El usuario autenticado no tiene archivo en el slot 'foto'",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio/media/foto",
+  "timestamp": "2025-09-24T04:46:55.308312658Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "No autenticado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario no ha iniciado sesion o su token es" +
+            " invalido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "El token de autenticacion no es valido o ha expirado",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio/media/foto",
+  "timestamp": "2025-09-24T04:47:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado durante la lectura" +
+            " del archivo multimedia",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred while retrieving media",
+  "instance": "/api/v1/identidad/control-de-usuarios/mio/media/foto",
+  "timestamp": "2025-09-24T04:48:09.145127600Z",
+  "exceptionType": "IOException"
+}
+"""
+        )
+      )
+    )
+  })
 
   public ResponseEntity<byte[]> qMioMedia (
 

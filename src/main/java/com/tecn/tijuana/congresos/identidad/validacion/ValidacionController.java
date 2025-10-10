@@ -86,7 +86,7 @@ public class ValidacionController {
   "nombre": "Jose",
   "apellidoPaterno": "Perez",
   "apellidoMaterno": "Perez",
-  "fechaNacimiento": "2001-01-01",
+  "fechaNacimiento": "2001-01-01T00:00:00",
   "noControl": "12345678",
   "codigoCarrera": "ISC",
   "semestre": 1,
@@ -114,7 +114,7 @@ public class ValidacionController {
           value = """
 {
     "id": 18,
-    "fechaCreacion": "2025-09-24",
+    "fechaCreacion": "2025-09-24T00:00:00",
     "creadorId": null,
     "rol": "ALUMNO",
     "email": "lalelilolu@pm.me",
@@ -127,7 +127,7 @@ public class ValidacionController {
     "nombre": "Silas",
     "apellidoPaterno": "Mordrek",
     "apellidoMaterno": "Tres",
-    "fechaNacimiento": "2000-01-11",
+    "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
     "codigoCarrera": "ISC",
     "semestre": 1,
@@ -149,7 +149,9 @@ public class ValidacionController {
       responseCode = "400",
       description = "Error de validacion",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Parametros incorrectos o validacion fallida",
@@ -174,7 +176,9 @@ public class ValidacionController {
       responseCode = "409",
       description = "Conflicto",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "El email ya esta registrado",
@@ -195,7 +199,9 @@ public class ValidacionController {
       responseCode = "500",
       description = "Error interno",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Ejemplo de error no controlado",

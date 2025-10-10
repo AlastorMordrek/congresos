@@ -10,6 +10,10 @@ public class ExpresionSeguridad {
       "or (hasRole('STAFF') and hasAuthority('STAFF_AUTORIZADO') " +
       "    and hasAuthority('STAFF_ALUMNOS'))";
 
+  public static final String EDITAR_USUARIOS = REGISTRAR_USUARIOS;
+
+  public static final String ELIMINAR_USUARIOS = EDITAR_USUARIOS;
+
 
 
   public static final String CONSULTAR_CONGRESOS_PROPIOS =

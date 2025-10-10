@@ -94,9 +94,9 @@ public class AutenticacionController {
         examples = @ExampleObject(
           name = "Exito",
           description = "Usuario autenticado exitosamente",
-          value = """
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
-"""
+          value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3O" +
+            "DkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzO" +
+            "TAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30 "
         )
       )
     ),
@@ -104,7 +104,9 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4
       responseCode = "400",
       description = "Error de autenticacion",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Parametros incorrectos o autenticacion fallida",
@@ -129,10 +131,13 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4
       responseCode = "401",
       description = "Sin autorizacion",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
-          description = "El usuario esta bloqueado, deshabilitado o por alguna otra razon no tiene permitido iniciar sesion.",
+          description = "El usuario esta bloqueado, deshabilitado o por" +
+            " alguna otra razon no tiene permitido iniciar sesion.",
           value = """
 {
   "type": "about:blank",
@@ -150,7 +155,9 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4
       responseCode = "500",
       description = "Error interno",
       content = @Content(
-        mediaType = "application/json",
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
         examples = @ExampleObject(
           name = "Error",
           description = "Ejemplo de error no controlado",
