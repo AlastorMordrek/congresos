@@ -145,7 +145,7 @@ public class AutenticacionController {
   "status": 401,
   "detail": "Usuario bloqueado",
   "instance": "/api/v1/identidad/autenticacion/iniciar-sesion",
-  "timestamp": "2025-09-24T02:59:21.450858486Z"
+  "timestamp": "2025-09-24T02:59:21"
 }
 """
         )
@@ -168,7 +168,7 @@ public class AutenticacionController {
   "status": 500,
   "detail": "An unexpected error occurred",
   "instance": "/api/v1/identidad/autenticacion/iniciar-sesion",
-  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "timestamp": "2025-09-24T03:01:37",
   "exceptionType": "DataIntegrityViolationException"
 }
 """

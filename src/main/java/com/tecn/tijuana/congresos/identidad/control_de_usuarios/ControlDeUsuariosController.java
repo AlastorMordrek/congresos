@@ -267,7 +267,7 @@ public class ControlDeUsuariosController {
   "status": 409,
   "detail": "Email no disponible",
   "instance": "/api/v1/identidad/control-de-usuarios/registrar",
-  "timestamp": "2025-09-24T02:59:21.450858486Z"
+  "timestamp": "2025-09-24T02:59:21"
 }
 """
         )
@@ -290,7 +290,7 @@ public class ControlDeUsuariosController {
   "status": 500,
   "detail": "An unexpected error occurred",
   "instance": "/api/v1/identidad/control-de-usuarios/registrar",
-  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "timestamp": "2025-09-24T03:01:37",
   "exceptionType": "DataIntegrityViolationException"
 }
 """
@@ -442,7 +442,7 @@ public class ControlDeUsuariosController {
   "title": "Bad Request",
   "status": 400,
   "detail": "Validation failed for object='Usuario'. Error count: 1",
-  "instance": "/api/v1/identidad/validacion/registrarse",
+  "instance": "/api/v1/identidad/control-de-usuarios/editar/1",
   "timestamp": "2025-09-24T01:14:16.801076563Z",
   "campos": {
     "Usuario.emailInstitucional": "Email invalido"
@@ -468,8 +468,8 @@ public class ControlDeUsuariosController {
   "title": "Internal Server Error",
   "status": 500,
   "detail": "An unexpected error occurred",
-  "instance": "/api/v1/identidad/validacion/registrarse",
-  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "instance": "/api/v1/identidad/control-de-usuarios/editar/1",
+  "timestamp": "2025-09-24T03:01:37",
   "exceptionType": "DataIntegrityViolationException"
 }
 """
@@ -548,6 +548,69 @@ public class ControlDeUsuariosController {
       )
     )
   )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "204",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Usuario editado exitosamente",
+          value = "{}"
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Error de validacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Parametros incorrectos o validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Error al procesar la imagen",
+  "instance": "/api/v1/identidad/control-de-usuarios/editar/1/media/foto",
+  "timestamp": "2025-09-24T01:14:16.801076563Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/editar/1/media/foto",
+  "timestamp": "2025-09-24T03:01:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
 
   @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
 
@@ -693,7 +756,7 @@ public class ControlDeUsuariosController {
   "title": "Bad Request",
   "status": 400,
   "detail": "Validation failed for object='Usuario'. Error count: 1",
-  "instance": "/api/v1/identidad/validacion/registrarse",
+  "instance": "/api/v1/identidad/control-de-usuarios/editarme",
   "timestamp": "2025-09-24T01:14:16.801076563Z",
   "campos": {
     "Usuario.emailInstitucional": "Email invalido"
@@ -719,8 +782,8 @@ public class ControlDeUsuariosController {
   "title": "Internal Server Error",
   "status": 500,
   "detail": "An unexpected error occurred",
-  "instance": "/api/v1/identidad/validacion/registrarse",
-  "timestamp": "2025-09-24T03:01:37.181558255Z",
+  "instance": "/api/v1/identidad/control-de-usuarios/editarme",
+  "timestamp": "2025-09-24T03:01:37",
   "exceptionType": "DataIntegrityViolationException"
 }
 """
@@ -791,6 +854,69 @@ public class ControlDeUsuariosController {
       )
     )
   )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "204",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Usuario editado exitosamente",
+          value = "{}"
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Error de validacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Parametros incorrectos o validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Error al procesar la imagen",
+  "instance": "/api/v1/identidad/control-de-usuarios/editarme/media/foto",
+  "timestamp": "2025-09-24T01:14:16.801076563Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/control-de-usuarios/editarme/media/foto",
+  "timestamp": "2025-09-24T03:01:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
 
   public void editarmeMedia (
 
