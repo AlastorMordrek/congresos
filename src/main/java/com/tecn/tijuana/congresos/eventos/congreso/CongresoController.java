@@ -479,9 +479,6 @@ public class CongresoController {
    *
    * @param actor
    * USUARIO responsable de la peticion, inyectado por SpringSecurity.
-   *
-   * @return
-   * El registro editado.
    */
   @PatchMapping("editar/{id}/media/{slot}")
 
@@ -583,7 +580,7 @@ public class CongresoController {
 
   @PreAuthorize(ExpresionSeguridad.EDITAR_CONGRESOS)
 
-  public ResponseEntity<Congreso> editar (
+  public void editar (
 
     @PathVariable
     Long id,
@@ -597,9 +594,7 @@ public class CongresoController {
     @AuthenticationPrincipal
     Usuario actor
   ) {
-    return new ResponseEntity<>(
-      conSvc.editarMedia(actor, id, slot, img),
-      HttpStatus.OK);
+    conSvc.editarMedia(actor, id, slot, img);
   }
 
 
