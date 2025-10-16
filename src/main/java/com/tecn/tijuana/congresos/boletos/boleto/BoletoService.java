@@ -361,6 +361,8 @@ public class BoletoService {
       .getContent();
   }
 
+
+
   /**
    * Consulta los registros de un CONGRESO.
    *

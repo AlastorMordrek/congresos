@@ -2435,6 +2435,7 @@ public class CongresoController {
       description = "No requiere cuerpo en la peticion."
     )
   )
+
   @ApiResponses({
     @ApiResponse(
       responseCode = "200",

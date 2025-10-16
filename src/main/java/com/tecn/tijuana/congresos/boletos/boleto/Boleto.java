@@ -29,6 +29,7 @@ public class Boleto {
 
   public static final boolean CANCELADO = true;
   public static final boolean RESTAURADO = false;
+  public static final boolean NO_CANCELADO = RESTAURADO;
 
   public static final boolean USADO = true;
   public static final boolean NO_USADO = false;
