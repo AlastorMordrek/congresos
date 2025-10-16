@@ -3,6 +3,12 @@ package com.tecn.tijuana.congresos.asistencias.asistencia;
 import com.tecn.tijuana.congresos.boletos.boleto.Boleto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
@@ -66,6 +72,171 @@ public class AsistenciaController {
   @PostMapping("asistirCongreso/{congresoId}/" +
     "boletoFolio/{boletoFolio}")
 
+  @Operation(
+    summary = "Registrar entrada a congreso con folio",
+    description = "Permite al personal autorizado registrar la entrada " +
+      "de un alumno a un congreso usando el folio de su boleto.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Entrada registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto marcado como usado",
+          value = """
+{
+  "id": 1,
+  "folio": "A1B2C3",
+  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion": "2025-10-11T01:56:11",
+  "creadorId": 1,
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "congresoFechaInicio": "2025-10-11T10:00:00",
+  "congresoFechaFin": "2025-10-11T18:00:00",
+  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "cancelado": false,
+  "usado": true,
+  "asistencias": 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/boletoFolio/ABC",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "boletoFolio": "debe tener 6 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Error",
+            description = "Boleto no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con folio A1B2C3",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Error",
+            description = "Congreso no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro congreso con ID 1",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Boleto> asistirCongresoConFolio (
@@ -81,7 +252,7 @@ public class AsistenciaController {
   ) {
     return new ResponseEntity<>(
       astSvc.asistirCongresoConBoleto(actor, congresoId, boletoFolio),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -105,6 +276,171 @@ public class AsistenciaController {
   @PostMapping("asistirCongreso/{congresoId}/" +
     "noControlAlumno/{noControlAlumno}")
 
+  @Operation(
+    summary = "Registrar entrada a congreso con numero de control",
+    description = "Permite al personal autorizado registrar la entrada " +
+      "de un alumno a un congreso usando su numero de control.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Entrada registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto marcado como usado",
+          value = """
+{
+  "id": 1,
+  "folio": "A1B2C3",
+  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion": "2025-10-11T01:56:11",
+  "creadorId": 1,
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "congresoFechaInicio": "2025-10-11T10:00:00",
+  "congresoFechaFin": "2025-10-11T18:00:00",
+  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "cancelado": false,
+  "usado": true,
+  "asistencias": 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/noControlAlumno/123",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "noControlAlumno": "debe tener 8 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/noControlAlumno/12345678",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Error",
+            description = "Boleto no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro boleto activo para el alumno 12345678",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Error",
+            description = "Congreso no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro congreso con ID 1",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirCongreso/1/noControlAlumno/12345678",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Boleto> asistirCongresoConNoControl (
@@ -121,7 +457,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.asistirCongresoConNoControl(
         actor, congresoId, noControlAlumno),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -144,6 +480,187 @@ public class AsistenciaController {
    */
   @PostMapping("asistirConferencia/{conferenciaId}/" +
     "boletoFolio/{boletoFolio}")
+
+  @Operation(
+    summary = "Registrar entrada a conferencia con folio",
+    description = "Permite al personal autorizado registrar la entrada " +
+      "de un alumno a una conferencia usando el folio de su boleto.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Entrada registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencia registrada",
+          value = """
+{
+  "id": 1,
+  
+  "fechaCreacion": "2025-10-11T10:05:00",
+  "creadorId": 3,
+  "creadorNombre": "Personal de Seguridad",
+  
+  "boletoId": 1,
+  "boletoFolio": "A1B2C3",
+  "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "conferenciaId": 5,
+  "conferenciaNombre": "Inteligencia Artificial Aplicada",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "fechaUltimaEntrada": "2025-10-11T10:05:00",
+  "tiempoAsistido": 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/ABC",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "boletoFolio": "debe tener 6 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El boleto no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con folio A1B2C3",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Congreso no encontrado",
+            description = "El congreso de la conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el congreso de la conferencia 5",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia no encontrada",
+            description = "La conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
 
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
@@ -161,7 +678,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.asistirConferenciaConBoleto(
         actor, conferenciaId, boletoFolio),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -185,6 +702,202 @@ public class AsistenciaController {
   @PostMapping("asistirConferencia/{conferenciaId}/" +
     "noControlAlumno/{noControlAlumno}")
 
+  @Operation(
+    summary = "Registrar entrada a conferencia con numero de control",
+    description = "Permite al personal autorizado registrar la entrada " +
+      "de un alumno a una conferencia usando su numero de control.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Entrada registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencia registrada",
+          value = """
+{
+  "id": 2,
+  
+  "fechaCreacion": "2025-10-11T10:10:00",
+  "creadorId": 3,
+  "creadorNombre": "Personal de Seguridad",
+  
+  "boletoId": 1,
+  "boletoFolio": "A1B2C3",
+  "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "conferenciaId": 5,
+  "conferenciaNombre": "Inteligencia Artificial Aplicada",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "fechaUltimaEntrada": "2025-10-11T10:10:00",
+  "tiempoAsistido": 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/asistirConferencia/5/noControlAlumno/123",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "noControlAlumno": "debe tener 8 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Alumno no encontrado",
+            description = "El alumno no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el alumno con numero de control 12345678",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El alumno no tiene boleto activo",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro boleto activo para el alumno 12345678",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Congreso no encontrado",
+            description = "El congreso de la conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el congreso de la conferencia 5",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia no encontrada",
+            description = "La conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:30:20"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/asistencias/asistencia/asistirConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Asistencia> asistirConferenciaConNoControl (
@@ -201,7 +914,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.asistirConferenciaConNoControl(
         actor, conferenciaId, noControlAlumno),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -225,6 +938,188 @@ public class AsistenciaController {
   @PostMapping("salirDeConferencia/{conferenciaId}/" +
     "boletoFolio/{boletoFolio}")
 
+  @Operation(
+    summary = "Registrar salida de conferencia con folio",
+    description = "Permite al personal autorizado registrar la salida " +
+      "de un alumno de una conferencia usando el folio de su boleto.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Salida registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencia actualizada",
+          value = """
+{
+  "id": 1,
+  
+  "fechaCreacion": "2025-10-11T10:05:00",
+  "creadorId": 3,
+  "creadorNombre": "Personal de Seguridad",
+  
+  "boletoId": 1,
+  "boletoFolio": "A1B2C3",
+  "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "conferenciaId": 5,
+  "conferenciaNombre": "Inteligencia Artificial Aplicada",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "fechaUltimaEntrada": null,
+  "tiempoAsistido": 1800
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/ABC",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "boletoFolio": "debe tener 6 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Asistencia no encontrada",
+            description = "No hay registro de entrada",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro registro de entrada para el boleto A1B2C3 en la"+
+    " conferencia 5",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El boleto no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con folio A1B2C3",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia no encontrada",
+            description = "La conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/boletoFolio/A1B2C3",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Asistencia> salirDeConferenciaConFolio (
@@ -241,7 +1136,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.salirDeConferenciaConBoleto(
         actor, conferenciaId, boletoFolio),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -265,6 +1160,203 @@ public class AsistenciaController {
   @PostMapping("salirDeConferencia/{conferenciaId}/" +
     "noControlAlumno/{noControlAlumno}")
 
+  @Operation(
+    summary = "Registrar salida de conferencia con numero de control",
+    description = "Permite al personal autorizado registrar la salida " +
+      "de un alumno de una conferencia usando su numero de control.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Salida registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencia actualizada",
+          value = """
+{
+  "id": 2,
+  
+  "fechaCreacion": "2025-10-11T10:10:00",
+  "creadorId": 3,
+  "creadorNombre": "Personal de Seguridad",
+  
+  "boletoId": 1,
+  "boletoFolio": "A1B2C3",
+  "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "conferenciaId": 5,
+  "conferenciaNombre": "Inteligencia Artificial Aplicada",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "fechaUltimaEntrada": null,
+  "tiempoAsistido": 2700
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance":
+   "/api/v1/asistencias/asistencia/salirDeConferencia/5/noControlAlumno/123",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "noControlAlumno": "debe tener 8 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Asistencia no encontrada",
+            description = "No hay registro de entrada",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro registro de entrada para el alumno 12345678 en"+
+    " la conferencia 5",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Alumno no encontrado",
+            description = "El alumno no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el alumno con numero de control 12345678",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El alumno no tiene boleto activo",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro boleto activo para el alumno 12345678",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia no encontrada",
+            description = "La conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:30:20"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/asistencias/asistencia/salirDeConferencia/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Asistencia> salirDeConferenciaConNoControl (
@@ -281,7 +1373,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.salirDeConferenciaConNoControl(
         actor, conferenciaId, noControlAlumno),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -305,6 +1397,187 @@ public class AsistenciaController {
   @PostMapping("asistioConferenciaCompleta/{conferenciaId}/" +
     "noControlAlumno/{noControlAlumno}")
 
+  @Operation(
+    summary = "Registrar asistencia completa a conferencia",
+    description = "Permite al personal autorizado indicar que un alumno " +
+      "asistio a una conferencia completa usando su numero de control.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Asistencia completa registrada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencia completa registrada",
+          value = """
+{
+  "id": 3,
+  
+  "fechaCreacion": "2025-10-11T12:05:00",
+  "creadorId": 3,
+  "creadorNombre": "Personal de Seguridad",
+  
+  "boletoId": 1,
+  "boletoFolio": "A1B2C3",
+  "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  
+  "congresoId": 1,
+  "congresoNombre": "Congreso de Tecnologia",
+  "conferenciaId": 5,
+  "conferenciaNombre": "Inteligencia Artificial Aplicada",
+  
+  "alumnoId": 2,
+  "alumnoNoControl": "12345678",
+  "alumnoNombre": "Juan Perez Garcia",
+  
+  "fechaUltimaEntrada": null,
+  "tiempoAsistido": 7200
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/123",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "noControlAlumno": "debe tener 8 caracteres"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Alumno no encontrado",
+            description = "El alumno no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el alumno con numero de control 12345678",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El alumno no tiene boleto activo",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro boleto activo para el alumno 12345678",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia no encontrada",
+            description = "La conferencia no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/asistencias/asistencia/asistioConferenciaCompleta/5/"+
+    "noControlAlumno/12345678",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
   @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
 
   public ResponseEntity<Asistencia> asistioConferenciaCompletaConNoControl (
@@ -321,7 +1594,7 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.alumnoAsistioConferenciaCompletaConNoControl(
         actor, conferenciaId, noControlAlumno),
-      HttpStatus.CREATED);
+      HttpStatus.OK);
   }
 
 
@@ -339,6 +1612,133 @@ public class AsistenciaController {
    * Los registros encontrados.
    */
   @GetMapping("publico/boleto/{boletoFolioLargo}")
+
+  @Operation(
+    summary = "Consultar asistencias por folio largo de boleto",
+    description = "Consulta las asistencias de un alumno via el folio " +
+      "largo de su boleto. Este endpoint es de acceso publico.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencias encontradas",
+          value = """
+[
+  {
+    "id": 1,
+    
+    "fechaCreacion": "2025-10-11T10:05:00",
+    "creadorId": 3,
+    "creadorNombre": "Personal de Seguridad",
+    
+    "boletoId": 1,
+    "boletoFolio": "A1B2C3",
+    "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    
+    "congresoId": 1,
+    "congresoNombre": "Congreso de Tecnologia",
+    "conferenciaId": 5,
+    "conferenciaNombre": "Inteligencia Artificial Aplicada",
+    
+    "alumnoId": 2,
+    "alumnoNoControl": "12345678",
+    "alumnoNombre": "Juan Perez Garcia",
+    
+    "fechaUltimaEntrada": null,
+    "tiempoAsistido": 1800
+  }
+]
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance": "/api/v1/asistencias/asistencia/publico/boleto/ABC",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "page": "must be greater than or equal to 0",
+    "pageSize": "must be less than or equal to 100"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con folio largo A1B2C3D4E5F6G7H8I9J0",
+  "instance":
+   "/api/v1/asistencias/asistencia/publico/boleto/A1B2C3D4E5F6G7H8I9J0",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/publico/boleto/A1B2C3D4E5F6G7H8I9J0",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
 
   public ResponseEntity<List<Asistencia>> qBoletoFolioLargo (
 
@@ -370,6 +1770,154 @@ public class AsistenciaController {
    * Los registros encontrados.
    */
   @GetMapping("conferencia/{conferenciaId}")
+
+  @Operation(
+    summary = "Consultar asistencias por conferencia",
+    description = "Permite al personal autorizado consultar la lista de " +
+      "asistencias de una conferencia especifica.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Asistencia.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Asistencias encontradas",
+          value = """
+[
+  {
+    "id": 1,
+    
+    "fechaCreacion": "2025-10-11T10:05:00",
+    "creadorId": 3,
+    "creadorNombre": "Personal de Seguridad",
+    
+    "boletoId": 1,
+    "boletoFolio": "A1B2C3",
+    "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    
+    "congresoId": 1,
+    "congresoNombre": "Congreso de Tecnologia",
+    "conferenciaId": 5,
+    "conferenciaNombre": "Inteligencia Artificial Aplicada",
+    
+    "alumnoId": 2,
+    "alumnoNoControl": "12345678",
+    "alumnoNombre": "Juan Perez Garcia",
+    
+    "fechaUltimaEntrada": null,
+    "tiempoAsistido": 7200
+  }
+]
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "page": "must be greater than or equal to 0",
+    "pageSize": "must be less than or equal to 100"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Conferencia no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
 
   @PreAuthorize(ExpresionSeguridad.CONSULTAR_ASISTENCIAS_AJENAS)
 
