@@ -6,6 +6,7 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto.RegistroUsua
 import com.tecn.tijuana.congresos.utils.Api;
 import com.tecn.tijuana.congresos.security.JwtService;
 //import org.springframework.beans.factory.annotation.Autowired;
+import com.tecn.tijuana.congresos.utils.GeneradorDeFolios;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -554,6 +555,57 @@ public class ControlDeUsuariosService {
 
 
 
+  /**
+   * Reinicia el password del USUARIO especificado a una cadena de texto
+   * aleatoria de 8 caracteres.
+   *
+   * @param actor
+   * El Usuario ejecutor de la operacion.
+   *
+   * @param usuarioId
+   * ID del USUARIO a reiniciar.
+   *
+   * @return
+   * El password nuevo generado.
+   */
+  public String reiniciarPassword (
+    Usuario actor, Long usuarioId
+  )
+    throws ResponseStatusException {
+
+    // Comprobar que no intenta reiniciarse a si mismo.
+    if (Objects.equals(actor.getId(), usuarioId)) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "No puede reiniciar su propio password usando este metodo.");
+    }
+
+    // Encontrar al USUARIO.
+    var usr = afirmar(usuarioId);
+
+    // Si no tiene los permisos necesarios, lanzar error HTTP-401.
+    if (!puedeEditarAUsuario(actor, usr)) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "No tiene permiso para editar ese usuario.");
+    }
+
+    // Generar password aleatorio.
+    var pwd = GeneradorDeFolios.folio(8);
+
+    // Establecer password sin codificar.
+    usr.setPassword(pwd);
+
+    // Codificar el password.
+    // Guardar el USUARIO.
+    usrRep.saveAndFlush(codificarPassword(usr, pwdEnc));
+
+    // Retornar nuevo password.
+    return pwd;
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 
@@ -1078,19 +1130,23 @@ public class ControlDeUsuariosService {
    * {@code false} = no permitido.
    */
   public boolean puedeRegistrarAUsuario (Usuario actor, Usuario usr) {
-    var rol = actor.getRol();
 
-    return switch (usr.getRol()) {
+    // Aux.
+    var rolActivo = actor.getRol();
+    var rolPasivo = usr.getRol();
+
+    // Determinar y retornar veredicto.
+    return switch (rolPasivo) {
       case Rol.ADMINISTRADOR, Rol.ORGANIZADOR ->
-        rol == Rol.ADMINISTRADOR;
+        rolActivo == Rol.ADMINISTRADOR;
 
       case Rol.STAFF ->
-        rol == Rol.ADMINISTRADOR || rol == Rol.ORGANIZADOR;
+        rolActivo == Rol.ADMINISTRADOR || rolActivo == Rol.ORGANIZADOR;
 
       case Rol.ALUMNO ->
-        rol == Rol.ADMINISTRADOR || rol == Rol.ORGANIZADOR
+        rolActivo == Rol.ADMINISTRADOR || rolActivo == Rol.ORGANIZADOR
           || (
-          rol == Rol.STAFF
+          rolActivo == Rol.STAFF
             && actor.isStaffAutorizado() && actor.isStaffAlumnos());
     };
   }

@@ -3,6 +3,7 @@ package com.tecn.tijuana.congresos.identidad.validacion;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuariosService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
+import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,9 +12,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Collections;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -231,6 +237,140 @@ public class ValidacionController {
     return new ResponseEntity<>(
       usrSvc.registrarseAlumno(dto),
       HttpStatus.CREATED);
+  }
+
+
+
+  /**
+   * Permite a un personal autorizado reiniciar el password de otro USUARIO,
+   * generando una cadena de texto aleatoria de 8 caracteres como su nuevo
+   * password.
+   *
+   * @param usuarioId
+   * ID del USUARIO a reiniciar.
+   *
+   * @return
+   * El password nuevo generado.
+   */
+  @PostMapping(path = "reiniciarPassword/{usuarioId}")
+
+  @Operation(
+    summary = "Reiniciar password de usuario",
+    description = "Permite a un miembro del personal autorizado reiniciar el" +
+      " password de otro usuario estableciendolo como una cadena de texto" +
+      " aleatoria de 8 caracteres",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Operacion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Usuario.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Password reiniciado exitosamente",
+          value = """
+{
+  "passwordNuevo" : "A1B2C3D4"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario no esta autenticado o no tiene permiso" +
+            " para realizar la operacion.",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/identidad/validacion/reiniciarPassword/1",
+  "timestamp": "2025-09-24T02:59:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Usuario no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el usuario con ID 1",
+  "instance": "/api/v1/identidad/validacion/reiniciarPassword/1",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Ejemplo de error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/identidad/validacion/reiniciarPassword/1",
+  "timestamp": "2025-09-24T03:01:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_USUARIOS)
+
+  public ResponseEntity<Map<String, String>> reiniciarPassword (
+
+    @PathVariable
+    Long usuarioId,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  )
+    throws ResponseStatusException {
+
+    return new ResponseEntity<>(
+      Collections.singletonMap(
+        "passwordNuevo", usrSvc.reiniciarPassword(actor, usuarioId)),
+      HttpStatus.OK);
   }
 }
 
