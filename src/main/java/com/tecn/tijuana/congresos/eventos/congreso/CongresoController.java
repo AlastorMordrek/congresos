@@ -94,6 +94,8 @@ public class CongresoController {
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
   
+  "gratuito": true,
+  
   "cupo": 300,
   
   "staffCantidad": 20,
@@ -133,6 +135,8 @@ public class CongresoController {
   
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
   
   "publicado": false,
   "cancelado": false,
@@ -291,6 +295,8 @@ public class CongresoController {
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
   
+  "gratuito": true,
+  
   "publicado": false,
   "cancelado": false,
   
@@ -333,6 +339,8 @@ public class CongresoController {
   
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
   
   "publicado": false,
   "cancelado": false,
@@ -651,6 +659,8 @@ public class CongresoController {
 
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
 
   "publicado": true,
   "cancelado": false,
@@ -807,6 +817,8 @@ public class CongresoController {
 
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
 
   "publicado": false,
   "cancelado": false,
@@ -965,6 +977,8 @@ public class CongresoController {
 
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
 
   "publicado": true,
   "cancelado": true,
@@ -1121,6 +1135,8 @@ public class CongresoController {
 
   "inscripcionesFechaInicio": "2025-10-01T00:00:00",
   "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+  "gratuito": true,
 
   "publicado": false,
   "cancelado": false,
@@ -1430,6 +1446,8 @@ public class CongresoController {
 
     "inscripcionesFechaInicio": "2025-10-01T00:00:00",
     "inscripcionesFechaFin": "2025-10-10T00:00:00",
+  
+    "gratuito": true,
 
     "publicado": true,
     "cancelado": false,
@@ -1457,6 +1475,8 @@ public class CongresoController {
 
     "inscripcionesFechaInicio": "2025-10-15T00:00:00",
     "inscripcionesFechaFin": "2025-11-03T00:00:00",
+  
+    "gratuito": true,
 
     "publicado": true,
     "cancelado": false,
@@ -1597,6 +1617,8 @@ public class CongresoController {
 
     "inscripcionesFechaInicio": "2025-10-20T00:00:00",
     "inscripcionesFechaFin": "2025-11-14T00:00:00",
+  
+    "gratuito": true,
 
     "publicado": true,
     "cancelado": false,
@@ -1625,6 +1647,8 @@ public class CongresoController {
 
     "inscripcionesFechaInicio": "2025-10-15T00:00:00",
     "inscripcionesFechaFin": "2025-11-29T00:00:00",
+  
+    "gratuito": true,
 
     "publicado": true,
     "cancelado": false,
@@ -1758,6 +1782,8 @@ public class CongresoController {
 
   "inscripcionesFechaInicio": "2025-09-15T00:00:00",
   "inscripcionesFechaFin": "2025-10-12T00:00:00",
+  
+  "gratuito": true,
 
   "publicado": true,
   "cancelado": false,
@@ -1873,19 +1899,27 @@ public class CongresoController {
     "fechaCreacion": "2025-10-11T01:56:11",
     "creadorId": 0,
     "organizadorId": 0,
+    
     "nombre": "Congreso de Tecnologia 2025",
     "resumen": "Innovacion y desarrollo tecnologico",
     "descripcion": "Evento sobre las ultimas tendencias...",
     "direccion": "Centro de Convenciones",
+    
     "fechaInicio": "2025-11-15T09:00:00",
     "fechaFin": "2025-11-16T18:00:00",
+    
     "inscripcionesFechaInicio": "2025-10-20T00:00:00",
     "inscripcionesFechaFin": "2025-11-14T00:00:00",
+  
+    "gratuito": true,
+    
     "publicado": true,
     "cancelado": false,
+    
     "cupo": 500,
     "inscritos": 150,
     "asistencias": 0,
+    
     "staffCantidad": 30,
     "staffRequerimientos": "Soporte tecnico, registro"
   }
@@ -2148,19 +2182,27 @@ public class CongresoController {
   "fechaCreacion": "2025-10-11T01:56:11",
   "creadorId": 0,
   "organizadorId": 0,
+  
   "nombre": "Congreso de Investigacion",
   "resumen": "Avances en investigacion cientifica",
   "descripcion": "Presentacion de proyectos de investigacion...",
   "direccion": "Auditorio Principal",
+  
   "fechaInicio": "2025-11-20T09:00:00",
   "fechaFin": "2025-11-21T18:00:00",
+  
   "inscripcionesFechaInicio": "2025-10-25T00:00:00",
   "inscripcionesFechaFin": "2025-11-19T00:00:00",
+  
+  "gratuito": true,
+  
   "publicado": false,
   "cancelado": false,
+  
   "cupo": 200,
   "inscritos": 45,
   "asistencias": 0,
+  
   "staffCantidad": 15,
   "staffRequerimientos": "Coordinacion, soporte"
 }
@@ -2293,19 +2335,27 @@ public class CongresoController {
     "fechaCreacion": "2025-10-10T02:12:00",
     "creadorId": 1,
     "organizadorId": 1,
+    
     "nombre": "Congreso de Medicina",
     "resumen": "Avances en salud y medicina",
     "descripcion": "Discusion sobre nuevos tratamientos...",
     "direccion": "Hospital Regional",
+    
     "fechaInicio": "2025-12-05T09:00:00",
     "fechaFin": "2025-12-06T18:00:00",
+    
     "inscripcionesFechaInicio": "2025-11-01T00:00:00",
     "inscripcionesFechaFin": "2025-12-04T00:00:00",
+  
+    "gratuito": true,
+    
     "publicado": false,
     "cancelado": false,
+    
     "cupo": 150,
     "inscritos": 30,
     "asistencias": 0,
+    
     "staffCantidad": 10,
     "staffRequerimientos": "Medicos, enfermeras"
   }
@@ -2453,19 +2503,27 @@ public class CongresoController {
     "fechaCreacion": "2025-10-12T10:22:00",
     "creadorId": 2,
     "organizadorId": 2,
+    
     "nombre": "Mi Congreso Personal",
     "resumen": "Congreso organizado por mi",
     "descripcion": "Este es un congreso que he organizado...",
     "direccion": "Mi Localidad",
+    
     "fechaInicio": "2025-11-25T09:00:00",
     "fechaFin": "2025-11-26T18:00:00",
+    
     "inscripcionesFechaInicio": "2025-11-01T00:00:00",
     "inscripcionesFechaFin": "2025-11-24T00:00:00",
+  
+    "gratuito": true,
+    
     "publicado": true,
     "cancelado": false,
+    
     "cupo": 100,
     "inscritos": 25,
     "asistencias": 0,
+    
     "staffCantidad": 8,
     "staffRequerimientos": "Organizacion local"
   }
@@ -2613,19 +2671,27 @@ public class CongresoController {
     "fechaCreacion": "2025-10-13T08:00:00",
     "creadorId": 3,
     "organizadorId": 3,
+    
     "nombre": "Congreso de Innovacion Personal",
     "resumen": "Mis proyectos innovadores",
     "descripcion": "Este congreso presenta mis trabajos...",
     "direccion": "Mi Instituto",
+    
     "fechaInicio": "2025-12-10T09:00:00",
     "fechaFin": "2025-12-11T18:00:00",
+    
     "inscripcionesFechaInicio": "2025-11-15T00:00:00",
     "inscripcionesFechaFin": "2025-12-09T00:00:00",
+  
+    "gratuito": true,
+    
     "publicado": false,
     "cancelado": false,
+    
     "cupo": 80,
     "inscritos": 15,
     "asistencias": 0,
+    
     "staffCantidad": 5,
     "staffRequerimientos": "Atencion a participantes"
   }

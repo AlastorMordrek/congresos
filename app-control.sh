@@ -6,6 +6,10 @@ if [ -f .env ]; then
 fi
 
 case "$1" in
+    destroy-stop)
+        echo "Deteniendo solo la aplicacion..."
+        docker-compose down -v
+        ;;
     stop)
         echo "Deteniendo solo la aplicacion..."
         docker-compose stop app
@@ -17,6 +21,11 @@ case "$1" in
     rebuild)
         echo "Recompilando y reiniciando la aplicacion (sin recompilar las dependencias)..."
         docker-compose stop app
+        docker-compose up -d --build app
+        ;;
+    destroy-rebuild)
+        echo "Eliminando volumenes, recompilando y reiniciando la aplicacion..."
+        docker-compose down -v
         docker-compose up -d --build app
         ;;
     status)

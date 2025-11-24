@@ -53,7 +53,9 @@ public class WebSecurityConfig {
     return http
       .csrf(AbstractHttpConfigurer::disable)
 
-      .cors(withDefaults())
+//      .cors(withDefaults())
+      .cors(cors ->
+        cors.configurationSource(corsConfigurationSource()))
 
       .authorizeHttpRequests(req ->
         req
@@ -107,7 +109,8 @@ public class WebSecurityConfig {
     configuration.setAllowedOriginPatterns(Arrays.asList("*"));
     configuration.setAllowedMethods(Arrays.asList("*"));
     configuration.setAllowedHeaders(Arrays.asList("*"));
-    configuration.setAllowCredentials(true);
+//    configuration.setAllowCredentials(true);
+    configuration.setAllowCredentials(false);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

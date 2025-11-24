@@ -105,26 +105,30 @@ public class BoletoController {
           description = "Boleto generado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -269,6 +273,20 @@ public class BoletoController {
                 "alumnoNoControl": "12345678"
               }
               """
+          ),
+          @ExampleObject(
+            name =
+              "Inscribir usando #Control como excedente",
+            description = "Ejemplo para inscribir un alumno a un congreso" +
+              " usando su #Control cuando el evento ya tiene cupo lleno," +
+              " marcando su boleto como excedente",
+            value = """
+              {
+                "congresoId": 1,
+                "alumnoNoControl": "12345678",
+                "registrarComoExcedente": true
+              }
+              """
           )
         }
       )
@@ -287,26 +305,30 @@ public class BoletoController {
           description = "Boleto generado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -438,26 +460,30 @@ public class BoletoController {
           description = "Boleto cancelado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": true,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : true,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -586,26 +612,30 @@ public class BoletoController {
           description = "Boleto cancelado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": true,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : true,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -694,7 +724,7 @@ public class BoletoController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.cancelar(actor, id, Boleto.CANCELADO),
+      bolSvc.cancelado(actor, id, Boleto.CANCELADO),
       HttpStatus.OK);
   }
 
@@ -734,26 +764,30 @@ public class BoletoController {
           description = "Boleto restaurado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -842,7 +876,313 @@ public class BoletoController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.cancelar(actor, id, Boleto.RESTAURADO),
+      bolSvc.cancelado(actor, id, Boleto.RESTAURADO),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Permite al personal autorizado marcar un BOLETO como PAGADO.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  @PatchMapping("pagado/{id}")
+
+  @Operation(
+    summary = "Marcar boleto como PAGADO",
+    description =
+      "Permite al personal autorizado marcar un boleto como PAGADO.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto editado",
+          value = """
+{
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
+  
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+ 
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
+  
+  "excedente"           : false,
+  "pagado"              : true,
+  "usuarioEditoPagado"  : 123,
+  
+  "cancelado"           : true,
+  "usado"               : false,
+  "asistencias"         : 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/boletos/boleto/cancelar/1",
+  "timestamp": "2025-10-13T04:16:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con ID 1",
+  "instance": "/api/v1/boletos/boleto/cancelar/1",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/boletos/boleto/cancelar/1",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.GESTIONAR_BOLETOS)
+
+  public ResponseEntity<Boleto> pagado (
+
+    @PathVariable
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.pagado(actor, id, Boleto.PAGADO),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Permite al personal autorizado marcar un BOLETO como NO_PAGADO.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  @PatchMapping("noPagado/{id}")
+
+  @Operation(
+    summary = "Marcar boleto como NO_PAGADO",
+    description =
+      "Permite al personal autorizado marcar un boleto como NO_PAGADO.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Edicion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto editado",
+          value = """
+{
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
+  
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+  
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
+  
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : 123,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/boletos/boleto/restaurar/1",
+  "timestamp": "2025-10-13T05:15:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con ID 1",
+  "instance": "/api/v1/boletos/boleto/restaurar/1",
+  "timestamp": "2025-10-13T05:16:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/boletos/boleto/restaurar/1",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.GESTIONAR_BOLETOS)
+
+  public ResponseEntity<Boleto> noPagado (
+
+    @PathVariable
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.pagado(actor, id, Boleto.NO_PAGADO),
       HttpStatus.OK);
   }
 
@@ -890,26 +1230,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 1,
-    "folio": "A1B2C3",
-    "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
     
-    "fechaCreacion": "2025-10-11T01:56:11",
-    "creadorId": 1,
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
     
-    "cancelado": false,
-    "usado": false,
-    "asistencias": 0
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """
@@ -1051,26 +1395,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 1,
-    "folio": "A1B2C3",
-    "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
     
-    "fechaCreacion": "2025-10-11T01:56:11",
-    "creadorId": 1,
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
     
-    "cancelado": false,
-    "usado": false,
-    "asistencias": 0
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """
@@ -1214,26 +1562,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 1,
-    "folio": "A1B2C3",
-    "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
     
-    "fechaCreacion": "2025-10-11T01:56:11",
-    "creadorId": 1,
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
     
-    "cancelado": false,
-    "usado": false,
-    "asistencias": 0
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """
@@ -1374,26 +1726,30 @@ public class BoletoController {
           description = "Boleto encontrado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -1492,26 +1848,30 @@ public class BoletoController {
           description = "Boleto encontrado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -1635,26 +1995,30 @@ public class BoletoController {
           description = "Boleto encontrado",
           value = """
 {
-  "id": 1,
-  "folio": "A1B2C3",
-  "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
   
-  "fechaCreacion": "2025-10-11T01:56:11",
-  "creadorId": 1,
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
   
-  "congresoId": 1,
-  "congresoNombre": "Congreso de Tecnologia",
-  "congresoFechaInicio": "2025-10-11T10:00:00",
-  "congresoFechaFin": "2025-10-11T18:00:00",
-  "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
   
-  "alumnoId": 2,
-  "alumnoNoControl": "12345678",
-  "alumnoNombre": "Juan Perez Garcia",
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
   
-  "cancelado": false,
-  "usado": false,
-  "asistencias": 0
+  "excedente"           : false,
+  "pagado"              : false,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"           : false,
+  "usado"               : false,
+  "asistencias"         : 0
 }
 """
         )
@@ -1785,22 +2149,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 1,
-    "folio": "A1B2C3",
-    "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
-    "fechaCreacion": "2025-10-11T01:56:11",
-    "creadorId": 1,
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
-    "cancelado": false,
-    "usado": false,
-    "asistencias": 0
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+    
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
+    
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+    
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
+    
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """
@@ -1945,26 +2317,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 3,
-    "folio": "G7H8I9",
-    "folioLargo": "U1V2W3X4Y5Z6A7B8C9D0",
+    "id"                  : 3,
+    "folio"               : "G7H8I9",
+    "folioLargo"          : "U1V2W3X4Y5Z6A7B8C9D0",
     
-    "fechaCreacion": "2025-10-11T03:45:00",
-    "creadorId": 1,
+    "fechaCreacion"       : "2025-10-11T03:45:00",
+    "creadorId"           : 1,
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
     
-    "alumnoId": 4,
-    "alumnoNoControl": "11112222",
-    "alumnoNombre": "Carlos Rodriguez Martinez",
+    "alumnoId"            : 4,
+    "alumnoNoControl"     : "11112222",
+    "alumnoNombre"        : "Carlos Rodriguez Martinez",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
     
-    "cancelado": true,
-    "usado": false,
-    "asistencias": 0
+    "cancelado"           : true,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """
@@ -2110,26 +2486,30 @@ public class BoletoController {
           value = """
 [
   {
-    "id": 1,
-    "folio": "A1B2C3",
-    "folioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
     
-    "fechaCreacion": "2025-10-11T01:56:11",
-    "creadorId": 1,
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "congresoFechaInicio": "2025-10-11T10:00:00",
-    "congresoFechaFin": "2025-10-11T18:00:00",
-    "congresoDireccion": "Av. Universidad 123, Tijuana, B.C.",
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+  
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
     
-    "cancelado": false,
-    "usado": false,
-    "asistencias": 0
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0
   }
 ]
 """

@@ -628,7 +628,7 @@ public class ConferenciaService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion debe ser al menos 1 hora y maximo 7 dias.");
+        "La duracion debe ser al menos 1 hora y maximo 8 horas.");
     }
 
     return conferencia;

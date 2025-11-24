@@ -105,8 +105,14 @@ public class BoletoService {
       .afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible(
         congresoId);
 
-    // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, actor));
+    // Crear y guardar el registro nuevo.
+    var reg = bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, actor));
+
+    // Aumentar el contador de inscripciones al CONGRESO.
+    congSvc.sumarInscripcion(congreso);
+
+    // Retornar el registro nuevo.
+    return reg;
   }
 
 
@@ -158,11 +164,22 @@ public class BoletoService {
     afirmarAlumnoNoInscrito(dto.getCongresoId(), alumnoId);
 
     // Comprobar que el CONGRESO existe y validarlo.
-    CongresoService.afirmarNoCanceladoConCupoDisponibleFechaFinFutura(
-      congreso);
+    // Si el Actor lo indico, permitir inscripcion de BOLETO excedente.
+    if (dto.registrarComoExcedente) {
+      CongresoService.afirmarNoCanceladoFechaFinFutura(congreso);
+    } else {
+      CongresoService.afirmarNoCanceladoConCupoDisponibleFechaFinFutura(
+        congreso);
+    }
 
-    // Crear, guardar y retornar el nuevo registro.
-    return bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, alumno));
+    // Crear y guardar el registro nuevo.
+    var reg = bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, alumno));
+
+    // Aumentar el contador de inscripciones al CONGRESO.
+    congSvc.sumarInscripcion(congreso);
+
+    // Retornar el registro nuevo.
+    return reg;
   }
 
 
@@ -201,7 +218,7 @@ public class BoletoService {
 
 
   /**
-   * Cancela/restaura un registro segun el estatus especificado.
+   * Marca un registro como PAGADO/NO_PAGADO segun el estatus especificado.
    *
    * @param actor
    * Usuario ejecutor de la operacion.
@@ -210,13 +227,13 @@ public class BoletoService {
    * ID del registro a editar.
    *
    * @param estatus
-   * {@code true} = cancelado.
-   * {@code false} = restaurado.
+   * {@code true} = PAGADO.
+   * {@code false} = NO_PAGADO.
    *
    * @return
-   * El registro cancelado/retractado.
+   * El registro actualizado.
    */
-  public Boleto cancelar (
+  public Boleto pagado (
     Usuario actor, Long id, boolean estatus
   )
     throws ResponseStatusException {
@@ -234,11 +251,48 @@ public class BoletoService {
       CongresoService.afirmarFechaFinFutura(
         congSvc.afirmar(boleto.getCongresoId()));
 
-    // Actualizar el BOLETO.
-    boleto.setCancelado(estatus);
+    // Actualizar, guardar y retornar el registro.
+    return bolRep.saveAndFlush(boleto.pagadoEstatus(actor, estatus));
+  }
+
+
+
+  /**
+   * Cancela/restaura un registro segun el estatus especificado.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @param estatus
+   * {@code true} = cancelado.
+   * {@code false} = restaurado.
+   *
+   * @return
+   * El registro cancelado/retractado.
+   */
+  public Boleto cancelado (
+    Usuario actor, Long id, boolean estatus
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el BOLETO.
+    var boleto = afirmar(id);
+
+    // Comprobar permisos.
+    if (actor.getRol() == Rol.ORGANIZADOR) {
+      afirmarIdOrganizador(actor, boleto);
+    }
+
+    // Encontrar y validar CONGRESO.
+    var congreso =
+      CongresoService.afirmarFechaFinFutura(
+        congSvc.afirmar(boleto.getCongresoId()));
 
     // Actualizar, guardar y retornar el registro.
-    return bolRep.saveAndFlush(boleto);
+    return bolRep.saveAndFlush(boleto.canceladoEstatus(estatus));
   }
 
 
@@ -663,6 +717,47 @@ public class BoletoService {
     }
 
     return true;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Boleto afirmarPagado (
+    Long id
+  ) {
+    return afirmarPagado(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Boleto afirmarPagado (
+    Boleto reg
+  ) {
+    if (!reg.isPagado()) {
+      throw new ResponseStatusException(
+        HttpStatus.UNAUTHORIZED,
+        "El boleto no esta pagado");
+    }
+    return reg;
   }
 
 

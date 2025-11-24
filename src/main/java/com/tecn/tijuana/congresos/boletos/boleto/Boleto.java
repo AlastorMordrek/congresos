@@ -34,6 +34,12 @@ public class Boleto {
   public static final boolean USADO = true;
   public static final boolean NO_USADO = false;
 
+  public static final boolean EXCEDENTE = true;
+  public static final boolean NO_EXCEDENTE = false;
+
+  public static final boolean PAGADO = true;
+  public static final boolean NO_PAGADO = false;
+
 
 
   /**
@@ -123,6 +129,35 @@ public class Boleto {
 
 
   /**
+   * Determina si el BOLETO fue registrado despues de que ya se habia llenado el
+   * cupo del CONGRESO.
+   * */
+  @Column(nullable = false, updatable = false)
+  private boolean excedente = NO_EXCEDENTE;
+
+
+
+  /**
+   * Determina si el BOLETO fue pagado.
+   * <p>
+   * Algunos CONGRESOS tienen costo y sus BOLETOS solo podran ser usados para
+   * asistir al evento hasta que sean marcados como {@code pagado = true} por el
+   * personal autorizado.
+   * */
+  @Column(nullable = false)
+  private boolean pagado = NO_PAGADO;
+
+  /**
+   * Usuario que valido que el BOLETO ya fue pagado.
+   * <p>
+   * Consta el ultimo USUARIO que edito el estatus de "pagado" del BOLETO.
+   * */
+  @Column
+  private Long usuarioEditoPagado;
+
+
+
+  /**
    * ID del ALUMNO al que pertenece el registro.
    * */
   @Column(nullable = false, updatable = false)
@@ -183,20 +218,27 @@ public class Boleto {
 
     Long alumnoId,
     String alumnoNoControl,
-    String alumnoNombre
+    String alumnoNombre,
+
+    boolean excedente
   ) {
     this.folio               = GeneradorDeFolios.folio(6);
     this.folioLargo          = GeneradorDeFolios.folio(20);
+
     this.fechaCreacion       = LocalDateTime.now();
     this.creadorId           = creadorId;
+
     this.congresoId          = congresoId;
     this.congresoNombre      = congresoNombre;
     this.congresoFechaInicio = congresoFechaInicio;
     this.congresoFechaFin    = congresoFechaFin;
     this.congresoDireccion   = congresoDireccion;
+
     this.alumnoId            = alumnoId;
     this.alumnoNoControl     = alumnoNoControl;
     this.alumnoNombre        = alumnoNombre;
+
+    this.excedente           = excedente;
   }
 
 
@@ -221,7 +263,8 @@ public class Boleto {
       congreso.getDireccion(),
       alumno.getId(),
       alumno.getNoControl(),
-      alumno.getNombre()
+      alumno.getNombre(),
+      congreso.getInscritos() >= congreso.getCupo()
     );
   }
 
@@ -251,15 +294,39 @@ public class Boleto {
 
 
   /**
+   * Cambia el estatus de PAGADO/NO_PAGADO de un BOLETO.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto pagadoEstatus (
+    Usuario actor, boolean estatus
+  ) {
+    setUsuarioEditoPagado(actor.getId());
+    setPagado(estatus);
+    return this;
+  }
+
+
+
+  /**
    * Cancela un registro.
    *
    * @return
    * El registro actualizado.
    */
   public Boleto cancelar () {
+    return canceladoEstatus(CANCELADO);
+  }
 
-    setCancelado(CANCELADO);
-
+  /**
+   * Cancela un registro.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto canceladoEstatus (boolean estatus) {
+    setCancelado(estatus);
     return this;
   }
 

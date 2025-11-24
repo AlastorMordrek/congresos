@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.eventos.congreso.dto;
 
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -81,6 +82,13 @@ public class RegistroCongresoDto {
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
   public LocalDateTime inscripcionesFechaFin;
+
+
+
+  /**
+   * Determina si el CONGRESO tiene costo. {@code true = No tiene costo}.
+   * */
+  public boolean gratuito = Congreso.GRATUITO;
 
 
 

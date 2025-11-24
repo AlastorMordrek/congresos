@@ -41,6 +41,9 @@ public class Congreso {
   public static final boolean CANCELADO = true;
   public static final boolean RESTAURADO = false;
 
+  public static final boolean GRATUITO = true;
+  public static final boolean NO_GRATUITO = false;
+
 
 
   /**
@@ -130,20 +133,6 @@ public class Congreso {
   @Column(nullable = false)
   private LocalDateTime fechaFin;
 
-
-  /**
-   * Determina si el CONGRESO ha sido publicado, es decir, esta disponible para
-   * que el publico general lo vea y pueda inscribirse.
-   * */
-  private boolean publicado;
-
-  /**
-   * Determina si el CONGRESO ha sido cancelado y ya no se llevara a cabo.
-   * */
-  private boolean cancelado;
-
-
-
   /**
    * Cuando inicia el periodo de inscripciones para el CONGRESO.
    * <p>
@@ -165,6 +154,31 @@ public class Congreso {
    * */
   @Column(nullable = false)
   private LocalDateTime inscripcionesFechaFin;
+
+
+
+  /**
+   * Determina si el CONGRESO tiene costo. {@code true = No tiene costo}.
+   * <p>
+   * Cuando un CONGRESO tiene costo, los boletos se registraran como:
+   * {@code pagado = false}, indicando que no podra ser usado para asistir al
+   * evento hasta que el personal autorizado lo marque como:
+   * {@code pagado = true} manualmente.
+   * */
+  private boolean gratuito = GRATUITO;
+
+
+
+  /**
+   * Determina si el CONGRESO ha sido publicado, es decir, esta disponible para
+   * que el publico general lo vea y pueda inscribirse.
+   * */
+  private boolean publicado;
+
+  /**
+   * Determina si el CONGRESO ha sido cancelado y ya no se llevara a cabo.
+   * */
+  private boolean cancelado;
 
 
 
@@ -523,22 +537,29 @@ public class Congreso {
     LocalDateTime fechaFin,
     LocalDateTime inscripcionesFechaInicio,
     LocalDateTime inscripcionesFechaFin,
+    boolean gratuito,
     int cupo,
     int staffCantidad,
     String staffRequerimientos
   ) {
     this.fechaCreacion            = LocalDateTime.now();
     this.creadorId                = creadorId;
+
     this.organizadorId            = organizadorId;
+
     this.nombre                   = nombre;
     this.resumen                  = resumen;
     this.descripcion              = descripcion;
     this.direccion                = direccion;
+
     this.fechaInicio              = fechaInicio;
     this.fechaFin                 = fechaFin;
     this.inscripcionesFechaInicio = inscripcionesFechaInicio;
     this.inscripcionesFechaFin    = inscripcionesFechaFin;
+
+    this.gratuito                 = gratuito;
     this.cupo                     = cupo;
+
     this.staffCantidad            = staffCantidad;
     this.staffRequerimientos      = staffRequerimientos;
   }
@@ -566,6 +587,7 @@ public class Congreso {
       dto.getFechaFin(),
       dto.getInscripcionesFechaInicio(),
       dto.getInscripcionesFechaFin(),
+      dto.isGratuito(),
       dto.getCupo(),
       dto.getStaffCantidad(),
       dto.getStaffRequerimientos()
@@ -590,6 +612,7 @@ public class Congreso {
       con.getFechaFin(),
       con.getInscripcionesFechaInicio(),
       con.getInscripcionesFechaFin(),
+      con.isGratuito(),
       con.getCupo(),
       con.getStaffCantidad(),
       con.getStaffRequerimientos()
@@ -623,6 +646,8 @@ public class Congreso {
 
     setInscripcionesFechaInicio(con.getInscripcionesFechaInicio());
     setInscripcionesFechaFin(con.getInscripcionesFechaFin());
+
+    setGratuito(con.isGratuito());
 
     setCupo(con.getCupo());
 
@@ -808,6 +833,21 @@ public class Congreso {
   public Congreso sumarAsistencia () {
 
     setAsistencias(getAsistencias() + 1);
+
+    return this;
+  }
+
+
+
+  /**
+   * Incrementa el contador de inscripciones.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarInscripcion () {
+
+    setInscritos(getInscritos() + 1);
 
     return this;
   }

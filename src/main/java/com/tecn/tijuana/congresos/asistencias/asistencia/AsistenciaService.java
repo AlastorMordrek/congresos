@@ -156,6 +156,11 @@ public class AsistenciaService {
     // Comprobar que el BOLETO no este CANCELADO.
     BoletoService.afirmarNoCancelado(boleto);
 
+    // Si el CONGRESO no es gratuito, comprobar que el BOLETO esta PAGADO.
+    if (!congreso.isGratuito()) {
+      BoletoService.afirmarPagado(boleto);
+    }
+
     // Encontrar el ALUMNO del BOLETO.
     // Comprobar que el ALUMNO no este BLOQUEADO.
     var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
@@ -297,6 +302,11 @@ public class AsistenciaService {
 
     // Comprobar que el BOLETO no este CANCELADO.
     BoletoService.afirmarNoCancelado(boleto);
+
+    // Si el CONGRESO no es gratuito, comprobar que el BOLETO esta PAGADO.
+    if (!congreso.isGratuito()) {
+      BoletoService.afirmarPagado(boleto);
+    }
 
     // Encontrar el ALUMNO del BOLETO.
     // Comprobar que el ALUMNO no este BLOQUEADO.
@@ -463,6 +473,11 @@ public class AsistenciaService {
     // Comprobar que el BOLETO no este CANCELADO.
     BoletoService.afirmarNoCancelado(boleto);
 
+    // Si el CONGRESO no es gratuito, comprobar que el BOLETO esta PAGADO.
+    if (!congreso.isGratuito()) {
+      BoletoService.afirmarPagado(boleto);
+    }
+
     // Encontrar el ALUMNO del BOLETO.
     // Comprobar que el ALUMNO no este BLOQUEADO.
     var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
@@ -612,6 +627,11 @@ public class AsistenciaService {
 
     // Comprobar que el BOLETO no este CANCELADO.
     BoletoService.afirmarNoCancelado(boleto);
+
+    // Si el CONGRESO no es gratuito, comprobar que el BOLETO esta PAGADO.
+    if (!congreso.isGratuito()) {
+      BoletoService.afirmarPagado(boleto);
+    }
 
     // Encontrar el ALUMNO del BOLETO.
     // Comprobar que el ALUMNO no este BLOQUEADO.

@@ -35,4 +35,15 @@ public class RegistroBoletoDto {
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
   public String alumnoNoControl;
+
+
+
+  /**
+   * Permite a un ORGANIZADOR o STAFF autorizado registrar un BOLETO incluso si
+   * ya se acabo el cupo disponible para el CONGRESO.
+   * <p>
+   * Los ALUMNOS no pueden inscribirse y registrar su BOLETO si el CONGRESO ya
+   * completo su cupo.
+   * */
+  public boolean registrarComoExcedente = false;
 }

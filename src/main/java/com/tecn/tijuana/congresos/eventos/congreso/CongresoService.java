@@ -694,6 +694,39 @@ public class CongresoService {
 
 
   /**
+   * Incrementa el contador de inscripciones.
+   *
+   * @param id
+   * ID del registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarInscripcion (
+    Long id
+  ) {
+    return sumarInscripcion(afirmar(id));
+  }
+
+  /**
+   * Incrementa el contador de inscripciones.
+   *
+   * @param congreso
+   * El registro a editar.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Congreso sumarInscripcion (
+    Congreso congreso
+  ) {
+    // Actualizar, guardar y retornar el registro.
+    return conRep.saveAndFlush(congreso.sumarAsistencia());
+  }
+
+
+
+  /**
    * Determina si el registro tiene un rango de fechas valido.
    *
    * @param congreso
@@ -822,7 +855,9 @@ public class CongresoService {
    * true = correcto.
    * true = incorrecto.
    */
-  public static boolean periodoOrdenCorrecto (LocalDateTime inicio, LocalDateTime fin) {
+  public static boolean periodoOrdenCorrecto (
+    LocalDateTime inicio, LocalDateTime fin
+  ) {
     return fin.isAfter(inicio);
   }
 
@@ -936,6 +971,44 @@ public class CongresoService {
       afirmarConCupoDisponible(
         afirmarNoCancelado(
           reg)));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso afirmarNoCanceladoFechaFinFutura (
+    Long id
+  ) {
+    return afirmarNoCanceladoFechaFinFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarNoCanceladoFechaFinFutura (
+    Congreso reg
+  ) {
+    return afirmarFechaFinFutura(
+      afirmarNoCancelado(
+        reg));
   }
 
 
