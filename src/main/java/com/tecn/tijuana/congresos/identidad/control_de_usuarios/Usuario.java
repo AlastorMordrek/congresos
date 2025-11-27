@@ -963,7 +963,7 @@ public class Usuario implements UserDetails {
    * El objeto Usuario actualizado.
    */
   public Usuario actualizar (Usuario usr) {
-    return switch (usr.getRol()) {
+    return switch (getRol()) {
       case Rol.ADMINISTRADOR -> actualizarAdmin(usr);
       case Rol.ORGANIZADOR   -> actualizarOrganizador(usr);
       case Rol.STAFF         -> actualizarStaff(usr);
@@ -1013,8 +1013,8 @@ public class Usuario implements UserDetails {
    * El objeto Usuario {@code A} actualizado.
    */
   public Usuario actualizarStaff (Usuario usr) {
-    return actualizarCamposBasicosDeStaff(
-      actualizarCamposBasicos(usr));
+    actualizarCamposBasicos(usr);
+    return actualizarCamposBasicosDeStaff(usr);
   }
 
   /**
@@ -1029,8 +1029,8 @@ public class Usuario implements UserDetails {
    * El objeto Usuario {@code A} actualizado.
    */
   public Usuario actualizarAlumno (Usuario usr) {
-    return actualizarCamposBasicosDeAlumno(
-      actualizarCamposBasicos(usr));
+    actualizarCamposBasicos(usr);
+    return actualizarCamposBasicosDeAlumno(usr);
   }
 
 
@@ -1106,8 +1106,8 @@ public class Usuario implements UserDetails {
    * El Usuario actualizado.
    */
   public Usuario actualizarseAlumno (Usuario usr) {
-    return actualizarCamposBasicosDeAlumno(
-      actualizarCamposBasicos(usr));
+    actualizarCamposBasicos(usr);
+    return actualizarCamposBasicosDeAlumno(usr);
   }
 
 

@@ -6,10 +6,6 @@ if [ -f .env ]; then
 fi
 
 case "$1" in
-    destroy-stop)
-        echo "Deteniendo solo la aplicacion..."
-        docker-compose down -v
-        ;;
     stop)
         echo "Deteniendo solo la aplicacion..."
         docker-compose stop app
@@ -23,15 +19,31 @@ case "$1" in
         docker-compose stop app
         docker-compose up -d --build app
         ;;
+
+    stop-destroy)
+        echo "Deteniendo solo la aplicacion..."
+        docker-compose down -v
+        ;;
     destroy-rebuild)
         echo "Eliminando volumenes, recompilando y reiniciando la aplicacion..."
         docker-compose down -v
         docker-compose up -d --build app
         ;;
+
     status)
         echo "Estado de los contenedores:"
         docker-compose ps
         ;;
+
+    logs)
+        echo "Mostrando logs..."
+        docker logs -t ${APP_NAME}_app
+        ;;
+    live-logs)
+        echo "Mostrando logs en vivo..."
+        docker logs -tf ${APP_NAME}_app
+        ;;
+
     *)
         echo "Uso: $0 {stop|restart|rebuild|status}"
         exit 1
