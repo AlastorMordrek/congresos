@@ -764,7 +764,7 @@ public class CongresoService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion del congreso debe ser" +
+        "El periodo de inscripciones debe ser" +
           " al menos 1 hora y maximo 30 dias.");
     }
 
@@ -813,7 +813,7 @@ public class CongresoService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion debe ser al menos 1 hora y maximo 7 dias.");
+        "La duracion del evento debe ser al menos 1 hora y maximo 7 dias.");
     }
 
     return congreso;
