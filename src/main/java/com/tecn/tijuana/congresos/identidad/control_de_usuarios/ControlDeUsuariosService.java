@@ -18,6 +18,7 @@ import org.springframework.security.authentication
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -1051,27 +1052,40 @@ public class ControlDeUsuariosService {
   public String verify (
     LoginDto dto
   )
-    throws BadCredentialsException {
+    throws ResponseStatusException {
 
-    UserDetails usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
+    // Aux.
+    UserDetails usrDts;
 
+    // Encontrar el USUARIO via su Email.
+    try {
+      usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
+    } catch (UsernameNotFoundException e) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Usuario no registrado");
+    }
+
+    // Comprobar credenciales.
     if (!pwdEnc.matches(dto.getPassword(), usrDts.getPassword())) {
-//      throw new BadCredentialsException("Credenciales incorrectas");
-
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
         "Credenciales incorrectas");
     }
 
+    // Crear token de autenticacion con el detalle de USUARIO.
     Authentication auth = new UsernamePasswordAuthenticationToken(
       usrDts, null, usrDts.getAuthorities());
 
+    // Establecer autenticacion usando el contexto global de seguridad.
     SecurityContextHolder.getContext().setAuthentication(auth);
 
+    // Si el USUARIO esta autenticado, generar y retornar su JWT.
     if (auth.isAuthenticated()) {
       return jwtSvc.generateToken(usrDts.getUsername());
     }
 
+    // Si se llego a este punto, se debe retornar un error.
     return "No se pudo autenticar";
   }
 
