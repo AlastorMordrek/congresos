@@ -163,7 +163,7 @@ public class Asistencia {
   /**
    * Suma del tiempo que paso en la CONFERENCIA en segundos.
    * */
-  @Column
+  @Column(nullable = false)
   private Long tiempoAsistido = 0L;
 
 
