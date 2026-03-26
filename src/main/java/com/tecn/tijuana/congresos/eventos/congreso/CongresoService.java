@@ -721,7 +721,7 @@ public class CongresoService {
     Congreso congreso
   ) {
     // Actualizar, guardar y retornar el registro.
-    return conRep.saveAndFlush(congreso.sumarAsistencia());
+    return conRep.saveAndFlush(congreso.sumarInscripcion());
   }
 
 
