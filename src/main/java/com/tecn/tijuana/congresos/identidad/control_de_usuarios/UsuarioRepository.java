@@ -14,6 +14,9 @@ public interface UsuarioRepository
   @Query("SELECT s FROM Usuario s WHERE s.email = ?1")
   Optional<Usuario> qEmail (String email);
 
+  @Query("SELECT s FROM Usuario s WHERE s.emailInstitucional = ?1")
+  Optional<Usuario> qEmailInstitucional (String email);
+
 
 
   @Query("SELECT s FROM Usuario s WHERE s.noControl = ?1")

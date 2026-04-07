@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication
   .UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -222,7 +221,8 @@ public class ControlDeUsuariosService {
     return usrRep.saveAndFlush(
       Usuario.nuevoAlumno(
         codificarPassword(
-          afirmarEmailNoTomado(usr),
+          afirmarEmailNoTomado(
+            afirmarEmailInstitucionalNoTomado(usr)),
           pwdEnc)));
   }
 
@@ -259,10 +259,11 @@ public class ControlDeUsuariosService {
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      Usuario.nuevoAlumnoAutoRegistrado(
-        codificarPassword(
-          afirmarEmailNoTomado(usr),
-          pwdEnc)));
+      codificarPassword(
+        afirmarNoControlNoTomado(
+          afirmarEmailNoTomado(
+            afirmarEmailInstitucionalNoTomado(usr))),
+        pwdEnc));
   }
 
 
@@ -293,7 +294,12 @@ public class ControlDeUsuariosService {
         "No tiene permiso para editar un usuario de ese tipo.");
     }
 
-    return usrRep.saveAndFlush(afirmar(id).actualizar(usr));
+    // Encontrar el USUARIO a editar.
+    // Comprobar que los campos unicos se mantengan unicos incluso despues de
+    // una posible edicion.
+    // Actualizar, guardar y retornar el USUARIO.
+    return usrRep.saveAndFlush(
+      afirmarEdicionDeCamposUnicosValida(afirmar(id), usr).actualizar(usr));
   }
 
 
@@ -363,7 +369,12 @@ public class ControlDeUsuariosService {
     Usuario actor, Usuario usr
   ) throws ResponseStatusException {
 
-    return usrRep.saveAndFlush(afirmar(actor.getId()).actualizarse(usr));
+    // Comprobar que los campos unicos se mantengan unicos incluso despues de
+    // una posible edicion.
+    // Actualizar, guardar y retornar el USUARIO.
+    return usrRep.saveAndFlush(
+      afirmarEdicionDeCamposUnicosValida(afirmar(actor.getId()), usr)
+        .actualizarse(usr));
   }
 
 
@@ -892,7 +903,72 @@ public class ControlDeUsuariosService {
 
 
   /**
-   * Lanza una excepcion si el Usuario tiene un email que ya esta tomado en la
+   * Recibe una version 'anterior' y una 'posterior' de un Usuario.
+   * <p>
+   * La version posterior es similar a la anterior pero incluye todas las
+   * modificaciones deseadas.
+   * <p>
+   * Si un campo que deberia ser unico como Email, #Control, etc.... incluye una
+   * edicion, se comprueba que el nuevo valor no se repita en la base de datos.
+   *
+   * @param anterior
+   * Version anterior/pre-existente del registro en la BD.
+   *
+   * @param posterior
+   * Version posterior/nueva del registro para guardar en la BD.
+   *
+   * @return
+   * La version anterior del USUARIO tal como se recibio en los parametros.
+   */
+  public Usuario afirmarEdicionDeCamposUnicosValida (
+    Usuario anterior, Usuario posterior
+  ) throws ResponseStatusException {
+
+    // Al editar #Control, comprobar que no este tomado.
+    if (!Objects.equals(anterior.getNoControl(), posterior.getNoControl())) {
+      afirmarNoControlNoTomado(posterior);
+    }
+    // Al editar Email, comprobar que no este tomado.
+    if (!Objects.equals(anterior.getEmail(), posterior.getEmail())) {
+      afirmarEmailNoTomado(posterior);
+    }
+    // Al editar Email Institucional, comprobar que no este tomado.
+    if (!Objects.equals(
+      anterior.getEmailInstitucional(), posterior.getEmailInstitucional())) {
+      afirmarEmailInstitucionalNoTomado(posterior);
+    }
+
+    return anterior;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un #Control que ya esta tomado en
+   * la BD, de lo contrario solo retorna el mismo objeto.
+   *
+   * @param usr
+   * El Usuario cuyo #Control se desea validar en la BD.
+   *
+   * @return
+   * El Usuario juzgado.
+   */
+  public Usuario afirmarNoControlNoTomado (Usuario usr)
+    throws ResponseStatusException {
+
+    if (noControlTomado(usr.getNoControl())) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        "No. de Control no disponible");
+    }
+
+    return usr;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un Email que ya esta tomado en la
    * BD, de lo contrario solo retorna el mismo objeto.
    *
    * @param usr
@@ -908,6 +984,29 @@ public class ControlDeUsuariosService {
       throw new ResponseStatusException(
         HttpStatus.CONFLICT,
         "Email no disponible");
+    }
+    return usr;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un Email Institucional que ya esta
+   * tomado en la BD, de lo contrario solo retorna el mismo objeto.
+   *
+   * @param usr
+   * El Usuario cuyo email se desea validar en la BD.
+   *
+   * @return
+   * El Usuario juzgado.
+   */
+  public Usuario afirmarEmailInstitucionalNoTomado (Usuario usr)
+    throws ResponseStatusException {
+
+    if (emailInstitucionalTomado(usr.getEmailInstitucional())) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        "Email Institucional no disponible");
     }
 
     return usr;
@@ -1103,6 +1202,38 @@ public class ControlDeUsuariosService {
    */
   public boolean emailTomado (String email) {
     return usrRep.qEmail(email).isPresent();
+  }
+
+
+
+  /**
+   * Determina si un email institucional ya esta tomado por un Usuario en la BD.
+   *
+   * @param email
+   * El email a validar.
+   *
+   * @return
+   * true = ya esta tomado.
+   * false = no esta tomado.
+   */
+  public boolean emailInstitucionalTomado (String email) {
+    return usrRep.qEmailInstitucional(email).isPresent();
+  }
+
+
+
+  /**
+   * Determina si un #Control ya esta tomado por un Usuario en la BD.
+   *
+   * @param noControl
+   * El #Control a validar.
+   *
+   * @return
+   * true = ya esta tomado.
+   * false = no esta tomado.
+   */
+  public boolean noControlTomado (String noControl) {
+    return usrRep.qNoControl(noControl).isPresent();
   }
 
 
