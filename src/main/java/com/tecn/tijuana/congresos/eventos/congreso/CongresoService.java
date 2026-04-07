@@ -746,12 +746,6 @@ public class CongresoService {
     var inicio = congreso.getInscripcionesFechaInicio();
     var fin = congreso.getInscripcionesFechaFin();
 
-//    if (!periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas de inscripciones deben ser en el futuro.");
-//    }
-
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
@@ -796,12 +790,6 @@ public class CongresoService {
     var inicio = congreso.getFechaInicio();
     var fin = congreso.getFechaFin();
 
-//    if (!periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas deben ser en el futuro.");
-//    }
-
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
@@ -818,28 +806,6 @@ public class CongresoService {
 
     return congreso;
   }
-
-//  /**
-//   * Determina si el periodo descrito por la fecha de inicio y la fecha de
-//   * terminacion especificadas es en el futuro.
-//   *
-//   * @param inicio
-//   * Fecha de inicio.
-//   *
-//   * @param fin
-//   * Fecha de terminacion.
-//   *
-//   * @return
-//   * true = correcto.
-//   * true = incorrecto.
-//   */
-//  public static boolean periodoFuturo (
-//    LocalDateTime inicio, LocalDateTime fin
-//  ) {
-//    var now = LocalDateTime.now();
-//
-//    return inicio.isAfter(now) && fin.isAfter(now);
-//  }
 
   /**
    * Determina si el periodo descrito por la fecha de inicio y la fecha de
@@ -1127,7 +1093,9 @@ public class CongresoService {
    * El registro validado.
    */
   public static Congreso afirmarConCupoDisponible (Congreso reg) {
-    if (reg.getInscritos() >= reg.getCupo()) {
+    var cupo = reg.getCupo();
+
+    if (cupo != 0 && reg.getInscritos() >= cupo) {
       throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
         "El congreso no tiene cupo disponible");

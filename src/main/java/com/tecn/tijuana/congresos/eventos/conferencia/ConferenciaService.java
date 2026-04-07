@@ -1,6 +1,7 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
 import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
@@ -335,13 +336,16 @@ public class ConferenciaService {
   public Conferencia registrar (Usuario actor, Conferencia conferencia)
     throws ResponseStatusException {
 
+    // Encontrar el CONGRESO.
+    Congreso cong = congSvc.afirmar(conferencia.getCongresoId());
+
     // Comprobar permisos.
-    afirmarOrganizadorAsignado(actor, conferencia);
+    afirmarOrganizadorAsignado(actor, conferencia, cong);
 
     // Validar las fechas del Conferencia o retornar el error HTTP acorde.
-    afirmarPeriodoEventoValido(conferencia);
+    afirmarPeriodoEventoValido(conferencia, cong);
 
-    // Marcar al Actor como creador del registro.
+    // Marcar al Actor como creador del registro, por si no lo estuviera.
     conferencia.setCreadorId(actor.getId());
 
     return confRep.saveAndFlush(Conferencia.nueva(conferencia));
@@ -371,11 +375,14 @@ public class ConferenciaService {
     // Encontrar el Conferencia.
     var conf = afirmar(id);
 
+    // Encontrar el CONGRESO.
+    Congreso cong = congSvc.afirmar(conf.getCongresoId());
+
     // Comprobar permisos.
-    afirmarOrganizadorAsignado(actor, conf);
+    afirmarOrganizadorAsignado(actor, conf, cong);
 
     // Validar cambios.
-    afirmarPeriodoEventoValido(conferencia);
+    afirmarPeriodoEventoValido(conferencia, cong);
 
     // Actualizar, guardar y retornar el registro.
     return confRep.saveAndFlush(conf.actualizar(conferencia));
@@ -563,7 +570,6 @@ public class ConferenciaService {
 
   /**
    * Determina si el actor es el ORGANIZADOR del registro especificado.
-   * Sino, lanza error HTTP-401.
    *
    * @param actor
    * El USUARIO a validar.
@@ -582,9 +588,35 @@ public class ConferenciaService {
   )
     throws ResponseStatusException {
 
+    return afirmarOrganizadorAsignado(
+      actor, conferencia, congSvc.afirmar(conferencia.getCongresoId()));
+  }
+
+  /**
+   * Determina si el actor es el ORGANIZADOR del registro especificado.
+   *
+   * @param actor
+   * El USUARIO a validar.
+   *
+   * @param conferencia
+   * Registro a validar.
+   *
+   * @param congreso
+   * CONGRESO al que pertenece el registro.
+   *
+   * @return
+   * El registro, si el actor es el ORGANIZADOR.
+   *
+   * @throws ResponseStatusException
+   * Si no es el ORGANIZADOR asignado.
+   */
+  public Conferencia afirmarOrganizadorAsignado (
+    Usuario actor, Conferencia conferencia, Congreso congreso
+  )
+    throws ResponseStatusException {
+
     // Encontrar el CONGRESO y comprobar acceso.
-    CongresoService.afirmarOrganizadorAsignado(
-      actor, congSvc.afirmar(conferencia.getCongresoId()));
+    CongresoService.afirmarOrganizadorAsignado(actor, congreso);
 
     return conferencia;
   }
@@ -604,31 +636,36 @@ public class ConferenciaService {
    * Si el rango de fechas rompe alguno de los requerimientos.
    */
   public Conferencia afirmarPeriodoEventoValido (
-    Conferencia conferencia
+    Conferencia conferencia, Congreso congreso
   )
     throws ResponseStatusException {
 
-    var inicio = conferencia.getFechaInicio();
-    var fin = conferencia.getFechaFin();
+    var confInicio = conferencia.getFechaInicio();
+    var confFin = conferencia.getFechaFin();
 
-//    if (!CongresoService.periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas deben ser en el futuro.");
-//    }
+    var congInicio = congreso.getFechaInicio();
+    var congFin = congreso.getFechaFin();
 
-    if (!CongresoService.periodoOrdenCorrecto(inicio, fin)) {
+    if (!CongresoService.periodoOrdenCorrecto(confInicio, confFin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "La fecha de terminacion debe ser posterior a la de inicio.");
     }
 
     if (!CongresoService.periodoRangoValido(
-      inicio, fin, Conferencia.DURACION_MIN, Conferencia.DURACION_MAX)
+      confInicio, confFin, Conferencia.DURACION_MIN, Conferencia.DURACION_MAX)
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "La duracion debe ser al menos 1 hora y maximo 8 horas.");
+    }
+
+    if (confInicio.isBefore(congInicio) || confInicio.isAfter(congFin)
+      || confFin.isBefore(congInicio) || confFin.isAfter(congFin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Las fechas de la Conferencia deben estar dentro de las fechas del" +
+          " Congreso.");
     }
 
     return conferencia;

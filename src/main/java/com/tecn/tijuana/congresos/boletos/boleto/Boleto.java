@@ -266,7 +266,7 @@ public class Boleto {
       congreso.getDireccion(),
       alumno.getId(),
       alumno.getNoControl(),
-      alumno.getNombre(),
+      alumno.getNombreCompleto(),
       congreso.getInscritos() >= congreso.getCupo()
     );
   }

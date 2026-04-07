@@ -259,11 +259,12 @@ public class ControlDeUsuariosService {
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      codificarPassword(
-        afirmarNoControlNoTomado(
-          afirmarEmailNoTomado(
-            afirmarEmailInstitucionalNoTomado(usr))),
-        pwdEnc));
+      Usuario.nuevoAlumnoAutoRegistrado(
+        codificarPassword(
+          afirmarNoControlNoTomado(
+            afirmarEmailNoTomado(
+              afirmarEmailInstitucionalNoTomado(usr))),
+          pwdEnc)));
   }
 
 
