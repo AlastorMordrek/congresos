@@ -1173,6 +1173,28 @@ public class CongresoService {
 
   /**
    * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarConcluido (
+    Congreso reg
+  ) {
+    if (LocalDateTime.now().isBefore(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no ha concluido");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
    * funcion, de lo contrario lanza una excepcion que retorna un error.
    *
    * @param actor

@@ -99,7 +99,10 @@ public class CongresoController {
   "cupo": 300,
   
   "staffCantidad": 20,
-  "staffRequerimientos": "Soporte, seguridad, sonido, etc..."
+  "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
+  
+  "alumnoAcreditacionAsistenciasRequeridas": 5,
+  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
 }
 """
           )
@@ -146,7 +149,10 @@ public class CongresoController {
   "asistencias": 0,
   
   "staffCantidad": 20,
-  "staffRequerimientos": "Soporte, seguridad, sonido, etc..."
+  "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
+  
+  "alumnoAcreditacionAsistenciasRequeridas": 5,
+  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
 }
 """
         )
@@ -305,7 +311,10 @@ public class CongresoController {
   "asistencias": 0,
   
   "staffCantidad": 25,
-  "staffRequerimientos": "Soporte, seguridad, sonido, etc..."
+  "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
+  
+  "alumnoAcreditacionAsistenciasRequeridas": 5,
+  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
 }
 """
         )
@@ -350,7 +359,10 @@ public class CongresoController {
   "asistencias": 0,
   
   "staffCantidad": 25,
-  "staffRequerimientos": "Soporte, seguridad, sonido, etc..."
+  "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
+  
+  "alumnoAcreditacionAsistenciasRequeridas": 5,
+  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
 }
 """
         )

@@ -14,6 +14,9 @@ public class ExpresionSeguridad {
 
   public static final String ELIMINAR_USUARIOS = EDITAR_USUARIOS;
 
+  public static final String ACREDITAR_ALUMNOS =
+    "hasRole('ORGANIZADOR')";
+
 
 
   public static final String CONSULTAR_CONGRESOS_PROPIOS =

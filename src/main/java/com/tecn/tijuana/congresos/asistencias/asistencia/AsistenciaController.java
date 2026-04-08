@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -1780,7 +1781,10 @@ public class AsistenciaController {
       " indicado. Acepta el filtro opcional presente (true/false): " +
       "true = solo registros con fechaUltimaEntrada != null; " +
       "false = solo registros con fechaUltimaEntrada == null; " +
-      "omitido = sin filtro.",
+      "omitido = sin filtro. " +
+      "Acepta el filtro opcional txt (1-30 caracteres) para buscar en " +
+      "alumnoNombre, alumnoNoControl, creadorNombre, boletoFolio y" +
+      " boletoFolioLargo.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1941,6 +1945,10 @@ public class AsistenciaController {
     @RequestParam(name = "presente", required = false)
     Boolean presente,
 
+    @RequestParam(name = "txt", required = false)
+    @Size(min = 3, max = 30)
+    String txt,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1951,7 +1959,7 @@ public class AsistenciaController {
   ) {
     return new ResponseEntity<>(
       astSvc.qConferenciaId(
-        conferenciaId, minTiempoAsistido, presente, page, pageSize),
+        conferenciaId, minTiempoAsistido, presente, txt, page, pageSize),
       HttpStatus.OK);
   }
 }

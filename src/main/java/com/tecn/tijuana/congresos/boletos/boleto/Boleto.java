@@ -198,6 +198,8 @@ public class Boleto {
    * */
   private boolean usado = false;
 
+
+
   /**
    * A cuantas CONFERENCIAS unicas asistio con este registro.
    * */
@@ -210,6 +212,21 @@ public class Boleto {
    * */
   @Min(value = 0, message = "El tiempo asistido no puede ser negativo")
   private long tiempoAsistido = 0L;
+
+  /**
+   * Determina si el ALUMNO cumplio con los requerimientos para obtener su
+   * acreditacion.
+   * */
+  private boolean cumplioRequerimientosDeAsistencia = false;
+
+  /**
+   * Determina si el ALUMNO fue acreditado por el ORGANIZADOR del CONGRESO.
+   * <p>
+   * Para ser acreditado debe cumplir con los requerimientos de ASISTENCIAS
+   * establecidos en el CONGRESO (es decir
+   * {@code cumplioRequerimientosDeAsistencia = true}).
+   * */
+  private boolean acreditado = false;
 
 
 
@@ -348,9 +365,7 @@ public class Boleto {
    * El registro actualizado.
    */
   public Boleto marcar () {
-
     setUsado(USADO);
-
     return this;
   }
 
@@ -363,9 +378,20 @@ public class Boleto {
    * El registro actualizado.
    */
   public Boleto estampar () {
-
     setAsistencias(getAsistencias() + 1);
+    return this;
+  }
 
+
+
+  /**
+   * Acredita el BOLETO, marcando que el ALUMNO fue aprobado por el ORGANIZADOR.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto acreditar () {
+    setAcreditado(true);
     return this;
   }
 
@@ -378,9 +404,33 @@ public class Boleto {
    * El registro actualizado.
    */
   public Boleto sumarTiempoAsistido (long duracion) {
-
     setTiempoAsistido(getTiempoAsistido() + duracion);
+    return this;
+  }
 
+
+
+  /**
+   * Verifica si el ALUMNO cumplio con los requerimientos de asistencia para
+   * obtener su acreditacion y de ser asi marca el BOLETO.
+   *
+   * @param asistenciasRequeridas
+   * Numero minimo de CONFERENCIAS distintas a las que debio asistir el ALUMNO.
+   *
+   * @param tiempoAsistidoRequerido
+   * Tiempo total minimo asistido requerido, en segundos.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto aplicarCumplimientoDeRequisitosDeAsistencia (
+    int asistenciasRequeridas, long tiempoAsistidoRequerido
+  ) {
+    if (!cumplioRequerimientosDeAsistencia
+        && asistencias >= asistenciasRequeridas
+        && tiempoAsistido >= tiempoAsistidoRequerido) {
+      setCumplioRequerimientosDeAsistencia(true);
+    }
     return this;
   }
 }

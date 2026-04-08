@@ -531,7 +531,8 @@ public class AsistenciaService {
     var asistencia_2 = astRep.saveAndFlush(asistencia);
 
     // Sumar al BOLETO la misma duracion que se le sumo a la ASISTENCIA.
-    var boleto_2 = bolSvc.sumarTiempoAsistido(boleto, duracion);
+    // Verificar si el ALUMNO cumplio con los requerimientos de acreditacion.
+    var boleto_2 = bolSvc.sumarTiempoAsistido(boleto, duracion, congreso);
 
     // Retornar el registro actualizado.
     return asistencia_2;
@@ -730,9 +731,10 @@ public class AsistenciaService {
     // Actualizar el tiempo asistido del BOLETO.
     // Si ya habia una duracion previa de ASISTENCIA, se resta de la duracion
     // total de CONFERENCIA lo cual sirve como correccion.
+    // Verificar si el ALUMNO cumplio con los requerimientos de acreditacion.
     // Actualizar y guardar el BOLETO.
     var boleto_2 = bolSvc.sumarTiempoAsistido(
-      boleto, duracion - tiempoAsistidoPrevio);
+      boleto, duracion - tiempoAsistidoPrevio, congreso);
 
     // Retornar el registro actualizado.
     return asistencia_2;
@@ -810,6 +812,10 @@ public class AsistenciaService {
    * {@code false} = solo registros con fechaUltimaEntrada == null (ausente).
    * {@code null}  = sin filtro.
    *
+   * @param txt
+   * Filtro de texto libre, opcional. Busca en alumnoNombre, alumnoNoControl,
+   * creadorNombre, boletoFolio y boletoFolioLargo.
+   *
    * @param page
    * Numero de pagina.
    *
@@ -821,33 +827,50 @@ public class AsistenciaService {
    */
   public List<Asistencia> qConferenciaId (
     Long conferenciaId, Long minTiempoAsistido, Boolean presente,
-    int page, int pageSize
+    String txt, int page, int pageSize
   ) {
     var pageable = Api.pagina(page, pageSize);
 
+    var t = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
     // Si no se especifico un tiempo minimo asistido.
     if (minTiempoAsistido == null) {
-      if (presente == null) { // Indiferente.
-        return astRep.qConferenciaId(conferenciaId, pageable).getContent();
-      }
-      if (presente) { // Presente.
-        return astRep.qConferenciaIdPresente(conferenciaId, pageable).getContent();
-      }
+      if (presente == null) // Indiferente.
+        return t == null
+          ? astRep.qConferenciaId(conferenciaId, pageable).getContent()
+          : astRep.buscarConferenciaId(
+            conferenciaId, t, pageable).getContent();
+      if (presente) // Presente.
+        return t == null
+          ? astRep.qConferenciaIdPresente(conferenciaId, pageable).getContent()
+          : astRep.buscarConferenciaIdPresente(
+            conferenciaId, t, pageable).getContent();
       // Ausente.
-      return astRep.qConferenciaIdAusente(conferenciaId, pageable).getContent();
+      return t == null
+        ? astRep.qConferenciaIdAusente(conferenciaId, pageable).getContent()
+        : astRep.buscarConferenciaIdAusente(
+          conferenciaId, t, pageable).getContent();
     }
-    if (presente == null) { // Indiferente.
-      return astRep.qConferenciaIdMinTiempoAsistido(
-        conferenciaId, minTiempoAsistido, pageable).getContent();
-    }
-    if (presente) { // Presente.
-      return astRep.qConferenciaIdMinTiempoAsistidoPresente(
-        conferenciaId, minTiempoAsistido, pageable).getContent();
-    }
+    if (presente == null) // Indiferente.
+      return t == null
+        ? astRep.qConferenciaIdMinTiempoAsistido(
+            conferenciaId, minTiempoAsistido, pageable).getContent()
+        : astRep.buscarConferenciaIdMinTiempoAsistido(
+            conferenciaId, minTiempoAsistido, t, pageable).getContent();
+    if (presente) // Presente.
+      return t == null
+        ? astRep.qConferenciaIdMinTiempoAsistidoPresente(
+            conferenciaId, minTiempoAsistido, pageable).getContent()
+        : astRep.buscarConferenciaIdMinTiempoAsistidoPresente(
+            conferenciaId, minTiempoAsistido, t, pageable).getContent();
     // Ausente.
-    return astRep.qConferenciaIdMinTiempoAsistidoAusente(
-      conferenciaId, minTiempoAsistido, pageable).getContent();
-
+    return t == null
+      ? astRep.qConferenciaIdMinTiempoAsistidoAusente(
+          conferenciaId, minTiempoAsistido, pageable).getContent()
+      : astRep.buscarConferenciaIdMinTiempoAsistidoAusente(
+          conferenciaId, minTiempoAsistido, t, pageable).getContent();
   }
 
 

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -79,6 +80,106 @@ public interface AsistenciaRepository
 
   Page<Asistencia> qConferenciaIdMinTiempoAsistidoAusente (
     Long conferenciaId, Long minTiempoAsistido, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaId (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("txt") String txt,
+    Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND r.fechaUltimaEntrada IS NOT NULL" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaIdPresente (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("txt") String txt,
+    Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND r.fechaUltimaEntrada IS NULL" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaIdAusente (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("txt") String txt,
+    Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND r.tiempoAsistido >= :minTiempoAsistido" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaIdMinTiempoAsistido (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("minTiempoAsistido") Long minTiempoAsistido,
+    @Param("txt") String txt,
+    Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND r.tiempoAsistido >= :minTiempoAsistido" +
+    " AND r.fechaUltimaEntrada IS NOT NULL" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaIdMinTiempoAsistidoPresente (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("minTiempoAsistido") Long minTiempoAsistido,
+    @Param("txt") String txt,
+    Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = :conferenciaId" +
+    " AND r.tiempoAsistido >= :minTiempoAsistido" +
+    " AND r.fechaUltimaEntrada IS NULL" +
+    " AND (lower(r.alumnoNombre)   like %:txt%" +
+    " OR lower(r.alumnoNoControl)  like %:txt%" +
+    " OR lower(r.creadorNombre)    like %:txt%" +
+    " OR lower(r.boletoFolio)      like %:txt%" +
+    " OR lower(r.boletoFolioLargo) like %:txt%)")
+
+  Page<Asistencia> buscarConferenciaIdMinTiempoAsistidoAusente (
+    @Param("conferenciaId") Long conferenciaId,
+    @Param("minTiempoAsistido") Long minTiempoAsistido,
+    @Param("txt") String txt,
+    Pageable pageable);
 
 
 

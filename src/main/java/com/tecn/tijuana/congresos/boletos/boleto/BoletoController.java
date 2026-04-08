@@ -1195,6 +1195,162 @@ public class BoletoController {
 
 
 
+  /**
+   * Permite al ORGANIZADOR ACREDITAR a un ALUMNO a travez de su BOLETO.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro ACREDITADO.
+   */
+  @PatchMapping("acreditar/{id}")
+
+  @Operation(
+    summary = "Acreditar boleto",
+    description = "Permite al organizador acreditar un boleto cuyo alumno " +
+      "ya cumplio con los requerimientos de asistencia del congreso.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Acreditacion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto acreditado",
+          value = """
+{
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
+  
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+  
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
+  
+  "excedente"           : false,
+  "pagado"              : true,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"                          : false,
+  "usado"                              : true,
+  "asistencias"                        : 3,
+  "tiempoAsistido"                     : 10800,
+  "cumplioRequerimientosDeAsistencia"  : true,
+  "acreditado"                         : true
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos o requerimientos de asistencia no cumplidos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "El alumno no ha cumplido con los requerimientos de asistencia",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T04:16:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con ID 1",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.ACREDITAR_ALUMNOS)
+
+  public ResponseEntity<Boleto> acreditar (
+
+    @PathVariable
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.acreditar(actor, id),
+      HttpStatus.OK);
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 

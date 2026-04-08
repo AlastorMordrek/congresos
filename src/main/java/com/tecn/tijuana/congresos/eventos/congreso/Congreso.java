@@ -227,6 +227,31 @@ public class Congreso {
 
 
   /**
+   * Cuantas ASISTENCIAS distintas requiere el ALUMNO para conseguir su
+   * acreditacion.
+   * */
+  @Min(value = 1, message = "Se debe requerir al menos una Asistencia")
+  @Max(value = 40, message = "Se deben requerir como maximo 40 Asistencias")
+  private int alumnoAcreditacionAsistenciasRequeridas = 1;
+
+  /**
+   * Cuanto Tiempo Asistido total requiere el ALUMNO para conseguir su
+   * acreditacion (expresado en segundos).
+   * <p>
+   * Se refiere al tiempo total que paso en todas las CONFERENCIAS a las que
+   * asistio.
+   * */
+  @Min(value = 1,
+    message = "Se debe requerir al menos 1 segundo de tiempo asistido")
+  @Max(value = 144000,
+    message = "Se deben requerir como maximo 40 horas de tiempo asistido")
+  private long alumnoAcreditacionTiempoAsistidoRequerido = 1;
+
+
+
+  //--------------------------- CAMPOS MULTIMEDIA ------------------------------
+
+  /**
    * Slot de multimedia informativa previa al CONGRESO.
    * <p>
    * Tipo de archivo multimedia de la foto 1.
@@ -543,7 +568,9 @@ public class Congreso {
     boolean gratuito,
     int cupo,
     int staffCantidad,
-    String staffRequerimientos
+    String staffRequerimientos,
+    int alumnoAcreditacionAsistenciasRequeridas,
+    long alumnoAcreditacionTiempoAsistidoRequerido
   ) {
     this.fechaCreacion            = LocalDateTime.now();
     this.creadorId                = creadorId;
@@ -565,6 +592,11 @@ public class Congreso {
 
     this.staffCantidad            = staffCantidad;
     this.staffRequerimientos      = staffRequerimientos;
+
+    this.alumnoAcreditacionAsistenciasRequeridas =
+      alumnoAcreditacionAsistenciasRequeridas;
+    this.alumnoAcreditacionTiempoAsistidoRequerido =
+      alumnoAcreditacionTiempoAsistidoRequerido;
   }
 
 
@@ -593,7 +625,9 @@ public class Congreso {
       dto.isGratuito(),
       dto.getCupo(),
       dto.getStaffCantidad(),
-      dto.getStaffRequerimientos()
+      dto.getStaffRequerimientos(),
+      dto.getAlumnoAcreditacionAsistenciasRequeridas(),
+      dto.getAlumnoAcreditacionTiempoAsistidoRequeridas()
     );
   }
 
@@ -618,7 +652,9 @@ public class Congreso {
       con.isGratuito(),
       con.getCupo(),
       con.getStaffCantidad(),
-      con.getStaffRequerimientos()
+      con.getStaffRequerimientos(),
+      con.getAlumnoAcreditacionAsistenciasRequeridas(),
+      con.getAlumnoAcreditacionTiempoAsistidoRequerido()
     );
   }
 
@@ -656,6 +692,11 @@ public class Congreso {
 
     setStaffCantidad(con.getStaffCantidad());
     setStaffRequerimientos(con.getStaffRequerimientos());
+
+    setAlumnoAcreditacionAsistenciasRequeridas(
+      con.getAlumnoAcreditacionAsistenciasRequeridas());
+    setAlumnoAcreditacionTiempoAsistidoRequerido(
+      con.getAlumnoAcreditacionTiempoAsistidoRequerido());
 
     return this;
   }

@@ -129,4 +129,26 @@ public class RegistroCongresoDto {
     message = "La descripcion de requerimientos de staff debe ser menor" +
       " o igual a 500 caracteres")
   public String staffRequerimientos = "";
+
+
+
+  /**
+   * Cuantas ASISTENCIAS distintas requiere el ALUMNO para conseguir su
+   * acreditacion.
+   * {@code default: 1}.
+   * */
+  @Min(value = 1, message = "Se debe requerir al menos una Asistencia")
+  @Max(value = 40, message = "Se deben requerir como maximo 40 Asistencias")
+  public int alumnoAcreditacionAsistenciasRequeridas = 1;
+
+  /**
+   * Cuanto Tiempo Asistido total requiere el ALUMNO para conseguir su
+   * acreditacion (expresado en segundos).
+   * {@code default: 1}.
+   * */
+  @Min(value = 1,
+    message = "Se debe requerir al menos 1 segundo de tiempo asistido")
+  @Max(value = 144000,
+    message = "Se deben requerir como maximo 40 horas de tiempo asistido")
+  public long alumnoAcreditacionTiempoAsistidoRequeridas = 1;
 }
