@@ -128,7 +128,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -328,7 +329,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -483,7 +485,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -635,7 +638,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -787,7 +791,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -940,7 +945,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1093,7 +1099,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1253,7 +1260,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1418,7 +1426,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1585,7 +1594,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1749,7 +1759,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1871,7 +1882,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -2018,7 +2030,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -2172,7 +2185,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -2340,7 +2354,8 @@ public class BoletoController {
     
     "cancelado"           : true,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -2509,7 +2524,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """

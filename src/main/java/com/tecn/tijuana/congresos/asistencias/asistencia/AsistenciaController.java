@@ -1774,7 +1774,13 @@ public class AsistenciaController {
   @Operation(
     summary = "Consultar asistencias por conferencia",
     description = "Permite al personal autorizado consultar la lista de " +
-      "asistencias de una conferencia especifica.",
+      "asistencias de una conferencia especifica. " +
+      "Acepta el filtro opcional minTiempoAsistido (segundos, 0-144000) " +
+      "para retornar unicamente registros con tiempoAsistido >= al valor" +
+      " indicado. Acepta el filtro opcional presente (true/false): " +
+      "true = solo registros con fechaUltimaEntrada != null; " +
+      "false = solo registros con fechaUltimaEntrada == null; " +
+      "omitido = sin filtro.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1795,25 +1801,25 @@ public class AsistenciaController {
   {
     "id": 1,
     
-    "fechaCreacion": "2025-10-11T10:05:00",
-    "creadorId": 3,
-    "creadorNombre": "Personal de Seguridad",
+    "fechaCreacion"      : "2025-10-11T10:05:00",
+    "creadorId"          : 3,
+    "creadorNombre"      : "Personal de Seguridad",
     
-    "boletoId": 1,
-    "boletoFolio": "A1B2C3",
-    "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "boletoId"           : 1,
+    "boletoFolio"        : "A1B2C3",
+    "boletoFolioLargo"   : "A1B2C3D4E5F6G7H8I9J0",
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "conferenciaId": 5,
-    "conferenciaNombre": "Inteligencia Artificial Aplicada",
+    "congresoId"         : 1,
+    "congresoNombre"     : "Congreso de Tecnologia",
+    "conferenciaId"      : 5,
+    "conferenciaNombre"  : "Inteligencia Artificial Aplicada",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "alumnoId"           : 2,
+    "alumnoNoControl"    : "12345678",
+    "alumnoNombre"       : "Juan Perez Garcia",
     
-    "fechaUltimaEntrada": null,
-    "tiempoAsistido": 7200
+    "fechaUltimaEntrada" : "2025-10-11T10:05:00",
+    "tiempoAsistido"     : 7200
   }
 ]
 """
@@ -1840,7 +1846,9 @@ public class AsistenciaController {
   "timestamp": "2025-10-13T06:35:10",
   "campos": {
     "page": "must be greater than or equal to 0",
-    "pageSize": "must be less than or equal to 100"
+    "pageSize": "must be less than or equal to 100",
+    "minTiempoAsistido": "must be less than or equal to 144000",
+    "presente": "must be true or false or absent from the request"
   }
 }
 """
@@ -1926,6 +1934,13 @@ public class AsistenciaController {
     @PathVariable("conferenciaId")
     Long conferenciaId,
 
+    @RequestParam(name = "minTiempoAsistido", required = false)
+    @Min(0) @Max(144000)
+    Long minTiempoAsistido,
+
+    @RequestParam(name = "presente", required = false)
+    Boolean presente,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1935,7 +1950,8 @@ public class AsistenciaController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      astSvc.qConferenciaId(conferenciaId, page, pageSize),
+      astSvc.qConferenciaId(
+        conferenciaId, minTiempoAsistido, presente, page, pageSize),
       HttpStatus.OK);
   }
 }

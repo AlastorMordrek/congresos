@@ -890,4 +890,20 @@ public class BoletoService {
 
     return reg;
   }
+
+
+
+  //----------------------------------------------------------------------------
+  // AUXILIARES.
+
+  /**
+   * Edita el BOLETO (le suma la nueva duracion al total de tiempo asistido) y
+   * lo guarda en la base de datos.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto sumarTiempoAsistido (Boleto boleto, long duracion) {
+    return bolRep.saveAndFlush(boleto.sumarTiempoAsistido(duracion));
+  }
 }

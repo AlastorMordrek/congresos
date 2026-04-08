@@ -171,7 +171,6 @@ public class Asistencia {
    * Suma del tiempo que paso en la CONFERENCIA en segundos.
    * */
   @Min(value = 0, message = "El tiempo asistido no puede ser negativo")
-  @Column(nullable = false)
   private long tiempoAsistido = 0L;
 
 
@@ -296,75 +295,6 @@ public class Asistencia {
 
     // Registrar fecha de entrada actual.
     setFechaUltimaEntrada(LocalDateTime.now());
-
-    // Retornar objeto actualizado.
-    return this;
-  }
-
-
-
-  /**
-   * Registrar salida para el ALUMNO de la CONFERENCIA.
-   * <p>
-   * Se asume que ya tenia una fecha de ENTRADA, se calcula cuento tiempo paso
-   * desde entonces y la duracion se suma al tiempo total asistido.
-   *
-   * @return
-   * El registro actualizado.
-   */
-  public Asistencia salir () {
-
-    // Ultima fecha en que entro a la CONFERENCIA.
-    var ultima = getFechaUltimaEntrada();
-
-    // Si no hay fecha de entrada previa no hay nada que hacer.
-    // Retornar sin mas.
-    if (Objects.isNull(ultima)) {
-      return this;
-    }
-
-    // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, LocalDateTime.now()).toSeconds();
-
-    // Tiempo total asistido a la conferencia especifica actualmente.
-    var asistido = getTiempoAsistido();
-
-    // Sumar la nueva duracion al tiempo total asistido.
-    if (asistido == 0) {
-      setTiempoAsistido(duracion);
-    } else {
-      setTiempoAsistido(asistido + duracion);
-    }
-
-    // Remover fecha de entrada previa.
-    setFechaUltimaEntrada(null);
-
-    // Retornar objeto actualizado.
-    return this;
-  }
-
-
-
-  /**
-   * Sobreescribir los datos de la asistencia y constar que el ALUMNO asistio a
-   * la CONFERENCIA completa.
-   *
-   * @return
-   * El registro actualizado.
-   */
-  public Asistencia asistioConferenciaCompleta (Conferencia conferencia) {
-
-    // Remover fecha de entrada.
-    setFechaUltimaEntrada(null);
-
-    // Establecer tiempo asistido total como la duracion completa de la
-    // CONFERENCIA.
-    setTiempoAsistido(
-      Duration.between(
-          conferencia.getFechaInicio(),
-          conferencia.getFechaFin())
-        .toSeconds()
-    );
 
     // Retornar objeto actualizado.
     return this;

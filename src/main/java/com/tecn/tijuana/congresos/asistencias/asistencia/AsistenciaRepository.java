@@ -36,6 +36,53 @@ public interface AsistenciaRepository
 
 
   @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.tiempoAsistido >= ?2")
+
+  Page<Asistencia> qConferenciaIdMinTiempoAsistido (
+    Long conferenciaId, Long minTiempoAsistido, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.fechaUltimaEntrada IS NOT NULL")
+
+  Page<Asistencia> qConferenciaIdPresente (
+    Long conferenciaId, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.fechaUltimaEntrada IS NULL")
+
+  Page<Asistencia> qConferenciaIdAusente (
+    Long conferenciaId, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.tiempoAsistido >= ?2" +
+    " AND r.fechaUltimaEntrada IS NOT NULL")
+
+  Page<Asistencia> qConferenciaIdMinTiempoAsistidoPresente (
+    Long conferenciaId, Long minTiempoAsistido, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.tiempoAsistido >= ?2" +
+    " AND r.fechaUltimaEntrada IS NULL")
+
+  Page<Asistencia> qConferenciaIdMinTiempoAsistidoAusente (
+    Long conferenciaId, Long minTiempoAsistido, Pageable pageable);
+
+
+
+  @Query("SELECT r FROM Asistencia r WHERE" +
     " r.congresoId = ?1" +
     " AND r.alumnoId = ?2")
 

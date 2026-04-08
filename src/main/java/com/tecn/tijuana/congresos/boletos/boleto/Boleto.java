@@ -205,6 +205,12 @@ public class Boleto {
   @Max(value = 100, message = "Las asistencias no pueden ser mayores a 100")
   private int asistencias = 0;
 
+  /**
+   * Suma del tiempo que paso en las CONFERENCIAS en segundos.
+   * */
+  @Min(value = 0, message = "El tiempo asistido no puede ser negativo")
+  private long tiempoAsistido = 0L;
+
 
 
   /**
@@ -359,6 +365,21 @@ public class Boleto {
   public Boleto estampar () {
 
     setAsistencias(getAsistencias() + 1);
+
+    return this;
+  }
+
+
+
+  /**
+   * Edita el BOLETO (le suma la nueva duracion al total de tiempo asistido).
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto sumarTiempoAsistido (long duracion) {
+
+    setTiempoAsistido(getTiempoAsistido() + duracion);
 
     return this;
   }

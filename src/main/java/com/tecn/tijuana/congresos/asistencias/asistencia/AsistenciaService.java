@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -440,6 +442,15 @@ public class AsistenciaService {
   /**
    * Permite al personal autorizado registrar la SALIDA de un ALUMNO a una
    * CONFERENCIA, usando el BOLETO en cuestion.
+   * <p>
+   * Actualiza la ASISTENCIA para que conste el tiempo total asistido a la
+   * CONFERENCIA, sumando el tiempo transcurrido.
+   * <p>
+   * Tambien actualiza el BOLETO para que conste el tiempo total asistido a
+   * todas las CONFERENCIAS.
+   * <p>
+   * Sino hay una entrada previa registrada en la ASISTENCIA, no se puede
+   * registrar una salida, solo retorna el registro sin mas.
    *
    * @param actor
    * USUARIO ejecutor de la operacion.
@@ -491,8 +502,39 @@ public class AsistenciaService {
     var asistencia = afirmarConferenciaIdAlumnoId(
       conferencia.getId(), boleto.getAlumnoId());
 
-    // Actualizar, guardar y retornar el registro.
-    return astRep.saveAndFlush(asistencia.salir());
+    // Ultima fecha en que entro a la CONFERENCIA.
+    var ultima = asistencia.getFechaUltimaEntrada();
+
+    // Si no hay fecha de entrada previa no hay nada que hacer.
+    // Retornar sin mas.
+    if (Objects.isNull(ultima)) {
+      return asistencia;
+    }
+
+    // Cuanto tiempo ha pasado desde que entro.
+    var duracion = Duration.between(ultima, LocalDateTime.now()).toSeconds();
+
+    // Tiempo total asistido a la conferencia especifica actualmente.
+    var asistido = asistencia.getTiempoAsistido();
+
+    // Sumar la nueva duracion al tiempo total asistido.
+    if (asistido == 0) {
+      asistencia.setTiempoAsistido(duracion);
+    } else {
+      asistencia.setTiempoAsistido(asistido + duracion);
+    }
+
+    // Remover fecha de entrada previa.
+    asistencia.setFechaUltimaEntrada(null);
+
+    // Actualizar y guardar el registro.
+    var asistencia_2 = astRep.saveAndFlush(asistencia);
+
+    // Sumar al BOLETO la misma duracion que se le sumo a la ASISTENCIA.
+    var boleto_2 = bolSvc.sumarTiempoAsistido(boleto, duracion);
+
+    // Retornar el registro actualizado.
+    return asistencia_2;
   }
 
 
@@ -666,9 +708,34 @@ public class AsistenciaService {
       confSvc.sumarAsistencia(conferencia);
     }
 
-    // Actualizar, guardar y retornar el registro.
-    return astRep.saveAndFlush(
-      asistencia.asistioConferenciaCompleta(conferencia));
+    // Tiempo asistido previamente antes de esta operacion/correccion.
+    var tiempoAsistidoPrevio = asistencia.getTiempoAsistido();
+
+    // Calcular la duracion de la CONFERENCIA.
+    var duracion = Duration.between(
+        conferencia.getFechaInicio(),
+        conferencia.getFechaFin())
+      .toSeconds();
+
+    // Remover fecha de entrada.
+    asistencia.setFechaUltimaEntrada(null);
+
+    // Establecer tiempo asistido total como la duracion completa de la
+    // CONFERENCIA.
+    asistencia.setTiempoAsistido(duracion);
+
+    // Guardar el registro.
+    var asistencia_2 = astRep.saveAndFlush(asistencia);
+
+    // Actualizar el tiempo asistido del BOLETO.
+    // Si ya habia una duracion previa de ASISTENCIA, se resta de la duracion
+    // total de CONFERENCIA lo cual sirve como correccion.
+    // Actualizar y guardar el BOLETO.
+    var boleto_2 = bolSvc.sumarTiempoAsistido(
+      boleto, duracion - tiempoAsistidoPrevio);
+
+    // Retornar el registro actualizado.
+    return asistencia_2;
   }
 
 
@@ -733,6 +800,16 @@ public class AsistenciaService {
    * @param conferenciaId
    * ID de la CONFERENCIA.
    *
+   * @param minTiempoAsistido
+   * Filtro de tiempo minimo asistido en segundos, opcional.
+   * Rango: 0 a 144000 (40 horas).
+   *
+   * @param presente
+   * Filtro de estado de asistencia, opcional.
+   * {@code true}  = solo registros con fechaUltimaEntrada != null (presente).
+   * {@code false} = solo registros con fechaUltimaEntrada == null (ausente).
+   * {@code null}  = sin filtro.
+   *
    * @param page
    * Numero de pagina.
    *
@@ -743,11 +820,34 @@ public class AsistenciaService {
    * Lista de registros encontrados.
    */
   public List<Asistencia> qConferenciaId (
-    Long conferenciaId, int page, int pageSize
+    Long conferenciaId, Long minTiempoAsistido, Boolean presente,
+    int page, int pageSize
   ) {
-    return astRep
-      .qConferenciaId(conferenciaId, Api.pagina(page, pageSize))
-      .getContent();
+    var pageable = Api.pagina(page, pageSize);
+
+    // Si no se especifico un tiempo minimo asistido.
+    if (minTiempoAsistido == null) {
+      if (presente == null) { // Indiferente.
+        return astRep.qConferenciaId(conferenciaId, pageable).getContent();
+      }
+      if (presente) { // Presente.
+        return astRep.qConferenciaIdPresente(conferenciaId, pageable).getContent();
+      }
+      // Ausente.
+      return astRep.qConferenciaIdAusente(conferenciaId, pageable).getContent();
+    }
+    if (presente == null) { // Indiferente.
+      return astRep.qConferenciaIdMinTiempoAsistido(
+        conferenciaId, minTiempoAsistido, pageable).getContent();
+    }
+    if (presente) { // Presente.
+      return astRep.qConferenciaIdMinTiempoAsistidoPresente(
+        conferenciaId, minTiempoAsistido, pageable).getContent();
+    }
+    // Ausente.
+    return astRep.qConferenciaIdMinTiempoAsistidoAusente(
+      conferenciaId, minTiempoAsistido, pageable).getContent();
+
   }
 
 
