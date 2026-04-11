@@ -11,23 +11,24 @@ import java.util.Optional;
 public interface UsuarioRepository
   extends JpaRepository<Usuario, Long> {
 
-  @Query("SELECT s FROM Usuario s WHERE s.email = ?1")
+  @Query("SELECT r FROM Usuario r WHERE r.email = ?1")
   Optional<Usuario> qEmail (String email);
 
-  @Query("SELECT s FROM Usuario s WHERE s.emailInstitucional = ?1")
+  @Query("SELECT r FROM Usuario r WHERE r.emailInstitucional = ?1")
   Optional<Usuario> qEmailInstitucional (String email);
 
 
 
-  @Query("SELECT s FROM Usuario s WHERE s.noControl = ?1")
+  @Query("SELECT r FROM Usuario r WHERE r.noControl = ?1")
   Optional<Usuario> qNoControl (String noControl);
 
 
 
-  @Query("select p from Usuario p where" +
-    " lower(p.email)              like %:txt%"+
-    " OR lower(p.nombre)          like %:txt%"+
-    " OR lower(p.apellidoPaterno) like %:txt%"+
-    " OR lower(p.apellidoMaterno) like %:txt%")
+  @Query("select r from Usuario r where" +
+    " lower(r.email)              like %:txt%"+
+    " OR lower(r.nombre)          like %:txt%"+
+    " OR lower(r.apellidoPaterno) like %:txt%"+
+    " OR lower(r.apellidoMaterno) like %:txt%" +
+    " ORDER BY r.id DESC")
   Page<Usuario> buscar (@Param("txt") String txt, Pageable pageable);
 }
