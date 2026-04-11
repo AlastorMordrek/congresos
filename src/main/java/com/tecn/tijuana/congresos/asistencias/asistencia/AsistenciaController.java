@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Clase controladora principal de la entidad.
@@ -1605,19 +1606,25 @@ public class AsistenciaController {
 
   /**
    * Consulta las asistencias de un ALUMNO via el Folio Largo de su BOLETO.
+   * Retorna tambien el BOLETO y el CONGRESO correspondientes.
    *
    * @param boletoFolioLargo
    * Folio Largo del BOLETO.
    *
    * @return
-   * Los registros encontrados.
+   * <p>{
+   * <p>  "boleto"     : BOLETO,
+   * <p>  "congreso"   : CONGRESO,
+   * <p>  "asistencia" : ASISTENCIAS,
+   * <p>}
    */
   @GetMapping("publico/boleto/{boletoFolioLargo}")
 
   @Operation(
     summary = "Consultar asistencias por folio largo de boleto",
-    description = "Consulta las asistencias de un alumno via el folio " +
-      "largo de su boleto. Este endpoint es de acceso publico.",
+    description = "Consulta las Asistencias de un Alumno via el folio " +
+      "largo de su Boleto, incluyendo la informacion del Boleto y del " +
+      "Congreso correspondiente. Este endpoint es de acceso publico.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1629,36 +1636,96 @@ public class AsistenciaController {
       description = "Consulta exitosa",
       content = @Content(
         mediaType = "application/json",
-        schema = @Schema(implementation = Asistencia.class),
         examples = @ExampleObject(
           name = "Exito",
-          description = "Asistencias encontradas",
+          description = "Congreso, boleto y asistencias encontradas",
           value = """
-[
-  {
+{
+  "congreso": {
     "id": 1,
+    "fechaCreacion": "2025-10-11T01:56:11",
+    "creadorId": 0,
+    "organizadorId": 0,
     
-    "fechaCreacion": "2025-10-11T10:05:00",
-    "creadorId": 3,
-    "creadorNombre": "Personal de Seguridad",
+    "nombre": "Di no a las drogas?",
+    "resumen": "Maybe?",
+    "descripcion": "O no se, como ustedes vean :/",
+    "direccion": "Calafornix",
     
-    "boletoId": 1,
-    "boletoFolio": "A1B2C3",
-    "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+    "fechaInicio": "2025-10-11T13:00:00",
+    "fechaFin": "2025-10-11T15:00:00",
     
-    "congresoId": 1,
-    "congresoNombre": "Congreso de Tecnologia",
-    "conferenciaId": 5,
-    "conferenciaNombre": "Inteligencia Artificial Aplicada",
+    "inscripcionesFechaInicio": "2025-10-01T00:00:00",
+    "inscripcionesFechaFin": "2025-10-10T00:00:00",
     
-    "alumnoId": 2,
-    "alumnoNoControl": "12345678",
-    "alumnoNombre": "Juan Perez Garcia",
+    "gratuito": true,
     
-    "fechaUltimaEntrada": null,
-    "tiempoAsistido": 1800
-  }
-]
+    "publicado": false,
+    "cancelado": false,
+    
+    "cupo": 300,
+    "inscritos": 0,
+    "asistencias": 0,
+    
+    "staffCantidad": 20,
+    "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
+    
+    "alumnoAcreditacionAsistenciasRequeridas": 5,
+    "alumnoAcreditacionTiempoAsistidoRequerido": 7200
+  },
+  "boleto": {
+    "id"                  : 1,
+    "folio"               : "A1B2C3",
+    "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+    
+    "fechaCreacion"       : "2025-10-11T01:56:11",
+    "creadorId"           : 1,
+    
+    "congresoId"          : 1,
+    "congresoNombre"      : "Congreso de Tecnologia",
+    "congresoFechaInicio" : "2025-10-11T10:00:00",
+    "congresoFechaFin"    : "2025-10-11T18:00:00",
+    "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+    
+    "alumnoId"            : 2,
+    "alumnoNoControl"     : "12345678",
+    "alumnoNombre"        : "Juan Perez Garcia",
+    
+    "excedente"           : false,
+    "pagado"              : false,
+    "usuarioEditoPagado"  : null,
+    
+    "cancelado"           : false,
+    "usado"               : false,
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
+  },
+  "asistencia": [
+    {
+      "id": 1,
+    
+      "fechaCreacion"      : "2025-10-11T10:05:00",
+      "creadorId"          : 3,
+      "creadorNombre"      : "Personal de Seguridad",
+      
+      "boletoId"           : 1,
+      "boletoFolio"        : "A1B2C3",
+      "boletoFolioLargo"   : "A1B2C3D4E5F6G7H8I9J0",
+      
+      "congresoId"         : 1,
+      "congresoNombre"     : "Congreso de Tecnologia",
+      "conferenciaId"      : 5,
+      "conferenciaNombre"  : "Inteligencia Artificial Aplicada",
+      
+      "alumnoId"           : 2,
+      "alumnoNoControl"    : "12345678",
+      "alumnoNombre"       : "Juan Perez Garcia",
+      
+      "fechaUltimaEntrada" : "2025-10-11T10:05:00",
+      "tiempoAsistido"     : 7200
+    }
+  ]
+}
 """
         )
       )
@@ -1741,7 +1808,7 @@ public class AsistenciaController {
     )
   })
 
-  public ResponseEntity<List<Asistencia>> qBoletoFolioLargo (
+  public ResponseEntity<Map<String, Object>> qBoletoFolioLargo (
 
     @PathVariable("boletoFolioLargo")
     String boletoFolioLargo,

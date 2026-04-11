@@ -16,7 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -877,6 +879,7 @@ public class AsistenciaService {
 
   /**
    * Permite consultar las ASISTENCIAS de un BOLETO via su Folio Largo.
+   * Retorna tambien el BOLETO y el CONGRESO correspondientes.
    *
    * @param folio
    * Folio Largo del BOLETO.
@@ -888,14 +891,32 @@ public class AsistenciaService {
    * Tamano de pagina.
    *
    * @return
-   * Lista de registros encontrados.
+   * <p>{
+   * <p>  "boleto"     : BOLETO,
+   * <p>  "congreso"   : CONGRESO,
+   * <p>  "asistencia" : ASISTENCIAS,
+   * <p>}
    */
-  public List<Asistencia> qBoletoFolioLargo (
+  public Map<String, Object> qBoletoFolioLargo (
     String folio, int page, int pageSize
   ) {
-    return astRep
+    // ENcontrar BOLETO.
+    var boleto = bolSvc.afirmarFolioLargo(folio);
+    // Encontrar CONGRESO.
+    var congreso = congSvc.afirmar(boleto.getCongresoId());
+    // Encontrar ASISTENCIAS.
+    var asistencias = astRep
       .qBoletoFolioLargo(folio, Api.pagina(page, pageSize))
       .getContent();
+
+    // Armar respuesta.
+    Map<String, Object> resultado = new LinkedHashMap<>();
+    resultado.put("congreso", congreso);
+    resultado.put("boleto", boleto);
+    resultado.put("asistencia", asistencias);
+
+    // Retornar respuesta exitosa.
+    return resultado;
   }
 
 
