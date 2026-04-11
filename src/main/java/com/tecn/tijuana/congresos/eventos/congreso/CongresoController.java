@@ -1997,7 +1997,7 @@ public class CongresoController {
   public ResponseEntity<List<Congreso>> publicadosBuscar (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
