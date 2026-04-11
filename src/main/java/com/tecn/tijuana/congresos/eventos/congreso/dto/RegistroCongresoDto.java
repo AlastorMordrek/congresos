@@ -150,5 +150,5 @@ public class RegistroCongresoDto {
     message = "Se debe requerir al menos 1 segundo de tiempo asistido")
   @Max(value = 144000,
     message = "Se deben requerir como maximo 40 horas de tiempo asistido")
-  public long alumnoAcreditacionTiempoAsistidoRequeridas = 1;
+  public long alumnoAcreditacionTiempoAsistidoRequerido = 1;
 }

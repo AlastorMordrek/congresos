@@ -102,7 +102,7 @@ public class CongresoController {
   "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
   
   "alumnoAcreditacionAsistenciasRequeridas": 5,
-  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
+  "alumnoAcreditacionTiempoAsistidoRequerido": 7200
 }
 """
           )
@@ -152,7 +152,7 @@ public class CongresoController {
   "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
   
   "alumnoAcreditacionAsistenciasRequeridas": 5,
-  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
+  "alumnoAcreditacionTiempoAsistidoRequerido": 7200
 }
 """
         )
@@ -314,7 +314,7 @@ public class CongresoController {
   "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
   
   "alumnoAcreditacionAsistenciasRequeridas": 5,
-  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
+  "alumnoAcreditacionTiempoAsistidoRequerido": 7200
 }
 """
         )
@@ -362,7 +362,7 @@ public class CongresoController {
   "staffRequerimientos": "Soporte, seguridad, sonido, etc...",
   
   "alumnoAcreditacionAsistenciasRequeridas": 5,
-  "alumnoAcreditacionTiempoAsistidoRequeridas": 7200
+  "alumnoAcreditacionTiempoAsistidoRequerido": 7200
 }
 """
         )

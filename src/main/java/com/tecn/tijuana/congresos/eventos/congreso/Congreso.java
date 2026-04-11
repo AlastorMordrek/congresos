@@ -627,7 +627,7 @@ public class Congreso {
       dto.getStaffCantidad(),
       dto.getStaffRequerimientos(),
       dto.getAlumnoAcreditacionAsistenciasRequeridas(),
-      dto.getAlumnoAcreditacionTiempoAsistidoRequeridas()
+      dto.getAlumnoAcreditacionTiempoAsistidoRequerido()
     );
   }
 
