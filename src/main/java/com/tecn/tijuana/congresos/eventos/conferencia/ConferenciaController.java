@@ -1409,10 +1409,20 @@ public class ConferenciaController {
   // CONSULTAS.
 
   /**
-   * Consulta los registros publicados de un CONGRESO indiscriminadamente.
+   * Consulta los registros publicados de un CONGRESO, con busqueda de texto
+   * opcional y filtros opcionales de publicada y cancelada.
    *
    * @param congresoId
    * Id del CONGRESO.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param publicada {@code [null]}
+   * Filtro opcional por estado de publicacion. Si no se especifica, no filtra.
+   *
+   * @param cancelada {@code [null]}
+   * Filtro opcional por estado de cancelacion. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1427,7 +1437,8 @@ public class ConferenciaController {
 
   @Operation(
     summary = "Consultar conferencias publicadas de congreso",
-    description = "Obtiene las conferencias publicadas de un congreso.",
+    description = "Obtiene las conferencias publicadas de un congreso, con" +
+      " busqueda de texto y filtros opcionales de publicada y cancelada.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1532,6 +1543,16 @@ public class ConferenciaController {
     @PathVariable("congresoId")
     Long congresoId,
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    @RequestParam(name = "publicada", required = false)
+    Boolean publicada,
+
+    @RequestParam(name = "cancelada", required = false)
+    Boolean cancelada,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1541,7 +1562,8 @@ public class ConferenciaController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      confSvc.qCongresoIdPublicadas(congresoId, page, pageSize),
+      confSvc.qCongresoIdPublicadas(
+        congresoId, txt, publicada, cancelada, page, pageSize),
       HttpStatus.OK);
   }
 
@@ -1971,10 +1993,20 @@ public class ConferenciaController {
 
 
   /**
-   * Consulta los registros de un CONGRESO indiscriminadamente.
+   * Consulta los registros de un CONGRESO, con busqueda de texto opcional y
+   * filtros opcionales de publicada y cancelada.
    *
    * @param congresoId
    * Id del CONGRESO.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param publicada {@code [null]}
+   * Filtro opcional por estado de publicacion. Si no se especifica, no filtra.
+   *
+   * @param cancelada {@code [null]}
+   * Filtro opcional por estado de cancelacion. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1989,7 +2021,8 @@ public class ConferenciaController {
 
   @Operation(
     summary = "Consultar conferencias de congreso",
-    description = "Obtiene las conferencias de un congreso especifico.",
+    description = "Obtiene las conferencias de un congreso especifico, con" +
+      " busqueda de texto y filtros opcionales de publicada y cancelada.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -2119,6 +2152,16 @@ public class ConferenciaController {
     @PathVariable("congresoId")
     Long congresoId,
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    @RequestParam(name = "publicada", required = false)
+    Boolean publicada,
+
+    @RequestParam(name = "cancelada", required = false)
+    Boolean cancelada,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -2128,7 +2171,8 @@ public class ConferenciaController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      confSvc.qCongresoId(congresoId, page, pageSize),
+      confSvc.qCongresoId(
+        congresoId, txt, publicada, cancelada, page, pageSize),
       HttpStatus.OK);
   }
 

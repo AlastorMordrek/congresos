@@ -2642,10 +2642,16 @@ public class CongresoController {
 
   /**
    * Permite a un ORGANIZADOR consultar sus propios CONGRESOS usando una
-   * busqueda de texto opcional.
+   * busqueda de texto opcional y filtros opcionales de publicado y cancelado.
    *
    * @param txt {@code [""]}
    * Texto de busqueda.
+   *
+   * @param publicado {@code [null]}
+   * Filtro opcional por estado de publicacion. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional por estado de cancelacion. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -2661,7 +2667,7 @@ public class CongresoController {
   @Operation(
     summary = "Buscar congresos propios",
     description = "Consulta los congresos del organizador autenticado usando" +
-      " una busqueda de texto.",
+      " una busqueda de texto y filtros opcionales de publicado y cancelado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -2794,8 +2800,14 @@ public class CongresoController {
   public ResponseEntity<List<Congreso>> buscarMios (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
+
+    @RequestParam(name = "publicado", required = false)
+    Boolean publicado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -2809,7 +2821,7 @@ public class CongresoController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      conSvc.buscarMios(actor, txt, page, pageSize),
+      conSvc.buscarMios(actor, txt, publicado, cancelado, page, pageSize),
       HttpStatus.OK);
   }
 

@@ -197,10 +197,19 @@ public class CongresoService {
 
   /**
    * Permite consultar los CONGRESOS de un ORGANIZADOR usando una posible
-   * busqueda de texto.
+   * busqueda de texto y filtros opcionales de publicado y cancelado.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion (organizador).
    *
    * @param txt
    * El texto a buscar.
+   *
+   * @param publicado
+   * Filtro opcional por estado de publicacion. {@code null} para no filtrar.
+   *
+   * @param cancelado
+   * Filtro opcional por estado de cancelacion. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina (0-based)
@@ -212,19 +221,46 @@ public class CongresoService {
    * Lista de registros encontrados.
    */
   public List<Congreso> buscarMios (
-    Usuario actor, String txt, int page, int pageSize
+    Usuario actor, String txt,
+    Boolean publicado, Boolean cancelado,
+    int page, int pageSize
   ) {
-    Pageable pg = Api.pagina(page, pageSize);
+    Pageable pg     = Api.pagina(page, pageSize);
+    Long     idOrg  = actor.getId();
+    boolean  hayTxt = !(Objects.isNull(txt) || txt.isBlank());
+    String   txtN   = hayTxt ? txt.toLowerCase().trim() : null;
 
-    if (Objects.isNull(txt) || txt.isBlank()) {
-      return conRep
-        .porOrganizador(actor.getId(), pg)
-        .getContent();
+    // Seleccionar la consulta exacta segun la combinacion de filtros activos.
+
+    // Sin filtro de publicado ni cancelado.
+    if (publicado == null && cancelado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizador(idOrg, txtN, pg).getContent()
+        : conRep.porOrganizador(idOrg, pg).getContent();
     }
 
-    return conRep
-      .buscarPorOrganizador(actor.getId(), txt.toLowerCase().trim(), pg)
-      .getContent();
+    // Solo filtro de publicado.
+    if (cancelado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizadorPublicado(
+          idOrg, txtN, publicado, pg).getContent()
+        : conRep.porOrganizadorPublicado(idOrg, publicado, pg).getContent();
+    }
+
+    // Solo filtro de cancelado.
+    if (publicado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizadorCancelado(
+          idOrg, txtN, cancelado, pg).getContent()
+        : conRep.porOrganizadorCancelado(idOrg, cancelado, pg).getContent();
+    }
+
+    // Ambos filtros activos.
+    return hayTxt
+      ? conRep.buscarPorOrganizadorPublicadoCancelado(
+        idOrg, txtN, publicado, cancelado, pg).getContent()
+      : conRep.porOrganizadorPublicadoCancelado(
+        idOrg, publicado, cancelado, pg).getContent();
   }
 
 

@@ -61,6 +61,84 @@ public interface CongresoRepository extends JpaRepository<Congreso, Long> {
 
 
   @Query("select r from Congreso r where" +
+    " r.organizadorId = ?1" +
+    " and r.publicado = ?2" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> porOrganizadorPublicado (
+    Long idOrg, boolean publicado, Pageable pageable);
+
+  @Query("select r from Congreso r where" +
+    " r.organizadorId = :idOrg" +
+    " and r.publicado = :publicado" +
+    " and(" +
+    " lower(r.nombre)                 like %:txt%" +
+    " OR lower(r.resumen)             like %:txt%" +
+    " OR lower(r.descripcion)         like %:txt%" +
+    " OR lower(r.direccion)           like %:txt%" +
+    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> buscarPorOrganizadorPublicado (
+    @Param("idOrg") Long idOrg,
+    @Param("txt") String txt,
+    @Param("publicado") boolean publicado,
+    Pageable pageable);
+
+
+
+  @Query("select r from Congreso r where" +
+    " r.organizadorId = ?1" +
+    " and r.cancelado = ?2" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> porOrganizadorCancelado (
+    Long idOrg, boolean cancelado, Pageable pageable);
+
+  @Query("select r from Congreso r where" +
+    " r.organizadorId = :idOrg" +
+    " and r.cancelado = :cancelado" +
+    " and(" +
+    " lower(r.nombre)                 like %:txt%" +
+    " OR lower(r.resumen)             like %:txt%" +
+    " OR lower(r.descripcion)         like %:txt%" +
+    " OR lower(r.direccion)           like %:txt%" +
+    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> buscarPorOrganizadorCancelado (
+    @Param("idOrg") Long idOrg,
+    @Param("txt") String txt,
+    @Param("cancelado") boolean cancelado,
+    Pageable pageable);
+
+
+
+  @Query("select r from Congreso r where" +
+    " r.organizadorId = ?1" +
+    " and r.publicado = ?2" +
+    " and r.cancelado = ?3" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> porOrganizadorPublicadoCancelado (
+    Long idOrg, boolean publicado, boolean cancelado, Pageable pageable);
+
+  @Query("select r from Congreso r where" +
+    " r.organizadorId = :idOrg" +
+    " and r.publicado = :publicado" +
+    " and r.cancelado = :cancelado" +
+    " and(" +
+    " lower(r.nombre)                 like %:txt%" +
+    " OR lower(r.resumen)             like %:txt%" +
+    " OR lower(r.descripcion)         like %:txt%" +
+    " OR lower(r.direccion)           like %:txt%" +
+    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> buscarPorOrganizadorPublicadoCancelado (
+    @Param("idOrg") Long idOrg,
+    @Param("txt") String txt,
+    @Param("publicado") boolean publicado,
+    @Param("cancelado") boolean cancelado,
+    Pageable pageable);
+
+
+
+  @Query("select r from Congreso r where" +
     " r.publicado = TRUE" +
     " and r.fechaFin >= CURRENT_DATE" +
     " ORDER BY r.id DESC")
