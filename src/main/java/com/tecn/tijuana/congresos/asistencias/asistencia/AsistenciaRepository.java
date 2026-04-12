@@ -12,6 +12,11 @@ import java.util.Optional;
 public interface AsistenciaRepository
   extends JpaRepository<Asistencia, Long> {
 
+  @Query("select r from Asistencia r ORDER BY r.id DESC")
+  Page<Asistencia> q (Pageable pageable);
+
+
+
   @Query("SELECT r FROM Asistencia r WHERE" +
     " r.boletoFolio = ?1" +
     " ORDER BY r.id DESC")

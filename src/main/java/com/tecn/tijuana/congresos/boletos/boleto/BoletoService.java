@@ -521,7 +521,7 @@ public class BoletoService {
       && acreditado == null;
 
     if (sinFiltros) {
-      return bolRep.findAll(pg).getContent();
+      return bolRep.q(pg).getContent();
     }
 
     // Usar la consulta condicional que evalua solo los filtros activos.
@@ -582,7 +582,7 @@ public class BoletoService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return bolRep.findAll(pg).getContent();
+      return bolRep.q(pg).getContent();
     }
 
     return bolRep

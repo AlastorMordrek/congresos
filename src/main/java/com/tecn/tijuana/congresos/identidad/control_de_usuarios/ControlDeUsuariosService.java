@@ -665,9 +665,7 @@ public class ControlDeUsuariosService {
    * Lista de registros encontrados.
    */
   public List<Usuario> q (int page, int pageSize) {
-    return usrRep.
-      findAll(Api.pagina(page, pageSize))
-      .getContent();
+    return usrRep.q(Api.pagina(page, pageSize)).getContent();
   }
 
 
@@ -801,7 +799,7 @@ public class ControlDeUsuariosService {
       && staffAlumnos == null && staffInscripciones == null;
 
     if (sinFiltros) {
-      return usrRep.findAll(pg).getContent();
+      return usrRep.q(pg).getContent();
     }
 
     // Usar la consulta condicional que evalua solo los filtros activos.

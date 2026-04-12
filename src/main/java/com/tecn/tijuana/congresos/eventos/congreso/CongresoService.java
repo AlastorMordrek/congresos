@@ -93,9 +93,7 @@ public class CongresoService {
    * Lista de registros encontrados.
    */
   public List<Congreso> q (int page, int pageSize) {
-    return conRep.
-      findAll(Api.pagina(page, pageSize))
-      .getContent();
+    return conRep.q(Api.pagina(page, pageSize)).getContent();
   }
 
 
@@ -193,7 +191,7 @@ public class CongresoService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return conRep.findAll(pg).getContent();
+      return conRep.q(pg).getContent();
     }
 
     return conRep

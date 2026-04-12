@@ -11,6 +11,11 @@ import java.util.Optional;
 public interface ConferenciaRepository
   extends JpaRepository<Conferencia, Long> {
 
+  @Query("select r from Conferencia r ORDER BY r.id DESC")
+  Page<Conferencia> q (Pageable pageable);
+
+
+
   @Query("SELECT r FROM Conferencia r WHERE r.nombre = ?1")
 
   Optional<Conferencia> qNombre (

@@ -11,8 +11,15 @@ import java.util.Optional;
 public interface UsuarioRepository
   extends JpaRepository<Usuario, Long> {
 
+  @Query("select r from Usuario r ORDER BY r.id DESC")
+  Page<Usuario> q (Pageable pageable);
+
+
+
   @Query("SELECT r FROM Usuario r WHERE r.email = ?1")
   Optional<Usuario> qEmail (String email);
+
+
 
   @Query("SELECT r FROM Usuario r WHERE r.emailInstitucional = ?1")
   Optional<Usuario> qEmailInstitucional (String email);

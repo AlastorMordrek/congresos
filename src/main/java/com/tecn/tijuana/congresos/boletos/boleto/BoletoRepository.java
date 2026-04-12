@@ -11,6 +11,11 @@ import java.util.Optional;
 public interface BoletoRepository
   extends JpaRepository<Boleto, Long> {
 
+  @Query("select r from Boleto r ORDER BY r.id DESC")
+  Page<Boleto> q (Pageable pageable);
+
+
+
   @Query("SELECT r FROM Boleto r WHERE r.folio = ?1")
   Optional<Boleto> qFolio (String folio);
 

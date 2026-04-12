@@ -207,7 +207,7 @@ public class ConferenciaService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return confRep.findAll(pg).getContent();
+      return confRep.q(pg).getContent();
     }
 
     return confRep

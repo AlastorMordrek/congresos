@@ -11,6 +11,11 @@ import java.util.Optional;
 
 public interface CongresoRepository extends JpaRepository<Congreso, Long> {
 
+  @Query("select r from Congreso r ORDER BY r.id DESC")
+  Page<Congreso> q (Pageable pageable);
+
+
+
   @Query("SELECT r FROM Congreso r WHERE r.nombre = ?1")
   Optional<Congreso> encontrarPorNombre (String nombre);
 
