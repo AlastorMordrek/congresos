@@ -690,7 +690,16 @@ public class ControlDeUsuariosService {
    * @see Api#pagina()
    */
   public List<Usuario> buscar (String txt) {
-    return buscar(txt, DEFAULT_PAGE);
+    return buscar(
+      txt,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      DEFAULT_PAGE, DEFAULT_PAGE_SIZE);
   }
 
   /**
@@ -712,11 +721,18 @@ public class ControlDeUsuariosService {
    *
    * @return
    * Lista de registros encontrados.
-   *
-   * @see ControlDeUsuariosService#buscar(String, int, int)
    */
   public List<Usuario> buscar (String txt, int page) {
-    return buscar(txt, page, DEFAULT_PAGE_SIZE);
+    return buscar(
+      txt,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      page, DEFAULT_PAGE_SIZE);
   }
 
   /**
@@ -733,6 +749,27 @@ public class ControlDeUsuariosService {
    * @param txt
    * El texto a buscar.
    *
+   * @param rol
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param bloqueado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param externo
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param staffAutorizado
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffCustodio
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffAlumnos
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffInscripciones
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
    * @param page
    * Numero de pagina (0-based)
    *
@@ -741,18 +778,38 @@ public class ControlDeUsuariosService {
    *
    * @return
    * Lista de registros encontrados.
-   *
-   * @see UsuarioRepository#buscar(String, Pageable)
    */
-  public List<Usuario> buscar (String txt, int page, int pageSize) {
-    Pageable defPage = PageRequest.of(page, pageSize);
+  public List<Usuario> buscar (
+    String txt,
+    Rol rol, Boolean bloqueado, Boolean externo,
+    Boolean staffAutorizado, Boolean staffCustodio,
+    Boolean staffAlumnos, Boolean staffInscripciones,
+    int page, int pageSize
+  ) {
+    Pageable pg = PageRequest.of(page, pageSize);
 
-    if (Objects.isNull(txt) || txt.isBlank()) {
-      return usrRep.findAll(defPage).getContent();
+    // Normalizar txt: vacio o blanco se convierte en null para que la consulta
+    // condicional lo ignore.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    boolean sinFiltros = txtN == null
+      && rol == null && bloqueado == null && externo == null
+      && staffAutorizado == null && staffCustodio == null
+      && staffAlumnos == null && staffInscripciones == null;
+
+    if (sinFiltros) {
+      return usrRep.findAll(pg).getContent();
     }
 
+    // Usar la consulta condicional que evalua solo los filtros activos.
     return usrRep
-      .buscar(txt.toLowerCase().trim(), defPage)
+      .qFiltrado(
+        txtN, rol, bloqueado, externo,
+        staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
+        pg)
       .getContent();
   }
 
