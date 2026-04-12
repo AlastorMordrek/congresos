@@ -141,10 +141,9 @@ public class Asistencia {
   /**
    * Numero de control del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Se debe especificar un Numero de Control de Alumno")
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
-  @Column(nullable = false, length = 8, updatable = false)
+  @Column(length = 8, updatable = false)
   private String alumnoNoControl;
 
   /**

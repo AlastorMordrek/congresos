@@ -171,7 +171,7 @@ public class Boleto {
    * */
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
-  @Column(length = 8)
+  @Column(length = 8, updatable = false)
   private String alumnoNoControl;
 
   /**
