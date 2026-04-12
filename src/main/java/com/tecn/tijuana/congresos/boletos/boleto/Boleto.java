@@ -290,7 +290,8 @@ public class Boleto {
       alumno.getId(),
       alumno.getNoControl(),
       alumno.getNombreCompleto(),
-      congreso.getInscritos() >= congreso.getCupo()
+      congreso.getCupo() != 0
+        && congreso.getInscritos() >= congreso.getCupo()
     );
   }
 

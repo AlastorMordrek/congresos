@@ -1355,10 +1355,32 @@ public class BoletoController {
   // CONSULTAS.
 
   /**
-   * Consulta los BOLETOS indiscriminadamente usando una busqueda de texto.
+   * Consulta los BOLETOS indiscriminadamente usando una busqueda de texto
+   * opcional y otros filtros opcionales.
    *
    * @param txt {@code [""]}
    * Texto de busqueda.
+   *
+   * @param congresoId {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1374,7 +1396,8 @@ public class BoletoController {
   @Operation(
     summary = "Buscar boletos",
     description = "Permite al personal autorizado buscar boletos usando " +
-      "filtro de texto.",
+      "filtro de texto y filtros opcionales de congresoId, excedente, pagado," +
+      " cancelado, usado, cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1506,8 +1529,30 @@ public class BoletoController {
   public ResponseEntity<List<Boleto>> buscar (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
+
+    // Filtros opcionales de estado. null = no filtrar por ese campo.
+    @RequestParam(name = "congresoId", required = false)
+    Long congresoId,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -1517,8 +1562,14 @@ public class BoletoController {
     @Min(1) @Max(100)
     int pageSize
   ) {
+
+
+
     return new ResponseEntity<>(
-      bolSvc.buscar(txt, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 
@@ -1840,7 +1891,7 @@ public class BoletoController {
   public ResponseEntity<List<Boleto>> buscarMios (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
@@ -2280,10 +2331,32 @@ public class BoletoController {
 
 
   /**
-   * Consulta los BOLETOS de un CONGRESO indiscriminadamente.
+   * Consulta los BOLETOS de un CONGRESO indiscriminadamente, con busqueda de
+   * texto opcional y otros filtros opcionales.
    *
    * @param congresoId
    * ID del CONGRESO.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -2299,7 +2372,9 @@ public class BoletoController {
   @Operation(
     summary = "Consultar boletos por congreso",
     description = "Permite al personal autorizado consultar los boletos " +
-      "de un congreso especifico.",
+      "de un congreso especifico, con busqueda de texto y filtros opcionales " +
+      "de excedente, pagado, cancelado, usado, " +
+      "cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -2429,8 +2504,30 @@ public class BoletoController {
 
   public ResponseEntity<List<Boleto>> qIdCongreso (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
     @PathVariable("congresoId")
     Long congresoId,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -2441,7 +2538,10 @@ public class BoletoController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      bolSvc.qIdCongreso(congresoId, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 

@@ -455,10 +455,37 @@ public class BoletoService {
 
 
   /**
-   * Consulta los registros de un CONGRESO.
+   * Consulta los registros de un CONGRESO usando filtros opcionales de texto y
+   * de campos booleanos.
+   *
+   * <p>Si ningun filtro es especificado, retorna todos los registros del
+   * CONGRESO. Si al menos un filtro es especificado, se usa la consulta
+   * condicional que evalua solo los filtros activos (no-nulos).
+   *
+   * @param txt
+   * Texto a buscar en los campos de texto del BOLETO.
+   * {@code null} o vacio para no filtrar.
    *
    * @param congresoId
-   * ID del CONGRESO.
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param excedente
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param pagado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param cancelado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param usado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param cumplioRequerimientosDeAsistencia
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param acreditado
+   * Filtro opcional. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -469,11 +496,35 @@ public class BoletoService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Boleto> qIdCongreso (
-    Long congresoId, int page, int pageSize
+  public List<Boleto> qFiltrado (
+    String txt, Long congresoId, Boolean excedente, Boolean pagado,
+    Boolean cancelado, Boolean usado, Boolean cumplioRequerimientosDeAsistencia,
+    Boolean acreditado,
+    int page, int pageSize
   ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    // Normalizar txt: vacio o blanco se convierte en null para que la consulta
+    // condicional lo ignore.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    boolean sinFiltros = txtN == null && congresoId == null && excedente == null
+      && pagado == null && cancelado == null && usado == null
+      && cumplioRequerimientosDeAsistencia == null && acreditado == null;
+
+    if (sinFiltros) {
+      return bolRep.findAll(pg).getContent();
+    }
+
+    // Usar la consulta condicional que evalua solo los filtros activos.
     return bolRep
-      .qCongresoId(congresoId, Api.pagina(page, pageSize))
+      .qFiltrado(
+        txtN, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        pg)
       .getContent();
   }
 
