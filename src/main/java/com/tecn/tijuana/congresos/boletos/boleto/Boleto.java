@@ -169,10 +169,9 @@ public class Boleto {
   /**
    * Numero de control del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Debe especificar el No. de Control del Alumno")
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
-  @Column(nullable = false, length = 8)
+  @Column(length = 8)
   private String alumnoNoControl;
 
   /**
