@@ -96,6 +96,7 @@ public interface BoletoRepository
     "   OR lower(r.alumnoNoControl)   like %:txt%" +
     "   OR lower(r.alumnoNombre)      like %:txt%" +
     " ))" +
+    " AND (:alumnoId   IS NULL OR r.alumnoId   = :alumnoId)" +
     " AND (:congresoId IS NULL OR r.congresoId = :congresoId)" +
     " AND (:excedente  IS NULL OR r.excedente  = :excedente)" +
     " AND (:pagado     IS NULL OR r.pagado     = :pagado)" +
@@ -108,6 +109,7 @@ public interface BoletoRepository
     " ORDER BY r.id DESC")
   Page<Boleto> qFiltrado (
     @Param("txt")        String txt,
+    @Param("alumnoId")   Long alumnoId,
     @Param("congresoId") Long congresoId,
     @Param("excedente")  Boolean excedente,
     @Param("pagado")     Boolean pagado,

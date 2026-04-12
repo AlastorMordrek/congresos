@@ -466,6 +466,9 @@ public class BoletoService {
    * Texto a buscar en los campos de texto del BOLETO.
    * {@code null} o vacio para no filtrar.
    *
+   * @param alumnoId
+   * Filtro opcional. {@code null} para no filtrar.
+   *
    * @param congresoId
    * Filtro opcional. {@code null} para no filtrar.
    *
@@ -497,7 +500,8 @@ public class BoletoService {
    * Lista de registros encontrados.
    */
   public List<Boleto> qFiltrado (
-    String txt, Long congresoId, Boolean excedente, Boolean pagado,
+    String txt, Long alumnoId, Long congresoId,
+    Boolean excedente, Boolean pagado,
     Boolean cancelado, Boolean usado, Boolean cumplioRequerimientosDeAsistencia,
     Boolean acreditado,
     int page, int pageSize
@@ -511,9 +515,10 @@ public class BoletoService {
       : txt.toLowerCase().trim();
 
     // Si no hay ningun filtro activo, usar la consulta simple.
-    boolean sinFiltros = txtN == null && congresoId == null && excedente == null
-      && pagado == null && cancelado == null && usado == null
-      && cumplioRequerimientosDeAsistencia == null && acreditado == null;
+    boolean sinFiltros = txtN == null && alumnoId == null && congresoId == null
+      && excedente == null && pagado == null && cancelado == null
+      && usado == null && cumplioRequerimientosDeAsistencia == null
+      && acreditado == null;
 
     if (sinFiltros) {
       return bolRep.findAll(pg).getContent();
@@ -522,7 +527,7 @@ public class BoletoService {
     // Usar la consulta condicional que evalua solo los filtros activos.
     return bolRep
       .qFiltrado(
-        txtN, congresoId, excedente, pagado, cancelado, usado,
+        txtN, alumnoId, congresoId, excedente, pagado, cancelado, usado,
         cumplioRequerimientosDeAsistencia, acreditado,
         pg)
       .getContent();

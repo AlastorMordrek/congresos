@@ -1567,7 +1567,7 @@ public class BoletoController {
 
     return new ResponseEntity<>(
       bolSvc.qFiltrado(
-        txt, congresoId, excedente, pagado, cancelado, usado,
+        txt, null, congresoId, excedente, pagado, cancelado, usado,
         cumplioRequerimientosDeAsistencia, acreditado,
         page, pageSize),
       HttpStatus.OK);
@@ -1576,7 +1576,30 @@ public class BoletoController {
 
 
   /**
-   * Permite a un ALUMNO consultar sus boletos.
+   * Permite a un ALUMNO consultar sus BOLETOS, con busqueda de texto opcional
+   * y filtros opcionales de excedente, pagado, cancelado, usado,
+   * cumplioRequerimientosDeAsistencia y acreditado.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional por excedente. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional por pagado. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional por cancelado. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional por usado. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional por acreditado. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1591,7 +1614,9 @@ public class BoletoController {
 
   @Operation(
     summary = "Consultar boletos propios",
-    description = "Obtiene los boletos del usuario autenticado.",
+    description = "Obtiene los boletos del usuario autenticado, con busqueda " +
+      "de texto y filtros opcionales de excedente, pagado, cancelado, usado, " +
+      "cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1721,6 +1746,28 @@ public class BoletoController {
 
   public ResponseEntity<List<Boleto>> mios (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1733,7 +1780,11 @@ public class BoletoController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.qMios(actor, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, actor.getId(), null,
+        excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 
@@ -2539,7 +2590,7 @@ public class BoletoController {
   ) {
     return new ResponseEntity<>(
       bolSvc.qFiltrado(
-        txt, congresoId, excedente, pagado, cancelado, usado,
+        txt, null, congresoId, excedente, pagado, cancelado, usado,
         cumplioRequerimientosDeAsistencia, acreditado,
         page, pageSize),
       HttpStatus.OK);

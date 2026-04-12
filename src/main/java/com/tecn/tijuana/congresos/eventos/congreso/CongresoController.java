@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -1408,7 +1409,18 @@ public class CongresoController {
   // CONSULTAS.
 
   /**
-   * Consulta los CONGRESOS publicados indiscriminadamente.
+   * Consulta los CONGRESOS publicados, con busqueda de texto opcional y filtros
+   * opcionales de fechaFinMin y gratuito.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param fechaFinMin {@code [null]}
+   * Si se especifica, solo retorna congresos cuya fechaFin sea posterior a
+   * esta fecha. Formato ISO: {@code 2025-12-31T23:59:59}.
+   *
+   * @param gratuito {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1423,8 +1435,8 @@ public class CongresoController {
 
   @Operation(
     summary = "Listar congresos publicados",
-    description = "Consulta la lista de congresos que han sido publicados y " +
-      "son visibles para el publico general.",
+    description = "Consulta la lista de congresos que han sido publicados, con" +
+      " busqueda de texto y filtros opcionales de fechaFinMin y gratuito.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1561,6 +1573,16 @@ public class CongresoController {
 
   public ResponseEntity<List<Congreso>> publicados (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    @RequestParam(name = "fechaFinMin", required = false)
+    LocalDateTime fechaFinMin,
+
+    @RequestParam(name = "gratuito", required = false)
+    Boolean gratuito,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1570,7 +1592,7 @@ public class CongresoController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      conSvc.qPublicados(page, pageSize),
+      conSvc.qPublicados(txt, fechaFinMin, gratuito, page, pageSize),
       HttpStatus.OK);
   }
 

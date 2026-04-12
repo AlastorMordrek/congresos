@@ -101,8 +101,18 @@ public class CongresoService {
 
 
   /**
-   * Consulta todos los CONGRESOS publicados indiscriminadamente usando los
-   * parametros de paginacion especificados.
+   * Consulta todos los CONGRESOS publicados usando filtros opcionales de texto,
+   * fechaFinMin y gratuito.
+   *
+   * @param txt
+   * Texto a buscar. {@code null} o vacio para no filtrar.
+   *
+   * @param fechaFinMin
+   * Si se especifica, solo retorna congresos cuya fechaFin sea posterior a
+   * esta fecha. {@code null} para no filtrar.
+   *
+   * @param gratuito
+   * Filtro opcional. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -113,8 +123,26 @@ public class CongresoService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Congreso> qPublicados (int page, int pageSize) {
-    return conRep.publicados(Api.pagina(page, pageSize)).getContent();
+  public List<Congreso> qPublicados (
+    String txt, LocalDateTime fechaFinMin, Boolean gratuito,
+    int page, int pageSize
+  ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    // Normalizar txt.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    if (txtN == null && fechaFinMin == null && gratuito == null) {
+      return conRep.publicados(pg).getContent();
+    }
+
+    // Usar la consulta condicional.
+    return conRep
+      .qPublicadosFiltrado(txtN, fechaFinMin, gratuito, pg)
+      .getContent();
   }
 
   /**

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface CongresoRepository extends JpaRepository<Congreso, Long> {
@@ -29,6 +30,24 @@ public interface CongresoRepository extends JpaRepository<Congreso, Long> {
   @Query("select r from Congreso r where r.publicado = TRUE" +
     " ORDER BY r.id DESC")
   Page<Congreso> publicados (Pageable pageable);
+
+  @Query("SELECT r FROM Congreso r WHERE r.publicado = TRUE" +
+    " AND (:txt IS NULL OR (" +
+    "   lower(r.nombre)                 like %:txt%" +
+    "   OR lower(r.resumen)             like %:txt%" +
+    "   OR lower(r.descripcion)         like %:txt%" +
+    "   OR lower(r.direccion)           like %:txt%" +
+    "   OR lower(r.staffRequerimientos) like %:txt%" +
+    " ))" +
+    " AND (CAST(:fechaFinMin AS timestamp) IS NULL" +
+    "   OR r.fechaFin >= :fechaFinMin)" +
+    " AND (:gratuito IS NULL OR r.gratuito = :gratuito)" +
+    " ORDER BY r.id DESC")
+  Page<Congreso> qPublicadosFiltrado (
+    @Param("txt")         String txt,
+    @Param("fechaFinMin") LocalDateTime fechaFinMin,
+    @Param("gratuito")    Boolean gratuito,
+    Pageable pageable);
 
   @Query("select r from Congreso r where" +
     " r.publicado = TRUE and("+
