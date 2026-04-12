@@ -25,10 +25,18 @@ public interface UsuarioRepository
 
 
   @Query("select r from Usuario r where" +
-    " lower(r.email)              like %:txt%"+
-    " OR lower(r.nombre)          like %:txt%"+
-    " OR lower(r.apellidoPaterno) like %:txt%"+
-    " OR lower(r.apellidoMaterno) like %:txt%" +
+    " lower(r.email)                  like %:txt%"+
+    " OR lower(r.nombre)              like %:txt%"+
+    " OR lower(r.apellidoPaterno)     like %:txt%"+
+    " OR lower(r.apellidoMaterno)     like %:txt%"+
+    " OR lower(r.telPref)             like %:txt%"+
+    " OR lower(r.telSuf)              like %:txt%"+
+    " OR lower(r.noControl)           like %:txt%"+
+    " OR lower(r.codigoCarrera)       like %:txt%"+
+    " OR lower(r.grupo)               like %:txt%"+
+    " OR lower(r.curp)                like %:txt%"+
+    " OR lower(r.emailInstitucional)  like %:txt%"+
+    " OR lower(r.staffResponsabilidades) like %:txt%" +
     " ORDER BY r.id DESC")
   Page<Usuario> buscar (@Param("txt") String txt, Pageable pageable);
 }

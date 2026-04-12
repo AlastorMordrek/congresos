@@ -19,11 +19,16 @@ public interface ConferenciaRepository
 
 
   @Query("select r from Conferencia r where" +
-    " lower(r.nombre)                 like %:txt%"+
-    " OR lower(r.resumen)             like %:txt%"+
-    " OR lower(r.descripcion)         like %:txt%"+
-    " OR lower(r.sala)                like %:txt%"+
-    " OR lower(r.staffRequerimientos) like %:txt%" +
+    " lower(r.nombre)                   like %:txt%"+
+    " OR lower(r.resumen)               like %:txt%"+
+    " OR lower(r.descripcion)           like %:txt%"+
+    " OR lower(r.sala)                  like %:txt%"+
+    " OR lower(r.staffRequerimientos)   like %:txt%" +
+    " OR lower(r.conferencistaNombre)   like %:txt%" +
+    " OR lower(r.conferencistaEmail)    like %:txt%" +
+    " OR lower(r.conferencistaTelPref)  like %:txt%" +
+    " OR lower(r.conferencistaTelSuf)   like %:txt%" +
+    " OR lower(r.conferencistaSemblanza) like %:txt%" +
     " ORDER BY r.id DESC")
 
   Page<Conferencia> buscar (
@@ -53,11 +58,16 @@ public interface ConferenciaRepository
   @Query("select r from Conferencia r where" +
     " r.congresoId = :congresoId" +
     " and(" +
-    " lower(r.nombre)                 like %:txt%" +
-    " OR lower(r.resumen)             like %:txt%" +
-    " OR lower(r.descripcion)         like %:txt%" +
-    " OR lower(r.sala)                like %:txt%" +
-    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " lower(r.nombre)                   like %:txt%" +
+    " OR lower(r.resumen)               like %:txt%" +
+    " OR lower(r.descripcion)           like %:txt%" +
+    " OR lower(r.sala)                  like %:txt%" +
+    " OR lower(r.staffRequerimientos)   like %:txt%" +
+    " OR lower(r.conferencistaNombre)   like %:txt%" +
+    " OR lower(r.conferencistaEmail)    like %:txt%" +
+    " OR lower(r.conferencistaTelPref)  like %:txt%" +
+    " OR lower(r.conferencistaTelSuf)   like %:txt%" +
+    " OR lower(r.conferencistaSemblanza) like %:txt%)" +
     " ORDER BY r.id DESC")
   Page<Conferencia> buscarCongresoId (
     @Param("congresoId") Long congresoId,
@@ -77,11 +87,16 @@ public interface ConferenciaRepository
     " r.congresoId = :congresoId" +
     " and r.publicada = :publicada" +
     " and(" +
-    " lower(r.nombre)                 like %:txt%" +
-    " OR lower(r.resumen)             like %:txt%" +
-    " OR lower(r.descripcion)         like %:txt%" +
-    " OR lower(r.sala)                like %:txt%" +
-    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " lower(r.nombre)                   like %:txt%" +
+    " OR lower(r.resumen)               like %:txt%" +
+    " OR lower(r.descripcion)           like %:txt%" +
+    " OR lower(r.sala)                  like %:txt%" +
+    " OR lower(r.staffRequerimientos)   like %:txt%" +
+    " OR lower(r.conferencistaNombre)   like %:txt%" +
+    " OR lower(r.conferencistaEmail)    like %:txt%" +
+    " OR lower(r.conferencistaTelPref)  like %:txt%" +
+    " OR lower(r.conferencistaTelSuf)   like %:txt%" +
+    " OR lower(r.conferencistaSemblanza) like %:txt%)" +
     " ORDER BY r.id DESC")
   Page<Conferencia> buscarCongresoIdPublicada (
     @Param("congresoId") Long congresoId,
@@ -102,11 +117,16 @@ public interface ConferenciaRepository
     " r.congresoId = :congresoId" +
     " and r.cancelada = :cancelada" +
     " and(" +
-    " lower(r.nombre)                 like %:txt%" +
-    " OR lower(r.resumen)             like %:txt%" +
-    " OR lower(r.descripcion)         like %:txt%" +
-    " OR lower(r.sala)                like %:txt%" +
-    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " lower(r.nombre)                   like %:txt%" +
+    " OR lower(r.resumen)               like %:txt%" +
+    " OR lower(r.descripcion)           like %:txt%" +
+    " OR lower(r.sala)                  like %:txt%" +
+    " OR lower(r.staffRequerimientos)   like %:txt%" +
+    " OR lower(r.conferencistaNombre)   like %:txt%" +
+    " OR lower(r.conferencistaEmail)    like %:txt%" +
+    " OR lower(r.conferencistaTelPref)  like %:txt%" +
+    " OR lower(r.conferencistaTelSuf)   like %:txt%" +
+    " OR lower(r.conferencistaSemblanza) like %:txt%)" +
     " ORDER BY r.id DESC")
   Page<Conferencia> buscarCongresoIdCancelada (
     @Param("congresoId") Long congresoId,
@@ -130,11 +150,16 @@ public interface ConferenciaRepository
     " and r.publicada = :publicada" +
     " and r.cancelada = :cancelada" +
     " and(" +
-    " lower(r.nombre)                 like %:txt%" +
-    " OR lower(r.resumen)             like %:txt%" +
-    " OR lower(r.descripcion)         like %:txt%" +
-    " OR lower(r.sala)                like %:txt%" +
-    " OR lower(r.staffRequerimientos) like %:txt%)" +
+    " lower(r.nombre)                   like %:txt%" +
+    " OR lower(r.resumen)               like %:txt%" +
+    " OR lower(r.descripcion)           like %:txt%" +
+    " OR lower(r.sala)                  like %:txt%" +
+    " OR lower(r.staffRequerimientos)   like %:txt%" +
+    " OR lower(r.conferencistaNombre)   like %:txt%" +
+    " OR lower(r.conferencistaEmail)    like %:txt%" +
+    " OR lower(r.conferencistaTelPref)  like %:txt%" +
+    " OR lower(r.conferencistaTelSuf)   like %:txt%" +
+    " OR lower(r.conferencistaSemblanza) like %:txt%)" +
     " ORDER BY r.id DESC")
   Page<Conferencia> buscarCongresoIdPublicadaCancelada (
     @Param("congresoId") Long congresoId,
