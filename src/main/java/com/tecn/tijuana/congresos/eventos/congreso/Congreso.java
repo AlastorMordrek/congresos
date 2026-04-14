@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tecn.tijuana.congresos.eventos.congreso.dto.RegistroCongresoDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -67,6 +64,7 @@ public class Congreso {
   /**
    * Cuando fue creado el registro.
    * */
+  @PastOrPresent(message = "La fecha de creacion no puede ser en el futuro")
   @Column(nullable = false, updatable = false)
   private LocalDateTime fechaCreacion;
 
@@ -101,7 +99,7 @@ public class Congreso {
   @Size(max = 100,
     message = "El resumen debe tener entre 0 y 100 caracteres")
   @Column(nullable = false, length = 100)
-  private String resumen;
+  private String resumen = "";
 
   /**
    * Descripcion detallada del CONGRESO.
@@ -109,7 +107,7 @@ public class Congreso {
   @Size(max = 500,
     message = "La descripcion debe tener entre 0 y 500 caracteres")
   @Column(nullable = false, length = 500)
-  private String descripcion;
+  private String descripcion = "";
 
   /**
    * Direccion donde tendra lugar el CONGRESO.
@@ -117,19 +115,21 @@ public class Congreso {
   @Size(max = 200,
     message = "La direccion debe tener entre 0 y 200 caracteres")
   @Column(nullable = false, length = 200)
-  private String direccion;
+  private String direccion = "";
 
 
 
   /**
    * Cuando iniciara el evento.
    * */
+  @NotNull(message = "Debe especificar una fecha de inicio")
   @Column(nullable = false)
   private LocalDateTime fechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
+  @NotNull(message = "Debe especificar una fecha de terminacion")
   @Column(nullable = false)
   private LocalDateTime fechaFin;
 
@@ -141,6 +141,7 @@ public class Congreso {
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
    * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
    * */
+  @NotNull(message = "Debe especificar una fecha de inicio de inscripciones")
   @Column(nullable = false)
   private LocalDateTime inscripcionesFechaInicio;
 
@@ -150,8 +151,10 @@ public class Congreso {
    * Los ALUMNOS solo pueden inscribirse dentro del periodo de inscripciones.
    * <p>
    * ORGANIZADORES y STAFF pueden inscirbir ALUMNOS fuera del periodo de
-   * inscripciones, siempre y cuando el CONGRESO no haya concluido aun.
+   * inscripciones, siempre
+   * y cuando el CONGRESO no haya concluido aun.
    * */
+  @NotNull(message = "Debe especificar una fecha de fin de inscripciones")
   @Column(nullable = false)
   private LocalDateTime inscripcionesFechaFin;
 
@@ -173,12 +176,12 @@ public class Congreso {
    * Determina si el CONGRESO ha sido publicado, es decir, esta disponible para
    * que el publico general lo vea y pueda inscribirse.
    * */
-  private boolean publicado;
+  private boolean publicado = false;
 
   /**
    * Determina si el CONGRESO ha sido cancelado y ya no se llevara a cabo.
    * */
-  private boolean cancelado;
+  private boolean cancelado = false;
 
 
 
@@ -187,21 +190,21 @@ public class Congreso {
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int cupo;
+  private int cupo = 0;
 
   /**
    * Cuantos ALUMNOS han sido inscritos al CONGRESO.
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int inscritos;
+  private int inscritos = 0;
 
   /**
    * Cuantos ALUMNOS asistieron al CONGRESO cuando sucedio.
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int asistencias;
+  private int asistencias = 0;
 
 
 
@@ -210,7 +213,7 @@ public class Congreso {
    * */
   @Min(0) @Max(100)
   @Column(nullable = false)
-  private int staffCantidad;
+  private int staffCantidad = 0;
 
   /**
    * Cuantos integrantes de STAFF se requeriran en el CONGRESO.
@@ -219,9 +222,34 @@ public class Congreso {
     message = "La descripcion de requerimientos de staff debe ser menor" +
       " o igual a 500 caracteres")
   @Column(nullable = false, length = 500)
-  private String staffRequerimientos;
+  private String staffRequerimientos = "";
 
 
+
+  /**
+   * Cuantas ASISTENCIAS distintas requiere el ALUMNO para conseguir su
+   * acreditacion.
+   * */
+  @Min(value = 1, message = "Se debe requerir al menos una Asistencia")
+  @Max(value = 40, message = "Se deben requerir como maximo 40 Asistencias")
+  private int alumnoAcreditacionAsistenciasRequeridas = 1;
+
+  /**
+   * Cuanto Tiempo Asistido total requiere el ALUMNO para conseguir su
+   * acreditacion (expresado en segundos).
+   * <p>
+   * Se refiere al tiempo total que paso en todas las CONFERENCIAS a las que
+   * asistio.
+   * */
+  @Min(value = 1,
+    message = "Se debe requerir al menos 1 segundo de tiempo asistido")
+  @Max(value = 144000,
+    message = "Se deben requerir como maximo 40 horas de tiempo asistido")
+  private long alumnoAcreditacionTiempoAsistidoRequerido = 1;
+
+
+
+  //--------------------------- CAMPOS MULTIMEDIA ------------------------------
 
   /**
    * Slot de multimedia informativa previa al CONGRESO.
@@ -540,7 +568,9 @@ public class Congreso {
     boolean gratuito,
     int cupo,
     int staffCantidad,
-    String staffRequerimientos
+    String staffRequerimientos,
+    int alumnoAcreditacionAsistenciasRequeridas,
+    long alumnoAcreditacionTiempoAsistidoRequerido
   ) {
     this.fechaCreacion            = LocalDateTime.now();
     this.creadorId                = creadorId;
@@ -562,6 +592,11 @@ public class Congreso {
 
     this.staffCantidad            = staffCantidad;
     this.staffRequerimientos      = staffRequerimientos;
+
+    this.alumnoAcreditacionAsistenciasRequeridas =
+      alumnoAcreditacionAsistenciasRequeridas;
+    this.alumnoAcreditacionTiempoAsistidoRequerido =
+      alumnoAcreditacionTiempoAsistidoRequerido;
   }
 
 
@@ -590,7 +625,9 @@ public class Congreso {
       dto.isGratuito(),
       dto.getCupo(),
       dto.getStaffCantidad(),
-      dto.getStaffRequerimientos()
+      dto.getStaffRequerimientos(),
+      dto.getAlumnoAcreditacionAsistenciasRequeridas(),
+      dto.getAlumnoAcreditacionTiempoAsistidoRequerido()
     );
   }
 
@@ -615,7 +652,9 @@ public class Congreso {
       con.isGratuito(),
       con.getCupo(),
       con.getStaffCantidad(),
-      con.getStaffRequerimientos()
+      con.getStaffRequerimientos(),
+      con.getAlumnoAcreditacionAsistenciasRequeridas(),
+      con.getAlumnoAcreditacionTiempoAsistidoRequerido()
     );
   }
 
@@ -653,6 +692,11 @@ public class Congreso {
 
     setStaffCantidad(con.getStaffCantidad());
     setStaffRequerimientos(con.getStaffRequerimientos());
+
+    setAlumnoAcreditacionAsistenciasRequeridas(
+      con.getAlumnoAcreditacionAsistenciasRequeridas());
+    setAlumnoAcreditacionTiempoAsistidoRequerido(
+      con.getAlumnoAcreditacionTiempoAsistidoRequerido());
 
     return this;
   }

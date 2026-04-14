@@ -54,6 +54,7 @@ public class Usuario implements UserDetails {
   /**
    * Cuando fue creado el registro.
    * */
+  @PastOrPresent(message = "Fecha de creacion no puede ser en el futuro")
   @Column(nullable = false, updatable = false)
   private LocalDateTime fechaCreacion;
 
@@ -101,25 +102,21 @@ public class Usuario implements UserDetails {
   /**
    * Determina si el USUARIO esta bloqueado, impidiendole hacer uso del sistema.
    * */
-  @Column(nullable = false)
   private boolean bloqueado = false;
 
   /**
    * Determina si la cuenta del USUARIO esta expirada.
    * */
-  @Column(nullable = false)
   private boolean expirado = false;
 
   /**
    * Determina si las credenciales de acceso del USUARIO estan expiradas.
    * */
-  @Column(nullable = false)
   private boolean credencialesExpiradas = false;
 
   /**
    * Determina si la cuenta del USUARIO esta deshabilitada.
    * */
-  @Column(nullable = false)
   private boolean deshabilitado = false;
 
 
@@ -172,7 +169,8 @@ public class Usuario implements UserDetails {
   /**
    * Fecha de nacimiento del USUARIO.
    * */
-  @Past
+  @NotNull(message = "Fecha de nacimiento vacia")
+  @Past(message = "Fecha de nacimiento debe ser en el pasado")
   @Column(nullable = false)
   private LocalDateTime fechaNacimiento;
 
@@ -1125,6 +1123,8 @@ public class Usuario implements UserDetails {
    * El USUARIO actualizado.
    */
   private Usuario actualizarCamposBasicos (Usuario usr) {
+    setEmail(usr.getEmail());
+
     setTelPref(usr.getTelPref());
     setTelSuf(usr.getTelSuf());
 
@@ -1147,7 +1147,6 @@ public class Usuario implements UserDetails {
    * El ALUMNO actualizado.
    */
   private Usuario actualizarCamposBasicosDeAlumno (Usuario usr) {
-    setNoControl(usr.getNoControl());
     setCodigoCarrera(usr.getCodigoCarrera());
     setSemestre(usr.getSemestre());
     setGrupo(usr.getGrupo());

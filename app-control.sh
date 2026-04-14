@@ -7,7 +7,11 @@ fi
 
 case "$1" in
     stop)
-        echo "Deteniendo solo la aplicacion..."
+        echo "Deteniendo todos los servicios (app + db)..."
+        docker-compose stop
+        ;;
+    stop-app)
+        echo "Deteniendo solo la aplicacion (la base de datos sigue activa)..."
         docker-compose stop app
         ;;
     restart)
@@ -21,7 +25,7 @@ case "$1" in
         ;;
 
     stop-destroy)
-        echo "Deteniendo solo la aplicacion..."
+        echo "Deteniendo todos los servicios y eliminando contenedores, redes y volumenes..."
         docker-compose down -v
         ;;
     destroy-rebuild)
@@ -45,7 +49,7 @@ case "$1" in
         ;;
 
     *)
-        echo "Uso: $0 {stop|restart|rebuild|status}"
+        echo "Uso: $0 {stop|stop-app|restart|rebuild|stop-destroy|destroy-rebuild|status|logs|live-logs}"
         exit 1
         ;;
 esac

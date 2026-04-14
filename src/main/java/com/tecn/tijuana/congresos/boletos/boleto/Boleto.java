@@ -4,10 +4,7 @@ import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.GeneradorDeFolios;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -61,7 +58,7 @@ public class Boleto {
   /**
    * Folio unico del registro.
    * */
-  @NotBlank(message = "El folio es obligatorio")
+  @NotBlank(message = "Debe especificar el Folio del Boleto")
   @Size(min = 6, max = 6, message = "El folio debe tener 6 caracteres")
   @Column(unique = true, nullable = false, updatable = false, length = 6)
   private String folio;
@@ -70,7 +67,7 @@ public class Boleto {
    * Folio largo unico del registro.
    * Permite acceso anonimo al registro.
    * */
-  @NotBlank(message = "El folio largo es obligatorio")
+  @NotBlank(message = "Debe especificar el Folio Largo del Boleto")
   @Size(min = 20, max = 20, message = "El folio debe tener 20 caracteres")
   @Column(unique = true, nullable = false, updatable = false, length = 20)
   private String folioLargo;
@@ -80,12 +77,15 @@ public class Boleto {
   /**
    * Cuando fue creado el registro.
    * */
+  @NotNull(message = "Debe especificar La Fecha de Creacion del Boleto")
+  @PastOrPresent(message = "La fecha de creacion no puede ser futura")
   @Column(nullable = false, updatable = false)
   private LocalDateTime fechaCreacion;
 
   /**
    * Posible creador del registro.
    * */
+  @NotNull(message = "Debe especificar el ID de Creador del Boleto")
   @Column(nullable = false, updatable = false)
   private Long creadorId;
 
@@ -94,13 +94,14 @@ public class Boleto {
   /**
    * CONGRESO para al cual pertenece el registro.
    * */
+  @NotNull(message = "Debe especificar el ID de Congreso")
   @Column(nullable = false, updatable = false)
   private Long congresoId;
 
   /**
    * Nombre del CONGRESO al que pertenece el registro.
    * */
-  @NotBlank(message = "Nombre de congreso vacio")
+  @NotBlank(message = "Debe especificar el Nombre del Congreso")
   @Size(min = 1, max = 100,
     message = "El nombre de congreso debe tener entre 1 y 100 caracteres")
   @Column(nullable = false, length = 100)
@@ -109,22 +110,25 @@ public class Boleto {
   /**
    * Cuando iniciara el evento.
    * */
+  @NotNull(message = "Debe especificar la Fecha de Inicio del Congreso")
   @Column(nullable = false)
   private LocalDateTime congresoFechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
+  @NotNull(message = "Debe especificar la Fecha de Terminacion del Congreso")
   @Column(nullable = false)
   private LocalDateTime congresoFechaFin;
 
   /**
    * Direccion donde tendra lugar el evento.
    * */
+  @NotNull(message = "Debe especificar la Direccion del Congreso")
   @Size(max = 200,
     message = "La direccion debe tener entre 0 y 200 caracteres")
   @Column(nullable = false, length = 200)
-  private String congresoDireccion;
+  private String congresoDireccion = "";
 
 
 
@@ -132,7 +136,7 @@ public class Boleto {
    * Determina si el BOLETO fue registrado despues de que ya se habia llenado el
    * cupo del CONGRESO.
    * */
-  @Column(nullable = false, updatable = false)
+  @Column(updatable = false)
   private boolean excedente = NO_EXCEDENTE;
 
 
@@ -144,7 +148,6 @@ public class Boleto {
    * asistir al evento hasta que sean marcados como {@code pagado = true} por el
    * personal autorizado.
    * */
-  @Column(nullable = false)
   private boolean pagado = NO_PAGADO;
 
   /**
@@ -152,7 +155,6 @@ public class Boleto {
    * <p>
    * Consta el ultimo USUARIO que edito el estatus de "pagado" del BOLETO.
    * */
-  @Column
   private Long usuarioEditoPagado;
 
 
@@ -160,22 +162,22 @@ public class Boleto {
   /**
    * ID del ALUMNO al que pertenece el registro.
    * */
+  @NotNull(message = "Debe especificar el ID de Alumno")
   @Column(nullable = false, updatable = false)
   private Long alumnoId;
 
   /**
    * Numero de control del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Numero de control de alumno vacio")
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
-  @Column(nullable = false, length = 8)
+  @Column(length = 8, updatable = false)
   private String alumnoNoControl;
 
   /**
    * Nombre del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Nombre de alumno vacio")
+  @NotBlank(message = "Debe especificar el Noombre del Alumno")
   @Size(min = 3, max = 120,
     message = "El nombre de alumno debe tener entre 3 y 120 caracteres")
   @Column(nullable = false, length = 120)
@@ -195,12 +197,35 @@ public class Boleto {
    * */
   private boolean usado = false;
 
+
+
   /**
    * A cuantas CONFERENCIAS unicas asistio con este registro.
    * */
-  @Min(0) @Max(100)
-  @Column(nullable = false)
-  private int asistencias;
+  @Min(value = 0, message = "Las asistencias no pueden ser negativas")
+  @Max(value = 100, message = "Las asistencias no pueden ser mayores a 100")
+  private int asistencias = 0;
+
+  /**
+   * Suma del tiempo que paso en las CONFERENCIAS en segundos.
+   * */
+  @Min(value = 0, message = "El tiempo asistido no puede ser negativo")
+  private long tiempoAsistido = 0L;
+
+  /**
+   * Determina si el ALUMNO cumplio con los requerimientos para obtener su
+   * acreditacion.
+   * */
+  private boolean cumplioRequerimientosDeAsistencia = false;
+
+  /**
+   * Determina si el ALUMNO fue acreditado por el ORGANIZADOR del CONGRESO.
+   * <p>
+   * Para ser acreditado debe cumplir con los requerimientos de ASISTENCIAS
+   * establecidos en el CONGRESO (es decir
+   * {@code cumplioRequerimientosDeAsistencia = true}).
+   * */
+  private boolean acreditado = false;
 
 
 
@@ -263,8 +288,9 @@ public class Boleto {
       congreso.getDireccion(),
       alumno.getId(),
       alumno.getNoControl(),
-      alumno.getNombre(),
-      congreso.getInscritos() >= congreso.getCupo()
+      alumno.getNombreCompleto(),
+      congreso.getCupo() != 0
+        && congreso.getInscritos() >= congreso.getCupo()
     );
   }
 
@@ -339,9 +365,7 @@ public class Boleto {
    * El registro actualizado.
    */
   public Boleto marcar () {
-
     setUsado(USADO);
-
     return this;
   }
 
@@ -354,9 +378,59 @@ public class Boleto {
    * El registro actualizado.
    */
   public Boleto estampar () {
-
     setAsistencias(getAsistencias() + 1);
+    return this;
+  }
 
+
+
+  /**
+   * Acredita el BOLETO, marcando que el ALUMNO fue aprobado por el ORGANIZADOR.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto acreditar () {
+    setAcreditado(true);
+    return this;
+  }
+
+
+
+  /**
+   * Edita el BOLETO (le suma la nueva duracion al total de tiempo asistido).
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto sumarTiempoAsistido (long duracion) {
+    setTiempoAsistido(getTiempoAsistido() + duracion);
+    return this;
+  }
+
+
+
+  /**
+   * Verifica si el ALUMNO cumplio con los requerimientos de asistencia para
+   * obtener su acreditacion y de ser asi marca el BOLETO.
+   *
+   * @param asistenciasRequeridas
+   * Numero minimo de CONFERENCIAS distintas a las que debio asistir el ALUMNO.
+   *
+   * @param tiempoAsistidoRequerido
+   * Tiempo total minimo asistido requerido, en segundos.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto aplicarCumplimientoDeRequisitosDeAsistencia (
+    int asistenciasRequeridas, long tiempoAsistidoRequerido
+  ) {
+    if (!cumplioRequerimientosDeAsistencia
+        && asistencias >= asistenciasRequeridas
+        && tiempoAsistido >= tiempoAsistidoRequerido) {
+      setCumplioRequerimientosDeAsistencia(true);
+    }
     return this;
   }
 }

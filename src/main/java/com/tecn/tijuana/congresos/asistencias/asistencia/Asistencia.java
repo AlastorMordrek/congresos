@@ -6,13 +6,11 @@ import com.tecn.tijuana.congresos.eventos.conferencia.Conferencia;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -46,6 +44,7 @@ public class Asistencia {
   /**
    * Cuando fue creado el registro.
    * */
+  @NotNull(message = "Se debe especificar una Fecha de Creacion")
   @Column(nullable = false, updatable = false)
   private LocalDateTime fechaCreacion;
 
@@ -53,6 +52,7 @@ public class Asistencia {
    * ID del creador del registro.
    * Normalmente el personal autorizado que registro la ASISTENCIA del ALUMNO.
    * */
+  @NotNull(message = "Se debe especificar un ID de Creador")
   @Column(nullable = false, updatable = false)
   private Long creadorId;
 
@@ -60,7 +60,7 @@ public class Asistencia {
    * Nombre completo del creador del registro.
    * Normalmente el personal autorizado que registro la ASISTENCIA del ALUMNO.
    * */
-  @NotBlank(message = "Nombre de creador vacio")
+  @NotBlank(message = "Se debe especificar un Nombre de Creador")
   @Size(min = 3, max = 120,
     message = "El nombre de creador debe tener entre 3 y 120 caracteres")
   @Column(nullable = false, length = 120)
@@ -71,13 +71,14 @@ public class Asistencia {
   /**
    * ID del BOLETO.
    * */
+  @NotNull(message = "Se debe especificar un ID de Boleto")
   @Column(nullable = false, updatable = false)
   private Long boletoId;
 
   /**
    * Folio del BOLETO.
    * */
-  @NotBlank(message = "El folio de boleto es obligatorio")
+  @NotBlank(message = "Se debe especificar un Folio de Boleto")
   @Size(min = 6, max = 6,
     message = "El folio de boleto debe tener 6 caracteres")
   @Column(nullable = false, updatable = false, length = 6)
@@ -86,7 +87,7 @@ public class Asistencia {
   /**
    * Folio largo del BOLETO.
    * */
-  @NotBlank(message = "El folio largo del boleto es obligatorio")
+  @NotBlank(message = "Se debe especificar un Folio Largo de Boleto")
   @Size(min = 20, max = 20,
     message = "El folio largo del boleto debe tener 20 caracteres")
   @Column(nullable = false, updatable = false, length = 20)
@@ -97,13 +98,14 @@ public class Asistencia {
   /**
    * CONGRESO para al cual pertenece el registro.
    * */
+  @NotNull(message = "Se debe especificar un ID de Congreso")
   @Column(nullable = false, updatable = false)
   private Long congresoId;
 
   /**
    * Nombre del CONGRESO al que pertenece el registro.
    * */
-  @NotBlank(message = "Nombre de congreso vacio")
+  @NotBlank(message = "Se debe especificar un Nombre de Congreso")
   @Size(min = 1, max = 100,
     message = "El nombre de congreso debe tener entre 1 y 100 caracteres")
   @Column(nullable = false, length = 100)
@@ -114,13 +116,14 @@ public class Asistencia {
   /**
    * CONFERENCIA para al cual pertenece el registro.
    * */
+  @NotNull(message = "Se debe especificar un ID de Conferencia")
   @Column(nullable = false, updatable = false)
   private Long conferenciaId;
 
   /**
    * Nombre del CONGRESO al que pertenece el registro.
    * */
-  @NotBlank(message = "Nombre de conferencia vacio")
+  @NotBlank(message = "Se debe especificar un Nombre de Conferencia")
   @Size(min = 1, max = 100,
     message = "El nombre de conferencia debe tener entre 1 y 100 caracteres")
   @Column(nullable = false, length = 100)
@@ -131,22 +134,22 @@ public class Asistencia {
   /**
    * ID del ALUMNO al que pertenece el registro.
    * */
+  @NotNull(message = "Se debe especificar un ID de Alumno")
   @Column(nullable = false, updatable = false)
   private Long alumnoId;
 
   /**
    * Numero de control del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Numero de control de alumno vacio")
   @Size(min = 8, max = 8,
     message = "El numero de control de alumno debe tener 8 caracteres")
-  @Column(nullable = false, length = 8)
+  @Column(length = 8, updatable = false)
   private String alumnoNoControl;
 
   /**
    * Nombre completo del ALUMNO al que pertenece el registro.
    * */
-  @NotBlank(message = "Nombre de alumno vacio")
+  @NotBlank(message = "Se debe especificar un Nombre de Alumno")
   @Size(min = 3, max = 120,
     message = "El nombre de alumno debe tener entre 3 y 120 caracteres")
   @Column(nullable = false, length = 120)
@@ -157,14 +160,16 @@ public class Asistencia {
   /**
    * Cuando fue la ultima vez que registro entrada a la CONFERENCIA.
    * */
+  @PastOrPresent(
+    message = "La fecha de ultima entrada no puede ser en el futuro")
   @Column
   private LocalDateTime fechaUltimaEntrada;
 
   /**
    * Suma del tiempo que paso en la CONFERENCIA en segundos.
    * */
-  @Column
-  private Long tiempoAsistido = 0L;
+  @Min(value = 0, message = "El tiempo asistido no puede ser negativo")
+  private long tiempoAsistido = 0L;
 
 
 
@@ -288,75 +293,6 @@ public class Asistencia {
 
     // Registrar fecha de entrada actual.
     setFechaUltimaEntrada(LocalDateTime.now());
-
-    // Retornar objeto actualizado.
-    return this;
-  }
-
-
-
-  /**
-   * Registrar salida para el ALUMNO de la CONFERENCIA.
-   * <p>
-   * Se asume que ya tenia una fecha de ENTRADA, se calcula cuento tiempo paso
-   * desde entonces y la duracion se suma al tiempo total asistido.
-   *
-   * @return
-   * El registro actualizado.
-   */
-  public Asistencia salir () {
-
-    // Ultima fecha en que entro a la CONFERENCIA.
-    var ultima = getFechaUltimaEntrada();
-
-    // Si no hay fecha de entrada previa no hay nada que hacer.
-    // Retornar sin mas.
-    if (Objects.isNull(ultima)) {
-      return this;
-    }
-
-    // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, LocalDateTime.now()).toSeconds();
-
-    // Tiempo total asistido a la conferencia especifica actualmente.
-    var asistido = getTiempoAsistido();
-
-    // Sumar la nueva duracion al tiempo total asistido.
-    if (Objects.isNull(asistido) || asistido == 0) {
-      setTiempoAsistido(duracion);
-    } else {
-      setTiempoAsistido(asistido + duracion);
-    }
-
-    // Remover fecha de entrada previa.
-    setFechaUltimaEntrada(null);
-
-    // Retornar objeto actualizado.
-    return this;
-  }
-
-
-
-  /**
-   * Sobreescribir los datos de la asistencia y constar que el ALUMNO asistio a
-   * la CONFERENCIA completa.
-   *
-   * @return
-   * El registro actualizado.
-   */
-  public Asistencia asistioConferenciaCompleta (Conferencia conferencia) {
-
-    // Remover fecha de entrada.
-    setFechaUltimaEntrada(null);
-
-    // Establecer tiempo asistido total como la duracion completa de la
-    // CONFERENCIA.
-    setTiempoAsistido(
-      Duration.between(
-          conferencia.getFechaInicio(),
-          conferencia.getFechaFin())
-        .toSeconds()
-    );
 
     // Retornar objeto actualizado.
     return this;

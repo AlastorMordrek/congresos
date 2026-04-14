@@ -12,12 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication
   .UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -221,7 +221,8 @@ public class ControlDeUsuariosService {
     return usrRep.saveAndFlush(
       Usuario.nuevoAlumno(
         codificarPassword(
-          afirmarEmailNoTomado(usr),
+          afirmarEmailNoTomado(
+            afirmarEmailInstitucionalNoTomado(usr)),
           pwdEnc)));
   }
 
@@ -260,7 +261,9 @@ public class ControlDeUsuariosService {
     return usrRep.saveAndFlush(
       Usuario.nuevoAlumnoAutoRegistrado(
         codificarPassword(
-          afirmarEmailNoTomado(usr),
+          afirmarNoControlNoTomado(
+            afirmarEmailNoTomado(
+              afirmarEmailInstitucionalNoTomado(usr))),
           pwdEnc)));
   }
 
@@ -292,7 +295,12 @@ public class ControlDeUsuariosService {
         "No tiene permiso para editar un usuario de ese tipo.");
     }
 
-    return usrRep.saveAndFlush(afirmar(id).actualizar(usr));
+    // Encontrar el USUARIO a editar.
+    // Comprobar que los campos unicos se mantengan unicos incluso despues de
+    // una posible edicion.
+    // Actualizar, guardar y retornar el USUARIO.
+    return usrRep.saveAndFlush(
+      afirmarEdicionDeCamposUnicosValida(afirmar(id), usr).actualizar(usr));
   }
 
 
@@ -362,7 +370,12 @@ public class ControlDeUsuariosService {
     Usuario actor, Usuario usr
   ) throws ResponseStatusException {
 
-    return usrRep.saveAndFlush(afirmar(actor.getId()).actualizarse(usr));
+    // Comprobar que los campos unicos se mantengan unicos incluso despues de
+    // una posible edicion.
+    // Actualizar, guardar y retornar el USUARIO.
+    return usrRep.saveAndFlush(
+      afirmarEdicionDeCamposUnicosValida(afirmar(actor.getId()), usr)
+        .actualizarse(usr));
   }
 
 
@@ -652,9 +665,7 @@ public class ControlDeUsuariosService {
    * Lista de registros encontrados.
    */
   public List<Usuario> q (int page, int pageSize) {
-    return usrRep.
-      findAll(Api.pagina(page, pageSize))
-      .getContent();
+    return usrRep.q(Api.pagina(page, pageSize)).getContent();
   }
 
 
@@ -677,7 +688,16 @@ public class ControlDeUsuariosService {
    * @see Api#pagina()
    */
   public List<Usuario> buscar (String txt) {
-    return buscar(txt, DEFAULT_PAGE);
+    return buscar(
+      txt,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      DEFAULT_PAGE, DEFAULT_PAGE_SIZE);
   }
 
   /**
@@ -699,11 +719,18 @@ public class ControlDeUsuariosService {
    *
    * @return
    * Lista de registros encontrados.
-   *
-   * @see ControlDeUsuariosService#buscar(String, int, int)
    */
   public List<Usuario> buscar (String txt, int page) {
-    return buscar(txt, page, DEFAULT_PAGE_SIZE);
+    return buscar(
+      txt,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      page, DEFAULT_PAGE_SIZE);
   }
 
   /**
@@ -720,6 +747,27 @@ public class ControlDeUsuariosService {
    * @param txt
    * El texto a buscar.
    *
+   * @param rol
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param bloqueado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param externo
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param staffAutorizado
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffCustodio
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffAlumnos
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
+   * @param staffInscripciones
+   * Filtro opcional (solo aplica a STAFF). {@code null} para no filtrar.
+   *
    * @param page
    * Numero de pagina (0-based)
    *
@@ -728,18 +776,38 @@ public class ControlDeUsuariosService {
    *
    * @return
    * Lista de registros encontrados.
-   *
-   * @see UsuarioRepository#buscar(String, Pageable)
    */
-  public List<Usuario> buscar (String txt, int page, int pageSize) {
-    Pageable defPage = PageRequest.of(page, pageSize);
+  public List<Usuario> buscar (
+    String txt,
+    Rol rol, Boolean bloqueado, Boolean externo,
+    Boolean staffAutorizado, Boolean staffCustodio,
+    Boolean staffAlumnos, Boolean staffInscripciones,
+    int page, int pageSize
+  ) {
+    Pageable pg = PageRequest.of(page, pageSize);
 
-    if (Objects.isNull(txt) || txt.isBlank()) {
-      return usrRep.findAll(defPage).getContent();
+    // Normalizar txt: vacio o blanco se convierte en null para que la consulta
+    // condicional lo ignore.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    boolean sinFiltros = txtN == null
+      && rol == null && bloqueado == null && externo == null
+      && staffAutorizado == null && staffCustodio == null
+      && staffAlumnos == null && staffInscripciones == null;
+
+    if (sinFiltros) {
+      return usrRep.q(pg).getContent();
     }
 
+    // Usar la consulta condicional que evalua solo los filtros activos.
     return usrRep
-      .buscar(txt.toLowerCase().trim(), defPage)
+      .qFiltrado(
+        txtN, rol, bloqueado, externo,
+        staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
+        pg)
       .getContent();
   }
 
@@ -891,7 +959,72 @@ public class ControlDeUsuariosService {
 
 
   /**
-   * Lanza una excepcion si el Usuario tiene un email que ya esta tomado en la
+   * Recibe una version 'anterior' y una 'posterior' de un Usuario.
+   * <p>
+   * La version posterior es similar a la anterior pero incluye todas las
+   * modificaciones deseadas.
+   * <p>
+   * Si un campo que deberia ser unico como Email, #Control, etc.... incluye una
+   * edicion, se comprueba que el nuevo valor no se repita en la base de datos.
+   *
+   * @param anterior
+   * Version anterior/pre-existente del registro en la BD.
+   *
+   * @param posterior
+   * Version posterior/nueva del registro para guardar en la BD.
+   *
+   * @return
+   * La version anterior del USUARIO tal como se recibio en los parametros.
+   */
+  public Usuario afirmarEdicionDeCamposUnicosValida (
+    Usuario anterior, Usuario posterior
+  ) throws ResponseStatusException {
+
+    // Al editar #Control, comprobar que no este tomado.
+    if (!Objects.equals(anterior.getNoControl(), posterior.getNoControl())) {
+      afirmarNoControlNoTomado(posterior);
+    }
+    // Al editar Email, comprobar que no este tomado.
+    if (!Objects.equals(anterior.getEmail(), posterior.getEmail())) {
+      afirmarEmailNoTomado(posterior);
+    }
+    // Al editar Email Institucional, comprobar que no este tomado.
+    if (!Objects.equals(
+      anterior.getEmailInstitucional(), posterior.getEmailInstitucional())) {
+      afirmarEmailInstitucionalNoTomado(posterior);
+    }
+
+    return anterior;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un #Control que ya esta tomado en
+   * la BD, de lo contrario solo retorna el mismo objeto.
+   *
+   * @param usr
+   * El Usuario cuyo #Control se desea validar en la BD.
+   *
+   * @return
+   * El Usuario juzgado.
+   */
+  public Usuario afirmarNoControlNoTomado (Usuario usr)
+    throws ResponseStatusException {
+
+    if (noControlTomado(usr.getNoControl())) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        "No. de Control no disponible");
+    }
+
+    return usr;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un Email que ya esta tomado en la
    * BD, de lo contrario solo retorna el mismo objeto.
    *
    * @param usr
@@ -907,6 +1040,29 @@ public class ControlDeUsuariosService {
       throw new ResponseStatusException(
         HttpStatus.CONFLICT,
         "Email no disponible");
+    }
+    return usr;
+  }
+
+
+
+  /**
+   * Lanza una excepcion si el Usuario tiene un Email Institucional que ya esta
+   * tomado en la BD, de lo contrario solo retorna el mismo objeto.
+   *
+   * @param usr
+   * El Usuario cuyo email se desea validar en la BD.
+   *
+   * @return
+   * El Usuario juzgado.
+   */
+  public Usuario afirmarEmailInstitucionalNoTomado (Usuario usr)
+    throws ResponseStatusException {
+
+    if (emailInstitucionalTomado(usr.getEmailInstitucional())) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        "Email Institucional no disponible");
     }
 
     return usr;
@@ -1051,27 +1207,40 @@ public class ControlDeUsuariosService {
   public String verify (
     LoginDto dto
   )
-    throws BadCredentialsException {
+    throws ResponseStatusException {
 
-    UserDetails usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
+    // Aux.
+    UserDetails usrDts;
 
+    // Encontrar el USUARIO via su Email.
+    try {
+      usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
+    } catch (UsernameNotFoundException e) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Usuario no registrado");
+    }
+
+    // Comprobar credenciales.
     if (!pwdEnc.matches(dto.getPassword(), usrDts.getPassword())) {
-//      throw new BadCredentialsException("Credenciales incorrectas");
-
       throw new ResponseStatusException(
         HttpStatus.UNAUTHORIZED,
         "Credenciales incorrectas");
     }
 
+    // Crear token de autenticacion con el detalle de USUARIO.
     Authentication auth = new UsernamePasswordAuthenticationToken(
       usrDts, null, usrDts.getAuthorities());
 
+    // Establecer autenticacion usando el contexto global de seguridad.
     SecurityContextHolder.getContext().setAuthentication(auth);
 
+    // Si el USUARIO esta autenticado, generar y retornar su JWT.
     if (auth.isAuthenticated()) {
       return jwtSvc.generateToken(usrDts.getUsername());
     }
 
+    // Si se llego a este punto, se debe retornar un error.
     return "No se pudo autenticar";
   }
 
@@ -1089,6 +1258,38 @@ public class ControlDeUsuariosService {
    */
   public boolean emailTomado (String email) {
     return usrRep.qEmail(email).isPresent();
+  }
+
+
+
+  /**
+   * Determina si un email institucional ya esta tomado por un Usuario en la BD.
+   *
+   * @param email
+   * El email a validar.
+   *
+   * @return
+   * true = ya esta tomado.
+   * false = no esta tomado.
+   */
+  public boolean emailInstitucionalTomado (String email) {
+    return usrRep.qEmailInstitucional(email).isPresent();
+  }
+
+
+
+  /**
+   * Determina si un #Control ya esta tomado por un Usuario en la BD.
+   *
+   * @param noControl
+   * El #Control a validar.
+   *
+   * @return
+   * true = ya esta tomado.
+   * false = no esta tomado.
+   */
+  public boolean noControlTomado (String noControl) {
+    return usrRep.qNoControl(noControl).isPresent();
   }
 
 

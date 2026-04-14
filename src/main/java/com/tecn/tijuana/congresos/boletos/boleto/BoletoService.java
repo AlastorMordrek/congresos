@@ -2,6 +2,7 @@ package com.tecn.tijuana.congresos.boletos.boleto;
 
 import com.tecn.tijuana.congresos.boletos.boleto.dto.BoletoInscribirseDto;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.ControlDeUsuariosService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
@@ -339,6 +340,67 @@ public class BoletoService {
 
 
 
+  /**
+   * Acredita a un ALUMNO a travez de su BOLETO, indicando que cumplio con los
+   * requerimientos del evento.
+   * <p>
+   * Solo es posible si el ALUMNO ya cumplio con los requerimientos de
+   * ASISTENCIA del CONGRESO ({@code cumplioRequerimientosDeAsistencia = true}).
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @return
+   * El registro actualizado.
+   *
+   * @throws ResponseStatusException
+   * {@code HTTP-UNAUTHORIZED}
+   * Si el actor no es el ORGANIZADOR del CONGRESO.
+   * {@code HTTP-PRECONDITION_FAILED}
+   * Si el ALUMNO no ha cumplido con los requerimientos de asistencia.
+   * {@code HTTP-PRECONDITION_FAILED}
+   * Si el CONGRESO aun no ha concluido.
+   */
+  public Boleto acreditar (
+    Usuario actor, Long id
+  ) throws ResponseStatusException {
+
+    // Encontrar el BOLETO.
+    var boleto = afirmar(id);
+
+    // Encontrar el CONGRESO.
+    var congreso = congSvc.afirmar(boleto.getCongresoId());
+
+    // Comprobar permisos.
+    CongresoService.afirmarOrganizadorAsignado(actor, congreso);
+
+    // IDEMPOTENCIA.
+    if (boleto.isAcreditado()) {
+      return boleto;
+    }
+
+    // Comprobar que el BOLETO no esta cancelado.
+    afirmarNoCancelado(boleto);
+
+    // Comprobar que el CONGRESO no fue cancelado y que ya concluyo.
+    CongresoService.afirmarConcluido(
+      CongresoService.afirmarNoCancelado(congreso));
+
+    // Encontrar ALUMNO y comprobar que no esta bloqueado.
+    var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
+
+    // Comprobar que el ALUMNO cumple los requerimientos de ASISTENCIA.
+    afirmarCumplioRequerimientosDeAsistencia(boleto);
+
+    // Actualizar, guardar y retornar el registro.
+    return bolRep.saveAndFlush(boleto.acreditar());
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 
@@ -393,10 +455,40 @@ public class BoletoService {
 
 
   /**
-   * Consulta los registros de un CONGRESO.
+   * Consulta los registros de un CONGRESO usando filtros opcionales de texto y
+   * de campos booleanos.
+   *
+   * <p>Si ningun filtro es especificado, retorna todos los registros del
+   * CONGRESO. Si al menos un filtro es especificado, se usa la consulta
+   * condicional que evalua solo los filtros activos (no-nulos).
+   *
+   * @param txt
+   * Texto a buscar en los campos de texto del BOLETO.
+   * {@code null} o vacio para no filtrar.
+   *
+   * @param alumnoId
+   * Filtro opcional. {@code null} para no filtrar.
    *
    * @param congresoId
-   * ID del CONGRESO.
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param excedente
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param pagado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param cancelado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param usado
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param cumplioRequerimientosDeAsistencia
+   * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param acreditado
+   * Filtro opcional. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -407,11 +499,37 @@ public class BoletoService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Boleto> qIdCongreso (
-    Long congresoId, int page, int pageSize
+  public List<Boleto> qFiltrado (
+    String txt, Long alumnoId, Long congresoId,
+    Boolean excedente, Boolean pagado,
+    Boolean cancelado, Boolean usado, Boolean cumplioRequerimientosDeAsistencia,
+    Boolean acreditado,
+    int page, int pageSize
   ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    // Normalizar txt: vacio o blanco se convierte en null para que la consulta
+    // condicional lo ignore.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    boolean sinFiltros = txtN == null && alumnoId == null && congresoId == null
+      && excedente == null && pagado == null && cancelado == null
+      && usado == null && cumplioRequerimientosDeAsistencia == null
+      && acreditado == null;
+
+    if (sinFiltros) {
+      return bolRep.q(pg).getContent();
+    }
+
+    // Usar la consulta condicional que evalua solo los filtros activos.
     return bolRep
-      .qCongresoId(congresoId, Api.pagina(page, pageSize))
+      .qFiltrado(
+        txtN, alumnoId, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        pg)
       .getContent();
   }
 
@@ -464,7 +582,7 @@ public class BoletoService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return bolRep.findAll(pg).getContent();
+      return bolRep.q(pg).getContent();
     }
 
     return bolRep
@@ -889,5 +1007,57 @@ public class BoletoService {
     }
 
     return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Boleto afirmarCumplioRequerimientosDeAsistencia (
+    Boleto reg
+  ) {
+    // Comprobar que el ALUMNO cumplio con los requerimientos de asistencia.
+    if (!reg.isCumplioRequerimientosDeAsistencia()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El alumno no completo sus asistencias");
+    }
+    return reg;
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // AUXILIARES.
+
+  /**
+   * Edita el BOLETO (le suma la nueva duracion al total de tiempo asistido),
+   * verifica si el ALUMNO cumplio con los requerimientos de asistencia del
+   * CONGRESO y lo guarda en la base de datos.
+   *
+   * @param congreso
+   * El CONGRESO cuyas reglas de acreditacion se utilizaran para la verificacion.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto sumarTiempoAsistido (
+    Boleto boleto, long duracion, Congreso congreso
+  ) {
+    return bolRep.saveAndFlush(
+      boleto
+        .sumarTiempoAsistido(duracion)
+        .aplicarCumplimientoDeRequisitosDeAsistencia(
+          congreso.getAlumnoAcreditacionAsistenciasRequeridas(),
+          congreso.getAlumnoAcreditacionTiempoAsistidoRequerido()));
   }
 }

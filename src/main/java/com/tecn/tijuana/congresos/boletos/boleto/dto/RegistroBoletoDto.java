@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.boletos.boleto.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class RegistroBoletoDto {
   /**
    * CONGRESO para al cual pertenece el registro.
    * */
+  @NotNull(message = "Debe especificar un Congreso")
   public Long congresoId;
 
 
