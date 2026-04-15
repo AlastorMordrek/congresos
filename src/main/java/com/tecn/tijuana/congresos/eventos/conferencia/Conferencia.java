@@ -189,7 +189,7 @@ public class Conferencia {
   @NotBlank(message = "Nombre de conferencista vacio")
   @Size(min = 1, max = 100,
     message = "El nombre de conferencista debe tener entre 1 y 100 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 100)
   private String conferencistaNombre;
 
   /**
@@ -198,7 +198,7 @@ public class Conferencia {
   @NotBlank(message = "Email de conferencista vacio")
   @Size(min = 1, max = 100,
     message = "El email de conferencista debe tener entre 1 y 100 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 100)
   private String conferencistaEmail;
 
   /**
@@ -208,7 +208,7 @@ public class Conferencia {
   @Size(min = 1, max = 7,
     message = "El prefijo de telefono de conferencista debe tener entre" +
       " 1 y 7 caracteres")
-  @Column(length = 7)
+  @Column(nullable = false, length = 7)
   private String conferencistaTelPref;
 
   /**
@@ -218,7 +218,7 @@ public class Conferencia {
   @Size(min = 4, max = 14,
     message = "El telefono de conferencista debe tener entre" +
       " 4 y 14 caracteres")
-  @Column(length = 14)
+  @Column(nullable = false, length = 14)
   private String conferencistaTelSuf;
 
   /**
@@ -228,7 +228,7 @@ public class Conferencia {
   @Size(min = 1, max = 200,
     message = "La semblanza del conferencista debe tener entre" +
       " 1 y 200 caracteres")
-  @Column(length = 200)
+  @Column(nullable = false, length = 200)
   private String conferencistaSemblanza;
 
   //----------------------------------------
