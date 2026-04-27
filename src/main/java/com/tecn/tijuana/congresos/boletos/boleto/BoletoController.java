@@ -128,7 +128,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -328,7 +329,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -483,7 +485,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -635,7 +638,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -787,7 +791,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -940,7 +945,8 @@ public class BoletoController {
   
   "cancelado"           : true,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1093,7 +1099,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1188,14 +1195,192 @@ public class BoletoController {
 
 
 
+  /**
+   * Permite al ORGANIZADOR ACREDITAR a un ALUMNO a travez de su BOLETO.
+   *
+   * @param id
+   * ID del registro.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El registro ACREDITADO.
+   */
+  @PatchMapping("acreditar/{id}")
+
+  @Operation(
+    summary = "Acreditar boleto",
+    description = "Permite al organizador acreditar un boleto cuyo alumno " +
+      "ya cumplio con los requerimientos de asistencia del congreso.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Acreditacion exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Boleto acreditado",
+          value = """
+{
+  "id"                  : 1,
+  "folio"               : "A1B2C3",
+  "folioLargo"          : "A1B2C3D4E5F6G7H8I9J0",
+  
+  "fechaCreacion"       : "2025-10-11T01:56:11",
+  "creadorId"           : 1,
+  
+  "congresoId"          : 1,
+  "congresoNombre"      : "Congreso de Tecnologia",
+  "congresoFechaInicio" : "2025-10-11T10:00:00",
+  "congresoFechaFin"    : "2025-10-11T18:00:00",
+  "congresoDireccion"   : "Av. Universidad 123, Tijuana, B.C.",
+  
+  "alumnoId"            : 2,
+  "alumnoNoControl"     : "12345678",
+  "alumnoNombre"        : "Juan Perez Garcia",
+  
+  "excedente"           : false,
+  "pagado"              : true,
+  "usuarioEditoPagado"  : null,
+  
+  "cancelado"                          : false,
+  "usado"                              : true,
+  "asistencias"                        : 3,
+  "tiempoAsistido"                     : 10800,
+  "cumplioRequerimientosDeAsistencia"  : true,
+  "acreditado"                         : true
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos o requerimientos de asistencia no cumplidos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "El alumno no ha cumplido con los requerimientos de asistencia",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T04:16:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro el boleto con ID 1",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/boletos/boleto/acreditar/1",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.ACREDITAR_ALUMNOS)
+
+  public ResponseEntity<Boleto> acreditar (
+
+    @PathVariable
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.acreditar(actor, id),
+      HttpStatus.OK);
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 
   /**
-   * Consulta los BOLETOS indiscriminadamente usando una busqueda de texto.
+   * Consulta los BOLETOS indiscriminadamente usando una busqueda de texto
+   * opcional y otros filtros opcionales.
    *
    * @param txt {@code [""]}
    * Texto de busqueda.
+   *
+   * @param congresoId {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1211,7 +1396,8 @@ public class BoletoController {
   @Operation(
     summary = "Buscar boletos",
     description = "Permite al personal autorizado buscar boletos usando " +
-      "filtro de texto.",
+      "filtro de texto y filtros opcionales de congresoId, excedente, pagado," +
+      " cancelado, usado, cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1253,7 +1439,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1342,8 +1529,30 @@ public class BoletoController {
   public ResponseEntity<List<Boleto>> buscar (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
+
+    // Filtros opcionales de estado. null = no filtrar por ese campo.
+    @RequestParam(name = "congresoId", required = false)
+    Long congresoId,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -1353,15 +1562,44 @@ public class BoletoController {
     @Min(1) @Max(100)
     int pageSize
   ) {
+
+
+
     return new ResponseEntity<>(
-      bolSvc.buscar(txt, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, null, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 
 
 
   /**
-   * Permite a un ALUMNO consultar sus boletos.
+   * Permite a un ALUMNO consultar sus BOLETOS, con busqueda de texto opcional
+   * y filtros opcionales de excedente, pagado, cancelado, usado,
+   * cumplioRequerimientosDeAsistencia y acreditado.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional por excedente. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional por pagado. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional por cancelado. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional por usado. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional por acreditado. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1376,7 +1614,9 @@ public class BoletoController {
 
   @Operation(
     summary = "Consultar boletos propios",
-    description = "Obtiene los boletos del usuario autenticado.",
+    description = "Obtiene los boletos del usuario autenticado, con busqueda " +
+      "de texto y filtros opcionales de excedente, pagado, cancelado, usado, " +
+      "cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1418,7 +1658,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1505,6 +1746,28 @@ public class BoletoController {
 
   public ResponseEntity<List<Boleto>> mios (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1517,7 +1780,11 @@ public class BoletoController {
     Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.qMios(actor, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, actor.getId(), null,
+        excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 
@@ -1585,7 +1852,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -1674,7 +1942,7 @@ public class BoletoController {
   public ResponseEntity<List<Boleto>> buscarMios (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
@@ -1749,7 +2017,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -1871,7 +2140,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -2018,7 +2288,8 @@ public class BoletoController {
   
   "cancelado"           : false,
   "usado"               : false,
-  "asistencias"         : 0
+  "asistencias"         : 0,
+  "tiempoAsistido"      : 0
 }
 """
         )
@@ -2111,10 +2382,32 @@ public class BoletoController {
 
 
   /**
-   * Consulta los BOLETOS de un CONGRESO indiscriminadamente.
+   * Consulta los BOLETOS de un CONGRESO indiscriminadamente, con busqueda de
+   * texto opcional y otros filtros opcionales.
    *
    * @param congresoId
    * ID del CONGRESO.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param excedente {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param pagado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cancelado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param usado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param cumplioRequerimientosDeAsistencia {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param acreditado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -2130,7 +2423,9 @@ public class BoletoController {
   @Operation(
     summary = "Consultar boletos por congreso",
     description = "Permite al personal autorizado consultar los boletos " +
-      "de un congreso especifico.",
+      "de un congreso especifico, con busqueda de texto y filtros opcionales " +
+      "de excedente, pagado, cancelado, usado, " +
+      "cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -2172,7 +2467,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -2259,8 +2555,30 @@ public class BoletoController {
 
   public ResponseEntity<List<Boleto>> qIdCongreso (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
     @PathVariable("congresoId")
     Long congresoId,
+
+    @RequestParam(name = "excedente", required = false)
+    Boolean excedente,
+
+    @RequestParam(name = "pagado", required = false)
+    Boolean pagado,
+
+    @RequestParam(name = "cancelado", required = false)
+    Boolean cancelado,
+
+    @RequestParam(name = "usado", required = false)
+    Boolean usado,
+
+    @RequestParam(name = "cumplioRequerimientosDeAsistencia", required = false)
+    Boolean cumplioRequerimientosDeAsistencia,
+
+    @RequestParam(name = "acreditado", required = false)
+    Boolean acreditado,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -2271,7 +2589,10 @@ public class BoletoController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      bolSvc.qIdCongreso(congresoId, page, pageSize),
+      bolSvc.qFiltrado(
+        txt, null, congresoId, excedente, pagado, cancelado, usado,
+        cumplioRequerimientosDeAsistencia, acreditado,
+        page, pageSize),
       HttpStatus.OK);
   }
 
@@ -2340,7 +2661,8 @@ public class BoletoController {
     
     "cancelado"           : true,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """
@@ -2509,7 +2831,8 @@ public class BoletoController {
     
     "cancelado"           : false,
     "usado"               : false,
-    "asistencias"         : 0
+    "asistencias"         : 0,
+    "tiempoAsistido"      : 0
   }
 ]
 """

@@ -24,7 +24,6 @@ public class RegistroUsuarioDto {
    * Rol del USUARIO.
    * */
   @NotNull(message = "El rol es obligatorio")
-  @Enumerated(EnumType.STRING)
   public Rol rol = Rol.ALUMNO;
 
 
@@ -113,7 +112,8 @@ public class RegistroUsuarioDto {
   /**
    * Fecha de nacimiento del USUARIO.
    * */
-  @Past
+  @Past(message = "Fecha de nacimiento debe ser en el pasado")
+  @NotNull(message = "Debe especificar fecha de nacimiento")
   public LocalDateTime fechaNacimiento;
 
 

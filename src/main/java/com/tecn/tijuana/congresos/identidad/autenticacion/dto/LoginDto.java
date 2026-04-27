@@ -19,7 +19,7 @@ public class LoginDto {
   /**
    * Email del USUARIO.
    * */
-  @NotBlank(message = "Email vacio")
+  @NotBlank(message = "Debe especificar un Email")
   @Email(message = "Email invalido")
   @Size(min = 6, max = 100,
     message = "Email debe tener entre 6 y 100 caracteres")
@@ -28,7 +28,7 @@ public class LoginDto {
   /**
    * Contrasena de acceso codificada del USUARIO.
    * */
-  @NotBlank(message = "Clave vacia")
+  @NotBlank(message = "Debe especificar una Clave de acceso")
   @Size(min = 8, max = 100,
     message = "La clave debe tener entre 8 y 100 caracteres")
   public String password;

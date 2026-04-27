@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -61,6 +58,7 @@ public class Conferencia {
   /**
    * Cuando fue creado el registro.
    * */
+  @PastOrPresent(message = "La fecha de creacion no puede ser en el futuro")
   @Column(nullable = false, updatable = false)
   private LocalDateTime fechaCreacion;
 
@@ -95,7 +93,7 @@ public class Conferencia {
   @Size(max = 100,
     message = "El resumen debe tener entre 0 y 100 caracteres")
   @Column(nullable = false, length = 100)
-  private String resumen;
+  private String resumen = "";
 
   /**
    * Descripcion detallada de la CONFERENCIA.
@@ -103,7 +101,7 @@ public class Conferencia {
   @Size(max = 500,
     message = "La descripcion debe tener entre 0 y 500 caracteres")
   @Column(nullable = false, length = 500)
-  private String descripcion;
+  private String descripcion = "";
 
   /**
    * Direccion donde tendra lugar la CONFERENCIA.
@@ -111,19 +109,21 @@ public class Conferencia {
   @Size(max = 100,
     message = "La sala debe tener entre 0 y 100 caracteres")
   @Column(nullable = false, length = 100)
-  private String sala;
+  private String sala = "";
 
 
 
   /**
    * Cuando iniciara el evento.
    * */
+  @NotNull(message = "Debe especificar una fecha de inicio")
   @Column(nullable = false)
   private LocalDateTime fechaInicio;
 
   /**
    * Cuando concluira el evento.
    * */
+  @NotNull(message = "Debe especificar una fecha de terminacion")
   @Column(nullable = false)
   private LocalDateTime fechaFin;
 
@@ -147,21 +147,21 @@ public class Conferencia {
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int cupo;
+  private int cupo = 0;
 
   /**
    * Cuantos ALUMNOS han sido inscritos a la CONFERENCIA.
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int inscritos;
+  private int inscritos = 0;
 
   /**
    * Cuantos ALUMNOS asistieron al CONGRESO cuando sucedio.
    * */
   @Min(0) @Max(5000)
   @Column(nullable = false)
-  private int asistencias;
+  private int asistencias = 0;
 
 
 
@@ -170,7 +170,7 @@ public class Conferencia {
    * */
   @Min(0) @Max(100)
   @Column(nullable = false)
-  private int staffCantidad;
+  private int staffCantidad = 0;
 
   /**
    * Cuantos integrantes de STAFF se requeriran.
@@ -179,51 +179,56 @@ public class Conferencia {
     message = "La descripcion de requerimientos de staff debe ser menor" +
       " o igual a 500 caracteres")
   @Column(nullable = false, length = 500)
-  private String staffRequerimientos;
+  private String staffRequerimientos = "";
 
 
 
   /**
    * Nombre del conferencista a cargo.
    * */
+  @NotBlank(message = "Nombre de conferencista vacio")
   @Size(min = 1, max = 100,
     message = "El nombre de conferencista debe tener entre 1 y 100 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 100)
   private String conferencistaNombre;
 
   /**
    * Email del conferencista a cargo.
    * */
+  @NotBlank(message = "Email de conferencista vacio")
   @Size(min = 1, max = 100,
     message = "El email de conferencista debe tener entre 1 y 100 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 100)
   private String conferencistaEmail;
 
   /**
    * Codigo pais del telefono del conferencista a cargo.
    * */
+  @NotBlank(message = "Prefijo de telefono de conferencista vacio")
   @Size(min = 1, max = 7,
     message = "El prefijo de telefono de conferencista debe tener entre" +
       " 1 y 7 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 7)
   private String conferencistaTelPref;
 
   /**
    * Numero nacional del telefono del conferencista a cargo.
    * */
+  @NotBlank(message = "Numero de telefono de conferencista vacio")
   @Size(min = 4, max = 14,
     message = "El telefono de conferencista debe tener entre" +
       " 4 y 14 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 14)
   private String conferencistaTelSuf;
 
   /**
    * Semblanza del conferencista a cargo.
    * */
+  @NotBlank(message = "Semblanza de conferencista vacia")
   @Size(min = 1, max = 200,
     message = "La semblanza del conferencista debe tener entre" +
       " 1 y 200 caracteres")
-  @Column(length = 100)
+  @Column(nullable = false, length = 200)
   private String conferencistaSemblanza;
 
   //----------------------------------------

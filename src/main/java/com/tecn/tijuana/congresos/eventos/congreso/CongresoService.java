@@ -93,16 +93,24 @@ public class CongresoService {
    * Lista de registros encontrados.
    */
   public List<Congreso> q (int page, int pageSize) {
-    return conRep.
-      findAll(Api.pagina(page, pageSize))
-      .getContent();
+    return conRep.q(Api.pagina(page, pageSize)).getContent();
   }
 
 
 
   /**
-   * Consulta todos los CONGRESOS publicados indiscriminadamente usando los
-   * parametros de paginacion especificados.
+   * Consulta todos los CONGRESOS publicados usando filtros opcionales de texto,
+   * fechaFinMin y gratuito.
+   *
+   * @param txt
+   * Texto a buscar. {@code null} o vacio para no filtrar.
+   *
+   * @param fechaFinMin
+   * Si se especifica, solo retorna congresos cuya fechaFin sea posterior a
+   * esta fecha. {@code null} para no filtrar.
+   *
+   * @param gratuito
+   * Filtro opcional. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -113,8 +121,26 @@ public class CongresoService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Congreso> qPublicados (int page, int pageSize) {
-    return conRep.publicados(Api.pagina(page, pageSize)).getContent();
+  public List<Congreso> qPublicados (
+    String txt, LocalDateTime fechaFinMin, Boolean gratuito,
+    int page, int pageSize
+  ) {
+    Pageable pg = Api.pagina(page, pageSize);
+
+    // Normalizar txt.
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    // Si no hay ningun filtro activo, usar la consulta simple.
+    if (txtN == null && fechaFinMin == null && gratuito == null) {
+      return conRep.publicados(pg).getContent();
+    }
+
+    // Usar la consulta condicional.
+    return conRep
+      .qPublicadosFiltrado(txtN, fechaFinMin, gratuito, pg)
+      .getContent();
   }
 
   /**
@@ -165,7 +191,7 @@ public class CongresoService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return conRep.findAll(pg).getContent();
+      return conRep.q(pg).getContent();
     }
 
     return conRep
@@ -197,10 +223,19 @@ public class CongresoService {
 
   /**
    * Permite consultar los CONGRESOS de un ORGANIZADOR usando una posible
-   * busqueda de texto.
+   * busqueda de texto y filtros opcionales de publicado y cancelado.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion (organizador).
    *
    * @param txt
    * El texto a buscar.
+   *
+   * @param publicado
+   * Filtro opcional por estado de publicacion. {@code null} para no filtrar.
+   *
+   * @param cancelado
+   * Filtro opcional por estado de cancelacion. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina (0-based)
@@ -212,19 +247,46 @@ public class CongresoService {
    * Lista de registros encontrados.
    */
   public List<Congreso> buscarMios (
-    Usuario actor, String txt, int page, int pageSize
+    Usuario actor, String txt,
+    Boolean publicado, Boolean cancelado,
+    int page, int pageSize
   ) {
-    Pageable pg = Api.pagina(page, pageSize);
+    Pageable pg     = Api.pagina(page, pageSize);
+    Long     idOrg  = actor.getId();
+    boolean  hayTxt = !(Objects.isNull(txt) || txt.isBlank());
+    String   txtN   = hayTxt ? txt.toLowerCase().trim() : null;
 
-    if (Objects.isNull(txt) || txt.isBlank()) {
-      return conRep
-        .porOrganizador(actor.getId(), pg)
-        .getContent();
+    // Seleccionar la consulta exacta segun la combinacion de filtros activos.
+
+    // Sin filtro de publicado ni cancelado.
+    if (publicado == null && cancelado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizador(idOrg, txtN, pg).getContent()
+        : conRep.porOrganizador(idOrg, pg).getContent();
     }
 
-    return conRep
-      .buscarPorOrganizador(actor.getId(), txt.toLowerCase().trim(), pg)
-      .getContent();
+    // Solo filtro de publicado.
+    if (cancelado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizadorPublicado(
+          idOrg, txtN, publicado, pg).getContent()
+        : conRep.porOrganizadorPublicado(idOrg, publicado, pg).getContent();
+    }
+
+    // Solo filtro de cancelado.
+    if (publicado == null) {
+      return hayTxt
+        ? conRep.buscarPorOrganizadorCancelado(
+          idOrg, txtN, cancelado, pg).getContent()
+        : conRep.porOrganizadorCancelado(idOrg, cancelado, pg).getContent();
+    }
+
+    // Ambos filtros activos.
+    return hayTxt
+      ? conRep.buscarPorOrganizadorPublicadoCancelado(
+        idOrg, txtN, publicado, cancelado, pg).getContent()
+      : conRep.porOrganizadorPublicadoCancelado(
+        idOrg, publicado, cancelado, pg).getContent();
   }
 
 
@@ -721,7 +783,7 @@ public class CongresoService {
     Congreso congreso
   ) {
     // Actualizar, guardar y retornar el registro.
-    return conRep.saveAndFlush(congreso.sumarAsistencia());
+    return conRep.saveAndFlush(congreso.sumarInscripcion());
   }
 
 
@@ -746,12 +808,6 @@ public class CongresoService {
     var inicio = congreso.getInscripcionesFechaInicio();
     var fin = congreso.getInscripcionesFechaFin();
 
-//    if (!periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas de inscripciones deben ser en el futuro.");
-//    }
-
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
@@ -764,7 +820,7 @@ public class CongresoService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion del congreso debe ser" +
+        "El periodo de inscripciones debe ser" +
           " al menos 1 hora y maximo 30 dias.");
     }
 
@@ -796,12 +852,6 @@ public class CongresoService {
     var inicio = congreso.getFechaInicio();
     var fin = congreso.getFechaFin();
 
-//    if (!periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas deben ser en el futuro.");
-//    }
-
     if (!periodoOrdenCorrecto(inicio, fin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
@@ -813,33 +863,11 @@ public class CongresoService {
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
-        "La duracion debe ser al menos 1 hora y maximo 7 dias.");
+        "La duracion del evento debe ser al menos 1 hora y maximo 7 dias.");
     }
 
     return congreso;
   }
-
-//  /**
-//   * Determina si el periodo descrito por la fecha de inicio y la fecha de
-//   * terminacion especificadas es en el futuro.
-//   *
-//   * @param inicio
-//   * Fecha de inicio.
-//   *
-//   * @param fin
-//   * Fecha de terminacion.
-//   *
-//   * @return
-//   * true = correcto.
-//   * true = incorrecto.
-//   */
-//  public static boolean periodoFuturo (
-//    LocalDateTime inicio, LocalDateTime fin
-//  ) {
-//    var now = LocalDateTime.now();
-//
-//    return inicio.isAfter(now) && fin.isAfter(now);
-//  }
 
   /**
    * Determina si el periodo descrito por la fecha de inicio y la fecha de
@@ -1127,7 +1155,9 @@ public class CongresoService {
    * El registro validado.
    */
   public static Congreso afirmarConCupoDisponible (Congreso reg) {
-    if (reg.getInscritos() >= reg.getCupo()) {
+    var cupo = reg.getCupo();
+
+    if (cupo != 0 && reg.getInscritos() >= cupo) {
       throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
         "El congreso no tiene cupo disponible");
@@ -1199,6 +1229,28 @@ public class CongresoService {
       throw new ResponseStatusException(
         HttpStatus.PRECONDITION_FAILED,
         "El congreso no esta en curso");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarConcluido (
+    Congreso reg
+  ) {
+    if (LocalDateTime.now().isBefore(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso no ha concluido");
     }
     return reg;
   }

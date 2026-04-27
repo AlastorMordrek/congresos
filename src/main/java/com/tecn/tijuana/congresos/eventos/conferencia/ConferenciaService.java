@@ -1,6 +1,7 @@
 package com.tecn.tijuana.congresos.eventos.conferencia;
 
 import com.tecn.tijuana.congresos.eventos.conferencia.dto.RegistroConferenciaDto;
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
@@ -54,7 +55,20 @@ public class ConferenciaService {
 
 
   /**
-   * Consulta las CONFERENCIAS de un CONGRESO.
+   * Consulta las CONFERENCIAS de un CONGRESO usando una posible busqueda de
+   * texto y filtros opcionales de publicada y cancelada.
+   *
+   * @param congresoId
+   * Id del CONGRESO.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param publicada
+   * Filtro opcional por estado de publicacion. {@code null} para no filtrar.
+   *
+   * @param cancelada
+   * Filtro opcional por estado de cancelacion. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -66,19 +80,64 @@ public class ConferenciaService {
    * Lista de registros encontrados.
    */
   public List<Conferencia> qCongresoId (
-    Long congresoId,
-    int page,
-    int pageSize
+    Long congresoId, String txt,
+    Boolean publicada, Boolean cancelada,
+    int page, int pageSize
   ) {
-    return confRep
-      .qCongresoId(congresoId, Api.pagina(page, pageSize))
-      .getContent();
+    Pageable pg     = Api.pagina(page, pageSize);
+    boolean  hayTxt = !(Objects.isNull(txt) || txt.isBlank());
+    String   txtN   = hayTxt ? txt.toLowerCase().trim() : null;
+
+    // Seleccionar la consulta exacta segun la combinacion de filtros activos.
+
+    // Sin filtro de publicada ni cancelada.
+    if (publicada == null && cancelada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoId(congresoId, txtN, pg).getContent()
+        : confRep.qCongresoId(congresoId, pg).getContent();
+    }
+
+    // Solo filtro de publicada.
+    if (cancelada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoIdPublicada(
+          congresoId, txtN, publicada, pg).getContent()
+        : confRep.qCongresoIdPublicada(congresoId, publicada, pg).getContent();
+    }
+
+    // Solo filtro de cancelada.
+    if (publicada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoIdCancelada(
+          congresoId, txtN, cancelada, pg).getContent()
+        : confRep.qCongresoIdCancelada(congresoId, cancelada, pg).getContent();
+    }
+
+    // Ambos filtros activos.
+    return hayTxt
+      ? confRep.buscarCongresoIdPublicadaCancelada(
+        congresoId, txtN, publicada, cancelada, pg).getContent()
+      : confRep.qCongresoIdPublicadaCancelada(
+        congresoId, publicada, cancelada, pg).getContent();
   }
 
 
 
   /**
-   * Consulta las CONFERENCIAS publicadas de un CONGRESO.
+   * Consulta las CONFERENCIAS publicadas de un CONGRESO usando una posible
+   * busqueda de texto y filtros opcionales de publicada y cancelada.
+   *
+   * @param congresoId
+   * Id del CONGRESO.
+   *
+   * @param txt
+   * El texto a buscar.
+   *
+   * @param publicada
+   * Filtro opcional por estado de publicacion. {@code null} para no filtrar.
+   *
+   * @param cancelada
+   * Filtro opcional por estado de cancelacion. {@code null} para no filtrar.
    *
    * @param page
    * Numero de pagina.
@@ -90,13 +149,41 @@ public class ConferenciaService {
    * Lista de registros encontrados.
    */
   public List<Conferencia> qCongresoIdPublicadas (
-    Long congresoId,
-    int page,
-    int pageSize
+    Long congresoId, String txt,
+    Boolean publicada, Boolean cancelada,
+    int page, int pageSize
   ) {
-    return confRep
-      .qCongresoIdPublicadas(congresoId, Api.pagina(page, pageSize))
-      .getContent();
+    Pageable pg     = Api.pagina(page, pageSize);
+    boolean  hayTxt = !(Objects.isNull(txt) || txt.isBlank());
+    String   txtN   = hayTxt ? txt.toLowerCase().trim() : null;
+
+    // Seleccionar la consulta exacta segun la combinacion de filtros activos.
+
+    // Sin filtro de publicada ni cancelada: comportamiento original (publicada = TRUE).
+    if (publicada == null && cancelada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoIdPublicada(congresoId, txtN, true, pg).getContent()
+        : confRep.qCongresoIdPublicadas(congresoId, pg).getContent();
+    }
+
+    // Solo filtro de publicada (sobreescribe el TRUE por defecto).
+    if (cancelada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoIdPublicada(congresoId, txtN, publicada, pg).getContent()
+        : confRep.qCongresoIdPublicada(congresoId, publicada, pg).getContent();
+    }
+
+    // Solo filtro de cancelada (mantiene publicada = TRUE por defecto).
+    if (publicada == null) {
+      return hayTxt
+        ? confRep.buscarCongresoIdPublicadaCancelada(congresoId, txtN, true, cancelada, pg).getContent()
+        : confRep.qCongresoIdPublicadaCancelada(congresoId, true, cancelada, pg).getContent();
+    }
+
+    // Ambos filtros activos.
+    return hayTxt
+      ? confRep.buscarCongresoIdPublicadaCancelada(congresoId, txtN, publicada, cancelada, pg).getContent()
+      : confRep.qCongresoIdPublicadaCancelada(congresoId, publicada, cancelada, pg).getContent();
   }
 
 
@@ -120,7 +207,7 @@ public class ConferenciaService {
     Pageable pg = Api.pagina(page, pageSize);
 
     if (Objects.isNull(txt) || txt.isBlank()) {
-      return confRep.findAll(pg).getContent();
+      return confRep.q(pg).getContent();
     }
 
     return confRep
@@ -335,13 +422,16 @@ public class ConferenciaService {
   public Conferencia registrar (Usuario actor, Conferencia conferencia)
     throws ResponseStatusException {
 
+    // Encontrar el CONGRESO.
+    Congreso cong = congSvc.afirmar(conferencia.getCongresoId());
+
     // Comprobar permisos.
-    afirmarOrganizadorAsignado(actor, conferencia);
+    afirmarOrganizadorAsignado(actor, conferencia, cong);
 
     // Validar las fechas del Conferencia o retornar el error HTTP acorde.
-    afirmarPeriodoEventoValido(conferencia);
+    afirmarPeriodoEventoValido(conferencia, cong);
 
-    // Marcar al Actor como creador del registro.
+    // Marcar al Actor como creador del registro, por si no lo estuviera.
     conferencia.setCreadorId(actor.getId());
 
     return confRep.saveAndFlush(Conferencia.nueva(conferencia));
@@ -371,11 +461,14 @@ public class ConferenciaService {
     // Encontrar el Conferencia.
     var conf = afirmar(id);
 
+    // Encontrar el CONGRESO.
+    Congreso cong = congSvc.afirmar(conf.getCongresoId());
+
     // Comprobar permisos.
-    afirmarOrganizadorAsignado(actor, conf);
+    afirmarOrganizadorAsignado(actor, conf, cong);
 
     // Validar cambios.
-    afirmarPeriodoEventoValido(conferencia);
+    afirmarPeriodoEventoValido(conferencia, cong);
 
     // Actualizar, guardar y retornar el registro.
     return confRep.saveAndFlush(conf.actualizar(conferencia));
@@ -563,7 +656,6 @@ public class ConferenciaService {
 
   /**
    * Determina si el actor es el ORGANIZADOR del registro especificado.
-   * Sino, lanza error HTTP-401.
    *
    * @param actor
    * El USUARIO a validar.
@@ -582,9 +674,35 @@ public class ConferenciaService {
   )
     throws ResponseStatusException {
 
+    return afirmarOrganizadorAsignado(
+      actor, conferencia, congSvc.afirmar(conferencia.getCongresoId()));
+  }
+
+  /**
+   * Determina si el actor es el ORGANIZADOR del registro especificado.
+   *
+   * @param actor
+   * El USUARIO a validar.
+   *
+   * @param conferencia
+   * Registro a validar.
+   *
+   * @param congreso
+   * CONGRESO al que pertenece el registro.
+   *
+   * @return
+   * El registro, si el actor es el ORGANIZADOR.
+   *
+   * @throws ResponseStatusException
+   * Si no es el ORGANIZADOR asignado.
+   */
+  public Conferencia afirmarOrganizadorAsignado (
+    Usuario actor, Conferencia conferencia, Congreso congreso
+  )
+    throws ResponseStatusException {
+
     // Encontrar el CONGRESO y comprobar acceso.
-    CongresoService.afirmarOrganizadorAsignado(
-      actor, congSvc.afirmar(conferencia.getCongresoId()));
+    CongresoService.afirmarOrganizadorAsignado(actor, congreso);
 
     return conferencia;
   }
@@ -604,31 +722,36 @@ public class ConferenciaService {
    * Si el rango de fechas rompe alguno de los requerimientos.
    */
   public Conferencia afirmarPeriodoEventoValido (
-    Conferencia conferencia
+    Conferencia conferencia, Congreso congreso
   )
     throws ResponseStatusException {
 
-    var inicio = conferencia.getFechaInicio();
-    var fin = conferencia.getFechaFin();
+    var confInicio = conferencia.getFechaInicio();
+    var confFin = conferencia.getFechaFin();
 
-//    if (!CongresoService.periodoFuturo(inicio, fin)) {
-//      throw new ResponseStatusException(
-//        HttpStatus.BAD_REQUEST,
-//        "Las fechas deben ser en el futuro.");
-//    }
+    var congInicio = congreso.getFechaInicio();
+    var congFin = congreso.getFechaFin();
 
-    if (!CongresoService.periodoOrdenCorrecto(inicio, fin)) {
+    if (!CongresoService.periodoOrdenCorrecto(confInicio, confFin)) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "La fecha de terminacion debe ser posterior a la de inicio.");
     }
 
     if (!CongresoService.periodoRangoValido(
-      inicio, fin, Conferencia.DURACION_MIN, Conferencia.DURACION_MAX)
+      confInicio, confFin, Conferencia.DURACION_MIN, Conferencia.DURACION_MAX)
     ) {
       throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "La duracion debe ser al menos 1 hora y maximo 8 horas.");
+    }
+
+    if (confInicio.isBefore(congInicio) || confInicio.isAfter(congFin)
+      || confFin.isBefore(congInicio) || confFin.isAfter(congFin)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Las fechas de la Conferencia deben estar dentro de las fechas del" +
+          " Congreso.");
     }
 
     return conferencia;

@@ -1,7 +1,5 @@
 package com.tecn.tijuana.congresos.identidad.validacion.dto;
 
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -82,7 +80,8 @@ public class RegistroAlumnoDto {
   /**
    * Fecha de nacimiento del USUARIO.
    * */
-  @Past
+  @Past(message = "Fecha de nacimiento debe ser en el pasado")
+  @NotNull(message = "Debe especificar una fecha de nacimiento")
   public LocalDateTime fechaNacimiento;
 
 

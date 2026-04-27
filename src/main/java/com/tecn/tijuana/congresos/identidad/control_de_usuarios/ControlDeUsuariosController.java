@@ -1366,7 +1366,33 @@ public class ControlDeUsuariosController {
   // CONSULTAS.
 
   /**
-   * Consulta los USUARIOS en general.
+   * Consulta los USUARIOS en general, con filtros opcionales de texto, rol,
+   * bloqueado, externo, staffAutorizado, staffCustodio, staffAlumnos y
+   * staffInscripciones.
+   *
+   * @param txt {@code [""]}
+   * Texto de busqueda.
+   *
+   * @param rol {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param bloqueado {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param externo {@code [null]}
+   * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param staffAutorizado {@code [null]}
+   * Filtro opcional (solo aplica a STAFF).
+   *
+   * @param staffCustodio {@code [null]}
+   * Filtro opcional (solo aplica a STAFF).
+   *
+   * @param staffAlumnos {@code [null]}
+   * Filtro opcional (solo aplica a STAFF).
+   *
+   * @param staffInscripciones {@code [null]}
+   * Filtro opcional (solo aplica a STAFF).
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1382,8 +1408,9 @@ public class ControlDeUsuariosController {
   @Operation(
     summary = "Listar usuarios",
     description = "Consulta paginada de los usuarios registrados en el" +
-      " sistema. Permite especificar numero de pagina y tamaño de pagina. " +
-      "Solo accesible para usuarios con permisos de consulta de usuarios."
+      " sistema, con filtros opcionales de texto, rol, bloqueado, externo," +
+      " staffAutorizado, staffCustodio, staffAlumnos y staffInscripciones." +
+      " Los filtros de staff solo son relevantes para usuarios con rol STAFF."
   )
   @ApiResponses({
     @ApiResponse(
@@ -1434,7 +1461,7 @@ public class ControlDeUsuariosController {
     ),
     @ApiResponse(
       responseCode = "400",
-      description = "Parametros de paginacion invalidos",
+      description = "Parametros invalidos",
       content = @Content(
         mediaType = "application/problem+json",
         schema = @Schema(
@@ -1512,6 +1539,33 @@ public class ControlDeUsuariosController {
 
   public ResponseEntity<List<Usuario>> listar (
 
+    @RequestParam(name = "txt", required = false, defaultValue = "")
+    @Size(max = 30)
+    String txt,
+
+    // Filtros opcionales. null = no filtrar por ese campo.
+    @RequestParam(name = "rol", required = false)
+    Rol rol,
+
+    @RequestParam(name = "bloqueado", required = false)
+    Boolean bloqueado,
+
+    @RequestParam(name = "externo", required = false)
+    Boolean externo,
+
+    // Filtros de STAFF. Solo relevantes cuando rol = STAFF.
+    @RequestParam(name = "staffAutorizado", required = false)
+    Boolean staffAutorizado,
+
+    @RequestParam(name = "staffCustodio", required = false)
+    Boolean staffCustodio,
+
+    @RequestParam(name = "staffAlumnos", required = false)
+    Boolean staffAlumnos,
+
+    @RequestParam(name = "staffInscripciones", required = false)
+    Boolean staffInscripciones,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1521,18 +1575,43 @@ public class ControlDeUsuariosController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      usrSvc.q(page, pageSize),
+      usrSvc.buscar(
+        txt, rol, bloqueado, externo,
+        staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
+        page, pageSize),
       HttpStatus.OK);
   }
 
 
 
   /**
-   * Consulta los USUARIOS en general, opcionalmente usando una busqueda de
-   * texto.
+   * Consulta los USUARIOS en general, usando una busqueda de texto opcional
+   * y filtros opcionales de rol, bloqueado, externo, staffAutorizado,
+   * staffCustodio, staffAlumnos y staffInscripciones.
    *
    * @param txt {@code [""]}
    * Texto de busqueda.
+   *
+   * @param rol {@code [null]}
+   * Filtro opcional por rol. Si no se especifica, no filtra.
+   *
+   * @param bloqueado {@code [null]}
+   * Filtro opcional por bloqueado. Si no se especifica, no filtra.
+   *
+   * @param externo {@code [null]}
+   * Filtro opcional por externo. Si no se especifica, no filtra.
+   *
+   * @param staffAutorizado {@code [null]}
+   * Filtro opcional por staffAutorizado (solo aplica a STAFF).
+   *
+   * @param staffCustodio {@code [null]}
+   * Filtro opcional por staffCustodio (solo aplica a STAFF).
+   *
+   * @param staffAlumnos {@code [null]}
+   * Filtro opcional por staffAlumnos (solo aplica a STAFF).
+   *
+   * @param staffInscripciones {@code [null]}
+   * Filtro opcional por staffInscripciones (solo aplica a STAFF).
    *
    * @param page {@code [0]}
    * Numero de pagina.
@@ -1548,10 +1627,10 @@ public class ControlDeUsuariosController {
   @Operation(
     summary = "Buscar usuarios",
     description = "Permite consultar usuarios de forma paginada aplicando un" +
-      " filtro de texto opcional. " +
-      "Si no se especifica texto de busqueda, se devuelven los usuarios de" +
-      " la pagina indicada. " +
-      "Requiere permisos de consulta de usuarios."
+      " filtro de texto opcional y filtros opcionales de rol, bloqueado," +
+      " externo, staffAutorizado, staffCustodio, staffAlumnos y" +
+      " staffInscripciones. Los filtros de staff solo son relevantes para" +
+      " usuarios con rol STAFF."
   )
   @ApiResponses({
     @ApiResponse(
@@ -1683,8 +1762,31 @@ public class ControlDeUsuariosController {
   public ResponseEntity<List<Usuario>> buscar (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
+
+    // Filtros opcionales. null = no filtrar por ese campo.
+    @RequestParam(name = "rol", required = false)
+    Rol rol,
+
+    @RequestParam(name = "bloqueado", required = false)
+    Boolean bloqueado,
+
+    @RequestParam(name = "externo", required = false)
+    Boolean externo,
+
+    // Filtros de STAFF. Solo relevantes cuando rol = STAFF.
+    @RequestParam(name = "staffAutorizado", required = false)
+    Boolean staffAutorizado,
+
+    @RequestParam(name = "staffCustodio", required = false)
+    Boolean staffCustodio,
+
+    @RequestParam(name = "staffAlumnos", required = false)
+    Boolean staffAlumnos,
+
+    @RequestParam(name = "staffInscripciones", required = false)
+    Boolean staffInscripciones,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -1695,9 +1797,10 @@ public class ControlDeUsuariosController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      txt.isBlank()
-        ? usrSvc.q(page, pageSize)
-        : usrSvc.buscar(txt, page, pageSize),
+      usrSvc.buscar(
+        txt, rol, bloqueado, externo,
+        staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
+        page, pageSize),
       HttpStatus.OK);
   }
 
