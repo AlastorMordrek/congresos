@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AsistenciaRepository
@@ -215,4 +216,46 @@ public interface AsistenciaRepository
     " AND r.alumnoNoControl = ?2")
   Optional<Asistencia> qConferenciaIdAlumnoNoControl (
     Long conferenciaId, String alumnoNoControl);
+
+
+
+  /**
+   * Retorna todas las ASISTENCIAS de una CONFERENCIA sin filtros de paginacion.
+   */
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " ORDER BY r.id DESC")
+  List<Asistencia> qConferenciaIdList (Long conferenciaId);
+
+  /**
+   * Retorna las ASISTENCIAS de una CONFERENCIA cuyo ALUMNO esta actualmente
+   * presente (fechaUltimaEntrada no nula), sin filtros de paginacion.
+   */
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.fechaUltimaEntrada IS NOT NULL" +
+    " ORDER BY r.id DESC")
+  List<Asistencia> qConferenciaIdListPresente (Long conferenciaId);
+
+  /**
+   * Retorna las ASISTENCIAS de una CONFERENCIA cuyo boletoFolio este en la
+   * lista proporcionada (lista blanca).
+   */
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.boletoFolio IN ?2" +
+    " ORDER BY r.id DESC")
+  List<Asistencia> qConferenciaIdBoletoFolioIn (
+    Long conferenciaId, List<String> folios);
+
+  /**
+   * Retorna las ASISTENCIAS de una CONFERENCIA cuyo boletoFolio NO este en la
+   * lista proporcionada (lista negra).
+   */
+  @Query("SELECT r FROM Asistencia r WHERE" +
+    " r.conferenciaId = ?1" +
+    " AND r.boletoFolio NOT IN ?2" +
+    " ORDER BY r.id DESC")
+  List<Asistencia> qConferenciaIdBoletoFolioNotIn (
+    Long conferenciaId, List<String> folios);
 }
