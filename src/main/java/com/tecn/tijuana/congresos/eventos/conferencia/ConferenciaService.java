@@ -955,4 +955,307 @@ public class ConferenciaService {
   ) {
     return afirmarConcluida(afirmarNoCancelada(reg));
   }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicada (
+    Long id
+  ) {
+    return afirmarPublicada(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicada (
+    Conferencia reg
+  ) {
+    if (!reg.isPublicada()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "La conferencia no esta publicada");
+    }
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarFutura (
+    Long id
+  ) {
+    return afirmarFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarFutura (
+    Conferencia reg
+  ) {
+    if (!LocalDateTime.now().isBefore(reg.getFechaInicio())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "La conferencia ya ha iniciado");
+    }
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicadaNoCancelada (
+    Long id
+  ) {
+    return afirmarPublicadaNoCancelada(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCancelada (
+    Conferencia reg
+  ) {
+    return afirmarPublicada(afirmarNoCancelada(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicadaNoCanceladaEnCurso (
+    Long id
+  ) {
+    return afirmarPublicadaNoCanceladaEnCurso(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCanceladaEnCurso (
+    Conferencia reg
+  ) {
+    return afirmarEnCurso(afirmarPublicadaNoCancelada(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicadaNoCanceladaConcluida (
+    Long id
+  ) {
+    return afirmarPublicadaNoCanceladaConcluida(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCanceladaConcluida (
+    Conferencia reg
+  ) {
+    return afirmarConcluida(afirmarPublicadaNoCancelada(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicadaNoCanceladaFutura (
+    Long id
+  ) {
+    return afirmarPublicadaNoCanceladaFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCanceladaFutura (
+    Conferencia reg
+  ) {
+    return afirmarFutura(afirmarPublicadaNoCancelada(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarNoFutura (
+    Long id
+  ) {
+    return afirmarNoFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarNoFutura (
+    Conferencia reg
+  ) {
+    if (LocalDateTime.now().isBefore(reg.getFechaInicio())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "La conferencia aun no ha iniciado");
+    }
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Conferencia afirmarPublicadaNoCanceladaNoFutura (
+    Long id
+  ) {
+    return afirmarPublicadaNoCanceladaNoFutura(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCanceladaNoFutura (
+    Conferencia reg
+  ) {
+    return afirmarNoFutura(afirmarPublicadaNoCancelada(reg));
+  }
 }

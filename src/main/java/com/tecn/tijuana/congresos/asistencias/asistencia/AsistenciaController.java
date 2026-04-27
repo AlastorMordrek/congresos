@@ -1,5 +1,6 @@
 package com.tecn.tijuana.congresos.asistencias.asistencia;
 
+import com.tecn.tijuana.congresos.asistencias.asistencia.dto.TransicionConferenciaDto;
 import com.tecn.tijuana.congresos.boletos.boleto.Boleto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -35,6 +37,7 @@ public class AsistenciaController {
   // Variables auxiliares de clase.
 
   private final AsistenciaService astSvc;
+
 
 
   /**
@@ -916,6 +919,366 @@ public class AsistenciaController {
     return new ResponseEntity<>(
       astSvc.asistirConferenciaConNoControl(
         actor, conferenciaId, noControlAlumno),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Permite al personal autorizado transicionar masivamente a los ALUMNOS de
+   * una CONFERENCIA de origen a otra CONFERENCIA de destino, usando una lista
+   * blanca o negra de Folios de BOLETO.
+   *
+   * @param body
+   * Cuerpo de la peticion: conferenciaAnteriorId, conferenciaPosteriorId,
+   * folios, listaBlanca.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * <p>{
+   * <p>  "conferencia_anterior"  : CONFERENCIA de origen actualizada,
+   * <p>  "conferencia_posterior" : CONFERENCIA de destino actualizada,
+   * <p>  "asistencia_anterior"   : Lista de ASISTENCIAS de origen procesadas,
+   * <p>  "asistencia_posterior"  : Lista de ASISTENCIAS de destino procesadas,
+   * <p>  "omitidos"              : Lista de {folioBoleto, razon} no procesados.
+   * <p>}
+   */
+  @PostMapping("transicionarConferencia/conFolios")
+
+  @Operation(
+    summary = "Transicion masiva de alumnos entre conferencias con folios",
+    description = "Registra la salida masiva de alumnos de una conferencia " +
+      "de origen y su entrada a una conferencia de destino, usando una lista " +
+      "blanca o negra de folios de boleto. " +
+      "Lista blanca con folios: solo los alumnos cuyos folios aparezcan en " +
+      "la lista son procesados. " +
+      "Lista blanca vacia: solo los alumnos actualmente presentes en la " +
+      "conferencia de origen (con entrada activa) son procesados. " +
+      "Lista negra con folios: son procesados todos excepto los que aparezcan " +
+      "en la lista. " +
+      "Lista negra vacia: todos los alumnos con asistencia registrada en la " +
+      "conferencia de origen son procesados. " +
+      "Si un alumno no tenia entrada activa en la conferencia de origen, " +
+      "no se le puede marcar su salida pero de todas formas se intenta " +
+      "registrarle su entrada a la conferencia de destino. " +
+      "Los folios que no se pudieron procesar (alumno bloqueado, boleto " +
+      "cancelado, etc.) se reportan en 'omitidos', sin interrumpir el " +
+      "proceso para los demas. " +
+      "Toda la operacion esta envuelta en una transaccion de base de datos: " +
+      "los errores estructurales (congreso o conferencia invalidos, sin " +
+      "autorizacion) revierten todos los cambios ya realizados."
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Transicion procesada exitosamente",
+      content = @Content(
+        mediaType = "application/json",
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Resultado de la transicion masiva",
+          value = """
+{
+  "conferencia_anterior": {
+    "id": 5,
+    "fechaCreacion": "2025-10-11T01:56:11",
+    "creadorId": 1,
+    "congresoId": 1,
+
+    "nombre": "Inteligencia Artificial Aplicada",
+    "resumen": "Aplicaciones practicas de IA",
+    "descripcion": "Conferencia sobre implementacion de IA en la industria...",
+
+    "sala": "Aula Magna",
+
+    "fechaInicio": "2025-10-11T10:00:00",
+    "fechaFin": "2025-10-11T11:00:00",
+
+    "publicada": true,
+    "cancelada": false,
+
+    "cupo": 100,
+    "inscritos": 50,
+    "asistencias": 48,
+
+    "staffCantidad": 3,
+    "staffRequerimientos": "Proyector, sonido, asistencia",
+
+    "conferencistaNombre": "Dr. Juan Perez",
+    "conferencistaEmail": "juan.perez@universidad.edu",
+    "conferencistaTelPref": "52",
+    "conferencistaTelSuf": "6641234567",
+    "conferencistaSemblanza": "Experto en IA con 10 anos de experiencia..."
+  },
+  "conferencia_posterior": {
+    "id": 6,
+    "fechaCreacion": "2025-10-11T01:56:11",
+    "creadorId": 1,
+    "congresoId": 1,
+
+    "nombre": "Machine Learning en la Practica",
+    "resumen": "Casos de uso reales de ML",
+    "descripcion": "Taller practico de implementacion de modelos de ML...",
+
+    "sala": "Lab de Computo 3",
+
+    "fechaInicio": "2025-10-11T11:00:00",
+    "fechaFin": "2025-10-11T13:00:00",
+
+    "publicada": true,
+    "cancelada": false,
+
+    "cupo": 100,
+    "inscritos": 50,
+    "asistencias": 2,
+
+    "staffCantidad": 2,
+    "staffRequerimientos": "Proyector, asistencia",
+
+    "conferencistaNombre": "Dra. Maria Lopez",
+    "conferencistaEmail": "maria.lopez@universidad.edu",
+    "conferencistaTelPref": "52",
+    "conferencistaTelSuf": "6649876543",
+    "conferencistaSemblanza": "Investigadora en ML con enfoque en NLP..."
+  },
+  "asistencia_anterior": [
+    {
+      "id": 10,
+
+      "fechaCreacion": "2025-10-11T10:05:00",
+      "creadorId": 3,
+      "creadorNombre": "Personal de Seguridad",
+
+      "boletoId": 1,
+      "boletoFolio": "A1B2C3",
+      "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+
+      "congresoId": 1,
+      "congresoNombre": "Congreso de Tecnologia",
+      "conferenciaId": 5,
+      "conferenciaNombre": "Inteligencia Artificial Aplicada",
+
+      "alumnoId": 2,
+      "alumnoNoControl": "12345678",
+      "alumnoNombre": "Juan Perez Garcia",
+
+      "fechaUltimaEntrada": null,
+      "tiempoAsistido": 3600
+    }
+  ],
+  "asistencia_posterior": [
+    {
+      "id": 11,
+
+      "fechaCreacion": "2025-10-11T11:00:05",
+      "creadorId": 3,
+      "creadorNombre": "Personal de Seguridad",
+
+      "boletoId": 1,
+      "boletoFolio": "A1B2C3",
+      "boletoFolioLargo": "A1B2C3D4E5F6G7H8I9J0",
+
+      "congresoId": 1,
+      "congresoNombre": "Congreso de Tecnologia",
+      "conferenciaId": 6,
+      "conferenciaNombre": "Machine Learning en la Practica",
+
+      "alumnoId": 2,
+      "alumnoNoControl": "12345678",
+      "alumnoNombre": "Juan Perez Garcia",
+
+      "fechaUltimaEntrada": "2025-10-11T11:00:05",
+      "tiempoAsistido": 0
+    }
+  ],
+  "omitidos": [
+    {
+      "folioBoleto": "X9Y8Z7",
+      "razon": "El alumno esta bloqueado"
+    }
+  ]
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos o conferencias de distintos congresos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Las conferencias no comparten congreso",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Las conferencias no pertenecen al mismo congreso",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T06:35:10"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Conferencia de origen no encontrada",
+            description = "La conferencia de origen no existe.",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia de destino no encontrada",
+            description = "La conferencia de destino no existe.",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 6",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "412",
+      description = "Precondicion fallida",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Congreso no en curso",
+            description = "El congreso no esta activo",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Precondition Failed",
+  "status": 412,
+  "detail": "El congreso no esta en curso",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T04:28:18"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Conferencia de destino no publicada",
+            description = "La conferencia de destino no esta publicada",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Precondition Failed",
+  "status": 412,
+  "detail": "La conferencia de destino no esta publicada",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T04:29:19"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance":
+   "/api/v1/asistencias/asistencia/transicionarConferencia/conFolios",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.CUSTODIAR_ENTRADA)
+
+  public ResponseEntity<Map<String, Object>> transicionarConferenciaConFolios (
+
+    @RequestBody @Valid
+    TransicionConferenciaDto body,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      astSvc.transicionarConferenciaConFolios(
+        actor,
+        body.getConferenciaAnteriorId(),
+        body.getConferenciaPosteriorId(),
+        body.getFolios(),
+        body.getListaBlanca()),
       HttpStatus.OK);
   }
 

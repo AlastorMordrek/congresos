@@ -1284,4 +1284,76 @@ public class CongresoService {
 
     return reg;
   }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso afirmarPublicadoNoCancelado (
+    Long id
+  ) {
+    return afirmarPublicadoNoCancelado(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarPublicadoNoCancelado (
+    Congreso reg
+  ) {
+    return afirmarPublicado(afirmarNoCancelado(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso afirmarPublicadoNoCanceladoEnCurso (
+    Long id
+  ) {
+    return afirmarPublicadoNoCanceladoEnCurso(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarPublicadoNoCanceladoEnCurso (
+    Congreso reg
+  ) {
+    return afirmarEnCurso(afirmarPublicadoNoCancelado(reg));
+  }
 }
