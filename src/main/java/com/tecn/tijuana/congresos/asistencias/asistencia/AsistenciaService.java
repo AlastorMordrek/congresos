@@ -4,6 +4,7 @@ import com.tecn.tijuana.congresos.boletos.boleto.Boleto;
 import com.tecn.tijuana.congresos.boletos.boleto.BoletoService;
 import com.tecn.tijuana.congresos.eventos.conferencia.Conferencia;
 import com.tecn.tijuana.congresos.eventos.conferencia.ConferenciaService;
+import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios
   .ControlDeUsuariosService;
@@ -12,10 +13,12 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -169,9 +172,10 @@ public class AsistenciaService {
     // Comprobar que el ALUMNO no este BLOQUEADO.
     var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
 
+    // Comprobar que el CONGRESO este PUBLICADO.
     // Comprobar que el CONGRESO no este CANCELADO.
     // Comprobar que el CONGRESO este en curso actualmente.
-    CongresoService.afirmarNoCanceladoEnCurso(congreso);
+    CongresoService.afirmarPublicadoNoCanceladoEnCurso(congreso);
 
     // Si el BOLETO ya esta marcado, no es necesario repetir la operacion,
     // solo hay que regresar una respuesta exitosa.
@@ -319,7 +323,7 @@ public class AsistenciaService {
     // Encontrar la CONFERENCIA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
     // Comprobar que la CONFERENCIA este en curso actualmente.
-    ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
+    ConferenciaService.afirmarPublicadaNoCanceladaEnCurso(conferencia);
 
     if (!boleto.isUsado()) {
       // Marcar el BOLETO.
@@ -498,33 +502,69 @@ public class AsistenciaService {
     // Encontrar la CONFERENCIA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
     // Comprobar que la CONFERENCIA este en curso actualmente.
-    ConferenciaService.afirmarNoCanceladaEnCurso(conferencia);
+    ConferenciaService.afirmarPublicadaNoCanceladaNoFutura(conferencia);
 
     // Encontrar la ASISTENCIA existente.
     var asistencia = afirmarConferenciaIdAlumnoId(
       conferencia.getId(), boleto.getAlumnoId());
 
+    // Registrar y retornar la salida.
+    return registrarSalida(asistencia, boleto, congreso, conferencia);
+  }
+
+
+
+  /**
+   * Registra la salida de un ALUMNO de una CONFERENCIA, calculando y sumando
+   * el tiempo asistido desde su ultima entrada al BOLETO y a la ASISTENCIA.
+   * <p>
+   * Si no habia una entrada activa ({@code fechaUltimaEntrada} nula), retorna
+   * el registro sin modificaciones, sin lanzar ninguna excepcion.
+   *
+   * @param asistencia
+   * La ASISTENCIA a actualizar.
+   *
+   * @param boleto
+   * El BOLETO del ALUMNO (para acumular su tiempo total asistido).
+   *
+   * @param congreso
+   * El CONGRESO (para verificar la acreditacion del ALUMNO tras sumar tiempo).
+   *
+   * @param conferencia
+   * La CONFERENCIA (para evitar que el ALUMNO acumule tiempo de mas).
+   *
+   * @return
+   * La ASISTENCIA actualizada.
+   */
+  private Asistencia registrarSalida (
+    Asistencia asistencia, Boleto boleto, Congreso congreso,
+    Conferencia conferencia
+  ) {
+
     // Ultima fecha en que entro a la CONFERENCIA.
     var ultima = asistencia.getFechaUltimaEntrada();
 
-    // Si no hay fecha de entrada previa no hay nada que hacer.
-    // Retornar sin mas.
+    // Si no hay una entrada previa activa, no hay nada que hacer.
     if (Objects.isNull(ultima)) {
       return asistencia;
     }
 
-    // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, LocalDateTime.now()).toSeconds();
+    // Tomar como momento de salida el menor entre ahora y el fin de la
+    // CONFERENCIA, para no acumular tiempo mas alla de cuando concluyo.
+    var ahora = LocalDateTime.now();
+    var efectivo = ahora.isBefore(conferencia.getFechaFin())
+      ? ahora
+      : conferencia.getFechaFin();
 
-    // Tiempo total asistido a la conferencia especifica actualmente.
+    // Cuanto tiempo ha pasado desde que entro.
+    var duracion = Duration.between(ultima, efectivo).toSeconds();
+
+    // Tiempo total asistido a la CONFERENCIA actualmente.
     var asistido = asistencia.getTiempoAsistido();
 
     // Sumar la nueva duracion al tiempo total asistido.
-    if (asistido == 0) {
-      asistencia.setTiempoAsistido(duracion);
-    } else {
-      asistencia.setTiempoAsistido(asistido + duracion);
-    }
+    asistencia.setTiempoAsistido(asistido == 0
+      ? duracion : asistido + duracion);
 
     // Remover fecha de entrada previa.
     asistencia.setFechaUltimaEntrada(null);
@@ -534,7 +574,7 @@ public class AsistenciaService {
 
     // Sumar al BOLETO la misma duracion que se le sumo a la ASISTENCIA.
     // Verificar si el ALUMNO cumplio con los requerimientos de acreditacion.
-    var boleto_2 = bolSvc.sumarTiempoAsistido(boleto, duracion, congreso);
+    bolSvc.sumarTiempoAsistido(boleto, duracion, congreso);
 
     // Retornar el registro actualizado.
     return asistencia_2;
@@ -740,6 +780,184 @@ public class AsistenciaService {
 
     // Retornar el registro actualizado.
     return asistencia_2;
+  }
+
+
+
+  //----------------------------------------------------------------------------
+  // TRANSICION MASIVA DE CONFERENCIA.
+
+  /**
+   * Registra la transicion masiva de ALUMNOS de una CONFERENCIA de origen a
+   * una CONFERENCIA de destino, usando una lista blanca o negra de Folios de
+   * BOLETO.
+   * <p>
+   * Lista blanca:
+   *   Solo pasan a la nueva CONFERENCIA los ALUMNOS cuyo Folio de BOLETO
+   *   aparezca en la lista.
+   * <p>
+   * Lista negra:
+   *   Pasan todos excepto los que aparezcan en la lista.
+   * <p>
+   * Esta funcion esta envuelta en una transaccion de base de datos. Los errores
+   * estructurales (CONGRESO o CONFERENCIA no encontrada, sin autorizacion, etc)
+   * son lanzados inmediatamente, revertiendo todos los cambios de la operacion.
+   * Los errores por-folio (ALUMNO bloqueado, BOLETO cancelado, etc.) son
+   * registrados en la lista de "omitidos" y no interrumpen el proceso.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param conferenciaAnteriorId
+   * ID de la CONFERENCIA de origen.
+   *
+   * @param conferenciaPosteriorId
+   * ID de la CONFERENCIA de destino.
+   *
+   * @param folios
+   * Lista de Folios de BOLETO (0-100 elementos).
+   *
+   * @param listaBlanca
+   * {@code true} = lista blanca; {@code false} = lista negra.
+   *
+   * @return
+   * <p>{
+   * <p>  "conferencia_anterior"  : CONFERENCIA de origen actualizada,
+   * <p>  "conferencia_posterior" : CONFERENCIA de destino actualizada,
+   * <p>  "asistencia_anterior"   : Lista de ASISTENCIAS de origen procesadas,
+   * <p>  "asistencia_posterior"  : Lista de ASISTENCIAS de destino procesadas,
+   * <p>  "omitidos"              : Lista de {folioBoleto, razon} no procesados.
+   * <p>}
+   */
+  @Transactional
+  public Map<String, Object> transicionarConferenciaConFolios (
+    Usuario actor,
+    Long conferenciaAnteriorId,
+    Long conferenciaPosteriorId,
+    List<String> folios,
+    boolean listaBlanca
+  )
+    throws ResponseStatusException {
+
+    // Ambas conferencias deben ser distintas.
+    if (conferenciaAnteriorId.equals(conferenciaPosteriorId)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "La conferencia de origen y la de destino no pueden ser la misma");
+    }
+
+    // Validar CONFERENCIA anterior.
+    // Debe existir, estar publicada y no estar cancelada.
+    // No se exige que este en curso porque es valido transicionar mientras la
+    // conferencia anterior esta por concluir o acaba de concluir.
+    var confAnterior = confSvc.afirmarPublicadaNoCancelada(
+      conferenciaAnteriorId);
+
+    // Validar CONFERENCIA posterior.
+    // Debe existir, estar publicada, no estar cancelada y estar en curso.
+    var confPosterior = confSvc.afirmarPublicadaNoCanceladaEnCurso(
+      conferenciaPosteriorId);
+
+    // Ambas conferencias deben pertenecer al mismo CONGRESO.
+    if (!confAnterior.getCongresoId().equals(confPosterior.getCongresoId())) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Las conferencias no pertenecen al mismo congreso");
+    }
+
+    // Encontrar el CONGRESO comun a ambas.
+    var congreso = congSvc.afirmar(confAnterior.getCongresoId());
+    // Comprobar que el actor tiene acceso al CONGRESO.
+    if (actor.getRol() == Rol.ORGANIZADOR) {
+      CongresoService.afirmarOrganizadorAsignado(actor, congreso);
+    }
+    // Comprobar que este en curso, publicado y no cancelado.
+    CongresoService.afirmarPublicadoNoCanceladoEnCurso(congreso);
+
+
+    // Seleccionar candidatos de la CONFERENCIA anterior.
+    // Lista blanca vacia => solo los presentes en el aula pasan.
+    // Lista negra vacia  => todos pasan.
+    List<Asistencia> candidatas;
+    if (folios == null || folios.isEmpty()) {
+      candidatas = listaBlanca
+        ? astRep.qConferenciaIdListPresente(conferenciaAnteriorId)
+        : astRep.qConferenciaIdList(conferenciaAnteriorId);
+    } else {
+      candidatas = listaBlanca
+        ? astRep.qConferenciaIdBoletoFolioIn(conferenciaAnteriorId, folios)
+        : astRep.qConferenciaIdBoletoFolioNotIn(conferenciaAnteriorId, folios);
+    }
+
+    // Listas de resultados.
+    List<Asistencia> asistenciasAnteriores = new ArrayList<>();
+    List<Asistencia> asistenciasPosteriores = new ArrayList<>();
+    List<Map<String, String>> omitidos = new ArrayList<>();
+
+    for (Asistencia astAnterior : candidatas) {
+
+      var folio = astAnterior.getBoletoFolio();
+
+      try {
+
+        // Obtener el BOLETO.
+        var boleto = bolSvc.afirmarFolio(folio);
+
+        // Comprobar que el BOLETO pertenece al CONGRESO en cuestion.
+        BoletoService.afirmarIdCongreso(boleto, congreso.getId());
+
+        // Comprobar que el BOLETO no este CANCELADO.
+        BoletoService.afirmarNoCancelado(boleto);
+
+        // Si el CONGRESO no es gratuito, comprobar que el BOLETO este PAGADO.
+        if (!congreso.isGratuito()) {
+          BoletoService.afirmarPagado(boleto);
+        }
+
+        // Comprobar que el ALUMNO no este BLOQUEADO.
+        usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
+
+        // Marcar SALIDA de la CONFERENCIA anterior.
+        // Si no tenia entrada activa, el registro retorna sin cambios; de
+        // todas formas se intenta la entrada a la CONFERENCIA posterior
+        // (comportamiento identico a la API original).
+        astAnterior = registrarSalida(
+          astAnterior, boleto, congreso, confAnterior);
+        asistenciasAnteriores.add(astAnterior);
+
+        // Registrar ENTRADA a la CONFERENCIA posterior.
+        // Reutiliza la logica existente, que maneja de forma idempotente el
+        // caso en que el ALUMNO ya tenga una entrada activa en la conferencia
+        // de destino (retorna el registro pre-existente sin modificarlo).
+        var astPosterior = asistirConferenciaConBoleto(
+          actor, confPosterior, boleto);
+        asistenciasPosteriores.add(astPosterior);
+
+      } catch (ResponseStatusException ex) {
+
+        // Error por-folio: registrar en omitidos sin interrumpir el proceso.
+        Map<String, String> omitido = new LinkedHashMap<>();
+        omitido.put("folioBoleto", folio);
+        omitido.put("razon", Objects.nonNull(ex.getReason())
+          ? ex.getReason()
+          : ex.getMessage());
+        omitidos.add(omitido);
+      }
+    }
+
+    // Recargar las conferencias para reflejar contadores actualizados.
+    var confAnteriorFinal = confSvc.afirmar(conferenciaAnteriorId);
+    var confPosteriorFinal = confSvc.afirmar(conferenciaPosteriorId);
+
+    // Armar respuesta.
+    Map<String, Object> resultado = new LinkedHashMap<>();
+    resultado.put("conferencia_anterior",  confAnteriorFinal);
+    resultado.put("conferencia_posterior", confPosteriorFinal);
+    resultado.put("asistencia_anterior",   asistenciasAnteriores);
+    resultado.put("asistencia_posterior",  asistenciasPosteriores);
+    resultado.put("omitidos",              omitidos);
+
+    return resultado;
   }
 
 
