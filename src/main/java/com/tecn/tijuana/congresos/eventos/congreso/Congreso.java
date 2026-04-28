@@ -27,7 +27,7 @@ public class Congreso {
   // Variables auxiliares de clase.
 
   public static final int DURACION_MIN = 60 * 60; // 1h
-  public static final int DURACION_MAX = 7 * 24 * 60 * 60; // 7d
+  public static final int DURACION_MAX = 180 * 24 * 60 * 60; // 180d
 
   public static final int INSCRIPCIONES_DURACION_MIN = 60 * 60; // 1h
   public static final int INSCRIPCIONES_DURACION_MAX = 30 * 24 * 60 * 60; // 30d
