@@ -856,6 +856,47 @@ public class ConferenciaService {
    * @return
    * El registro validado.
    */
+  public Conferencia afirmarNoConcluida (
+    Long id
+  ) {
+    return afirmarNoConcluida(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarNoConcluida (
+    Conferencia reg
+  ) {
+    if (!LocalDateTime.now().isBefore(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "La conferencia ya concluyo");
+    }
+    return reg;
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
   public Conferencia afirmarNoCancelada (
     Long id
   ) {
@@ -1087,6 +1128,42 @@ public class ConferenciaService {
    * @return
    * El registro validado.
    */
+  public Conferencia afirmarPublicadaNoCanceladaNoConcluida (
+    Long id
+  ) {
+    return afirmarPublicadaNoCanceladaNoConcluida(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Conferencia afirmarPublicadaNoCanceladaNoConcluida (
+    Conferencia reg
+  ) {
+    return afirmarPublicada(afirmarNoCancelada(afirmarNoConcluida(reg)));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
   public Conferencia afirmarPublicadaNoCanceladaEnCurso (
     Long id
   ) {
@@ -1166,9 +1243,9 @@ public class ConferenciaService {
   }
 
   /**
-   * Determina si un registro cumple con los requerimientos nombrados en la
+   * `Determina si un registro cumple con los requerimientos nombrados en la
    * funcion, de lo contrario lanza una excepcion que retorna un error
-   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.`
    *
    * @param reg
    * El registro a validar.
