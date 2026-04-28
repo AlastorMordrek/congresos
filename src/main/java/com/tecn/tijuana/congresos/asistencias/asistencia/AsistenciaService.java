@@ -540,24 +540,34 @@ public class AsistenciaService {
     Asistencia asistencia, Boleto boleto, Congreso congreso,
     Conferencia conferencia
   ) {
-
     // Ultima fecha en que entro a la CONFERENCIA.
-    var ultima = asistencia.getFechaUltimaEntrada();
+    var _ultima = asistencia.getFechaUltimaEntrada();
 
     // Si no hay una entrada previa activa, no hay nada que hacer.
-    if (Objects.isNull(ultima)) {
+    if (Objects.isNull(_ultima)) {
       return asistencia;
     }
 
+    // Determinar la fecha de ultima entrada correcta a usar.
+    // Esto nos permite proteger contra robo de tiempo pre-evento, pero nos deja
+    // registrar la entrada al evento antes de que este empiece, para agilizar
+    // el proceso..
+    var ultima  = _ultima.isBefore(conferencia.getFechaInicio())
+      ? conferencia.getFechaInicio()
+      : _ultima;
+
+    // Hora actual.
+    var ahora = LocalDateTime.now();
+
     // Tomar como momento de salida el menor entre ahora y el fin de la
     // CONFERENCIA, para no acumular tiempo mas alla de cuando concluyo.
-    var ahora = LocalDateTime.now();
     var efectivo = ahora.isBefore(conferencia.getFechaFin())
       ? ahora
       : conferencia.getFechaFin();
 
     // Cuanto tiempo ha pasado desde que entro.
-    var duracion = Duration.between(ultima, efectivo).toSeconds();
+    var _duracion = Duration.between(ultima, efectivo).toSeconds();
+    var duracion  = _duracion < 0 ? 0 : _duracion;
 
     // Tiempo total asistido a la CONFERENCIA actualmente.
     var asistido = asistencia.getTiempoAsistido();
