@@ -321,9 +321,10 @@ public class AsistenciaService {
     var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
 
     // Encontrar la CONFERENCIA.
+    // Comprobar que la CONFERENCIA este PUBLICADA.
     // Comprobar que la CONFERENCIA no este CANCELADA.
     // Comprobar que la CONFERENCIA este en curso actualmente.
-    ConferenciaService.afirmarPublicadaNoCanceladaEnCurso(conferencia);
+    ConferenciaService.afirmarPublicadaNoCanceladaNoConcluida(conferencia);
 
     if (!boleto.isUsado()) {
       // Marcar el BOLETO.
