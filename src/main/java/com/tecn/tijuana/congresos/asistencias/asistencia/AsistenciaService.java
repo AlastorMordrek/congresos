@@ -175,7 +175,7 @@ public class AsistenciaService {
     // Comprobar que el CONGRESO este PUBLICADO.
     // Comprobar que el CONGRESO no este CANCELADO.
     // Comprobar que el CONGRESO este en curso actualmente.
-    CongresoService.afirmarPublicadoNoCanceladoEnCurso(congreso);
+    CongresoService.afirmarPublicadoNoCanceladoNoConcluido(congreso);
 
     // Si el BOLETO ya esta marcado, no es necesario repetir la operacion,
     // solo hay que regresar una respuesta exitosa.
