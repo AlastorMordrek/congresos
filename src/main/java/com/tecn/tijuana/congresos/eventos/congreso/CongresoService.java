@@ -1291,7 +1291,7 @@ public class CongresoService {
    * El registro validado.
    *
    * @throws ResponseStatusException
-   * {@code HTTP-UNAUTHORIZED} Si no es el ORGANIZADOR asignado.
+   * {@code HTTP-FORBIDDEN} Si no es el ORGANIZADOR asignado.
    */
   public static Congreso afirmarOrganizadorAsignado (
     Usuario actor, Congreso reg
@@ -1300,7 +1300,7 @@ public class CongresoService {
 
     if (!Objects.equals(reg.getOrganizadorId(), actor.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No es el organizador asignado.");
     }
 
