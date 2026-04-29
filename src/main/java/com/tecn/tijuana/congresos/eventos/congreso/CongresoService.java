@@ -1257,6 +1257,28 @@ public class CongresoService {
 
   /**
    * Determina si un registro cumple con el requerimiento nombrado en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarNoConcluido (
+    Congreso reg
+  ) {
+    if (LocalDateTime.now().isAfter(reg.getFechaFin())) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        "El congreso ya concluyo");
+    }
+    return reg;
+  }
+
+  /**
+   * Determina si un registro cumple con el requerimiento nombrado en la
    * funcion, de lo contrario lanza una excepcion que retorna un error.
    *
    * @param actor
@@ -1355,5 +1377,41 @@ public class CongresoService {
     Congreso reg
   ) {
     return afirmarEnCurso(afirmarPublicadoNoCancelado(reg));
+  }
+
+
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param id
+   * El ID del registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Congreso afirmarPublicadoNoCanceladoNoConcluido (
+    Long id
+  ) {
+    return afirmarPublicadoNoCanceladoNoConcluido(afirmar(id));
+  }
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED} con la descripcion del error.
+   *
+   * @param reg
+   * El registro a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public static Congreso afirmarPublicadoNoCanceladoNoConcluido (
+    Congreso reg
+  ) {
+    return afirmarNoConcluido(afirmarPublicadoNoCancelado(reg));
   }
 }
