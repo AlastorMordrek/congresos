@@ -742,7 +742,7 @@ public class BoletoService {
 
   /**
    * Obtiene el registro con el ID especificado o causa un error HTTP-404 si no
-   * existe. Si el Actor no tiene acceso retorna error HTTP-401.
+   * existe. Si el Actor no tiene acceso retorna error HTTP-403.
    *
    * @param actor
    * Usuario responsable de la operacion.
@@ -755,7 +755,7 @@ public class BoletoService {
    *
    * @throws ResponseStatusException
    * {@code HTTP-NOT_FOUND} si no se encuentra el registro.
-   * {@code HTTP-UNAUTHORIZED} si {@code actor} no es el ALUMNO del registro.
+   * {@code HTTP-FORBIDDEN} si {@code actor} no es el ALUMNO del registro.
    */
   public Boleto afirmarIdAlumno (
     Usuario actor, Long idReg
@@ -769,7 +769,7 @@ public class BoletoService {
     if (actor.getRol() == Rol.ALUMNO
       && !Objects.equals(boleto.getAlumnoId(), actor.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         String.format("No tiene acceso al boleto con ID: %s", idReg));
     }
 
@@ -780,7 +780,7 @@ public class BoletoService {
 
   /**
    * Determina si el actor es el ORGANIZADOR del registro especificado.
-   * Sino, lanza error HTTP-401.
+   * Sino, lanza error HTTP-403.
    *
    * @param actor
    * El USUARIO a validar.

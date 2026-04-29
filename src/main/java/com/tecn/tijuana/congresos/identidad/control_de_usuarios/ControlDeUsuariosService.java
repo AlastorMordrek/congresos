@@ -122,10 +122,10 @@ public class ControlDeUsuariosService {
     // Marcar al Actor como creador del futuro Usuario.
     usr.setCreadorId(actor.getId());
 
-    // Si no tiene los permisos necesarios lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios lanzar error HTTP-403.
     if (!puedeRegistrarAUsuario(actor, usr)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para registrar un usuario de ese tipo.");
     }
 
@@ -288,10 +288,10 @@ public class ControlDeUsuariosService {
     Usuario actor, Long id, Usuario usr
   ) throws ResponseStatusException {
 
-    // Si no tiene los permisos necesarios lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios lanzar error HTTP-403.
     if (!puedeEditarAUsuario(actor, usr)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para editar un usuario de ese tipo.");
     }
 
@@ -332,10 +332,10 @@ public class ControlDeUsuariosService {
     // Encontrar el Usuario.
     var usuario = afirmar(id);
 
-    // Si no tiene los permisos necesarios lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios lanzar error HTTP-403.
     if (!puedeEditarAUsuario(actor, usuario)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para editar un usuario de ese tipo.");
     }
 
@@ -434,10 +434,10 @@ public class ControlDeUsuariosService {
   public Usuario eliminar (Usuario actor, Long id)
     throws ResponseStatusException {
 
-    // Si no tiene los permisos necesarios lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios lanzar error HTTP-403.
     if (!puedeEliminarUsuarios(actor)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para eliminar usuarios.");
     }
 
@@ -474,16 +474,17 @@ public class ControlDeUsuariosService {
     // Encontrar el Usuario a bloquear.
     var usr = afirmar(id);
 
-    // Si intenta bloquearse a si mismo, lanzar error HTTP-401.
+    // Si intenta bloquearse a si mismo, lanzar error HTTP-403.
     if (Objects.equals(actor.getId(), usr.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED, "No puede bloquearse a si mismo.");
+        HttpStatus.FORBIDDEN,
+        "No puede bloquearse a si mismo.");
     }
 
-    // Si no tiene los permisos necesarios, lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios, lanzar error HTTP-403.
     if (!puedeEditarAUsuario(actor, usr)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para bloquear ese usuario.");
     }
 
@@ -513,17 +514,18 @@ public class ControlDeUsuariosService {
     // Encontrar el Usuario a desbloquear.
     var usr = afirmar(id);
 
-    // Si intenta bloquearse a si mismo, lanzar error HTTP-401.
+    // Si intenta bloquearse a si mismo, lanzar error HTTP-403.
     if (Objects.equals(actor.getId(), usr.getId())) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED, "No puede des-bloquearse a si mismo.");
+        HttpStatus.FORBIDDEN,
+        "No puede des-bloquearse a si mismo.");
     }
 
-    // Si no tiene los permisos necesarios, lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios, lanzar error HTTP-403.
     if (!puedeEditarAUsuario(actor, usr)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
-        "No tiene permiso para bloquear ese usuario.");
+        HttpStatus.FORBIDDEN,
+        "No tiene permiso para des-bloquear ese usuario.");
     }
 
     usr.setBloqueado(false);
@@ -589,17 +591,17 @@ public class ControlDeUsuariosService {
     // Comprobar que no intenta reiniciarse a si mismo.
     if (Objects.equals(actor.getId(), usuarioId)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No puede reiniciar su propio password usando este metodo.");
     }
 
     // Encontrar al USUARIO.
     var usr = afirmar(usuarioId);
 
-    // Si no tiene los permisos necesarios, lanzar error HTTP-401.
+    // Si no tiene los permisos necesarios, lanzar error HTTP-403.
     if (!puedeEditarAUsuario(actor, usr)) {
       throw new ResponseStatusException(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.FORBIDDEN,
         "No tiene permiso para editar ese usuario.");
     }
 
