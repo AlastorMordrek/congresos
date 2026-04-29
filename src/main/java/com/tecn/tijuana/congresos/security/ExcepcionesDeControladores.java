@@ -151,14 +151,14 @@ public class ExcepcionesDeControladores {
   public ResponseEntity<ProblemDetail> handleAccessDeniedException (
     AccessDeniedException ex
   ) {
-    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
 
     pd.setTitle("Acceso denegado");
     pd.setDetail("No tiene permiso de realizar esa operacion");
 
     pd.setProperty("timestamp", Instant.now());
 
-    return new ResponseEntity<>(pd, HttpStatus.UNAUTHORIZED);
+    return new ResponseEntity<>(pd, HttpStatus.FORBIDDEN);
   }
 
 
