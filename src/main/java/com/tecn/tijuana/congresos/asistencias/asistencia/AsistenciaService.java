@@ -131,7 +131,7 @@ public class AsistenciaService {
 
     // Encontrar BOLETO y continuar con la operacion.
     return asistirCongresoConBoleto(
-      actor, bolSvc.afirmarFolioIdCongreso(boletoFolio, congresoId));
+      actor, bolSvc.afirmarFolioOFolioLargoIdCongreso(boletoFolio, congresoId));
   }
 
   /**
@@ -246,7 +246,7 @@ public class AsistenciaService {
 
     // Encontrar el BOLETO y continuar con la operacion.
     return asistirConferenciaConBoleto(
-      actor, conferenciaId, bolSvc.afirmarFolio(boletoFolio));
+      actor, conferenciaId, bolSvc.afirmarFolioOFolioLargo(boletoFolio));
   }
 
   /**
@@ -295,6 +295,9 @@ public class AsistenciaService {
     Usuario actor, Conferencia conferencia, Boleto boleto
   )
     throws ResponseStatusException {
+
+    // Comprobar que el BOLETO pertenece al mismo CONGRESO que la CONFERENCIA.
+    BoletoService.afirmarIdCongreso(boleto, conferencia.getCongresoId());
 
     // Encontrar el CONGRESO.
     var congreso = congSvc.afirmar(boleto.getCongresoId());
@@ -417,7 +420,7 @@ public class AsistenciaService {
 
     // Encontrar el BOLETO y continuar con la operacion.
     return salirDeConferenciaConBoleto(
-      actor, conferenciaId, bolSvc.afirmarFolio(boletoFolio));
+      actor, conferenciaId, bolSvc.afirmarFolioOFolioLargo(boletoFolio));
   }
 
   /**
@@ -475,6 +478,9 @@ public class AsistenciaService {
     Usuario actor, Conferencia conferencia, Boleto boleto
   )
     throws ResponseStatusException {
+
+    // Comprobar que el BOLETO pertenece al mismo CONGRESO que la CONFERENCIA.
+    BoletoService.afirmarIdCongreso(boleto, conferencia.getCongresoId());
 
     // Encontrar el CONGRESO.
     var congreso = congSvc.afirmar(boleto.getCongresoId());
@@ -653,7 +659,7 @@ public class AsistenciaService {
 
     // Encontrar el BOLETO y continuar con la operacion.
     return alumnoAsistioConferenciaCompletaConBoleto(
-      actor, conferenciaId, bolSvc.afirmarFolio(boletoFolio));
+      actor, conferenciaId, bolSvc.afirmarFolioOFolioLargo(boletoFolio));
   }
 
   /**
@@ -708,6 +714,9 @@ public class AsistenciaService {
     Usuario actor, Conferencia conferencia, Boleto boleto
   )
     throws ResponseStatusException {
+
+    // Comprobar que el BOLETO pertenece al mismo CONGRESO que la CONFERENCIA.
+    BoletoService.afirmarIdCongreso(boleto, conferencia.getCongresoId());
 
     // Encontrar el CONGRESO.
     var congreso = congSvc.afirmar(boleto.getCongresoId());
