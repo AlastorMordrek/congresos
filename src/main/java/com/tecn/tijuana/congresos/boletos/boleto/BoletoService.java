@@ -738,6 +738,34 @@ public class BoletoService {
           String.format("Boleto con FOLIO LARGO: %s no encontrado", folio)));
   }
 
+  /**
+   * El registro con el FOLIO o FOLIO_LARGO especificado.
+   * <p>
+   * Primero busca por FOLIO; si no lo encuentra, busca por FOLIO_LARGO.
+   *
+   * @param folio
+   * El FOLIO o FOLIO_LARGO del registro.
+   *
+   * @return
+   * El registro encontrado.
+   *
+   * @throws ResponseStatusException
+   * {@code HTTP-NOT_FOUND} si no se encuentra el registro.
+   */
+  public Boleto afirmarFolioOFolioLargo (
+    String folio
+  )
+    throws ResponseStatusException {
+
+    return bolRep.qFolio(folio)
+      .or(() -> bolRep.qFolioLargo(folio))
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format(
+            "Boleto con FOLIO: %s no encontrado", folio)));
+  }
+
 
 
   /**
@@ -941,6 +969,26 @@ public class BoletoService {
   }
 
 
+
+  /**
+   * Determina si un registro cumple con los requerimientos nombrados en la
+   * funcion, de lo contrario lanza una excepcion que retorna un error
+   * {@code HTTP-PRECONDITION_FAILED}.
+   *
+   * @param boletoFolio
+   * El ID del registro a validar.
+   *
+   * @param congresoId
+   * ID auxiliar a validar.
+   *
+   * @return
+   * El registro validado.
+   */
+  public Boleto afirmarFolioOFolioLargoIdCongreso (
+    String boletoFolio, Long congresoId
+  ) {
+    return afirmarIdCongreso(afirmarFolioOFolioLargo(boletoFolio), congresoId);
+  }
 
   /**
    * Determina si un registro cumple con los requerimientos nombrados en la
