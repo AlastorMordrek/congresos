@@ -21,6 +21,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
 import java.util.List;
 import java.util.Map;
 
@@ -2391,5 +2394,208 @@ public class AsistenciaController {
       astSvc.qConferenciaId(
         conferenciaId, minTiempoAsistido, presente, txt, page, pageSize),
       HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Retorna todos los registros de ASISTENCIA de una CONFERENCIA como un
+   * documento CSV descargable, en una sola operacion sin paginacion.
+   * <p>
+   * Acepta los mismos filtros opcionales que la API de consulta paginada
+   * ({@code qConferenciaId}). El proposito es permitir al cliente web
+   * descargar directamente el listado completo de alumnos asistentes con
+   * un solo clic, sin necesidad de iterar pagina por pagina.
+   *
+   * @param conferenciaId
+   * ID de la CONFERENCIA.
+   *
+   * @param minTiempoAsistido
+   * Filtro de tiempo minimo asistido en segundos, opcional.
+   * Rango: 0 a 144000 (40 horas).
+   *
+   * @param presente
+   * Filtro de estado de asistencia, opcional.
+   * {@code true}  = solo presentes (fechaUltimaEntrada != null).
+   * {@code false} = solo ausentes  (fechaUltimaEntrada == null).
+   * {@code null}  = sin filtro.
+   *
+   * @param txt
+   * Filtro de texto libre, opcional. Busca en alumnoNombre, alumnoNoControl,
+   * creadorNombre, boletoFolio y boletoFolioLargo.
+   *
+   * @return
+   * Archivo CSV (RFC 4180) con todos los registros de ASISTENCIA encontrados.
+   */
+  @GetMapping("conferencia/{conferenciaId}/csv")
+
+  @Operation(
+    summary = "Exportar asistencias de conferencia a CSV",
+    description = "Permite al personal autorizado descargar todos los " +
+      "registros de asistencia de una conferencia especifica en un " +
+      "archivo CSV compatible con cualquier aplicacion de hojas de " +
+      "calculo (Excel, LibreOffice Calc, etc.), en una sola operacion " +
+      "sin paginacion. " +
+      "Acepta el filtro opcional minTiempoAsistido (segundos, 0-144000) " +
+      "para retornar unicamente registros con tiempoAsistido >= al valor " +
+      "indicado. Acepta el filtro opcional presente (true/false): " +
+      "true = solo registros con fechaUltimaEntrada != null; " +
+      "false = solo registros con fechaUltimaEntrada == null; " +
+      "omitido = sin filtro. " +
+      "Acepta el filtro opcional txt (3-30 caracteres) para buscar en " +
+      "alumnoNombre, alumnoNoControl, creadorNombre, boletoFolio y " +
+      "boletoFolioLargo. " +
+      "El documento sigue el estandar RFC 4180: separador coma, " +
+      "saltos de linea CRLF, campos de texto entre comillas dobles.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "CSV generado exitosamente",
+      content = @Content(
+        mediaType = "text/csv",
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Archivo CSV con todos los registros de asistencia",
+          value = """
+id,fechaCreacion,creadorId,creadorNombre,boletoId,boletoFolio,boletoFolioLargo,congresoId,congresoNombre,conferenciaId,conferenciaNombre,alumnoId,alumnoNoControl,alumnoNombre,fechaUltimaEntrada,tiempoAsistido\r
+1,"2025-10-11T10:05:00",3,"Personal de Seguridad",1,"A1B2C3","A1B2C3D4E5F6G7H8I9J0",1,"Congreso de Tecnologia",5,"Inteligencia Artificial Aplicada",2,"12345678","Juan Perez Garcia","2025-10-11T10:05:00",7200\r
+2,"2025-10-11T10:10:00",3,"Personal de Seguridad",2,"D4E5F6","D4E5F6G7H8I9J0K1L2M3",1,"Congreso de Tecnologia",5,"Inteligencia Artificial Aplicada",3,"87654321","Maria Lopez Torres","",3600\r
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Parametros invalidos",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Validacion fallida",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed for parameters",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5/csv",
+  "timestamp": "2025-10-13T06:35:10",
+  "campos": {
+    "minTiempoAsistido": "must be less than or equal to 144000",
+    "txt": "size must be between 3 and 30"
+  }
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Sin permisos",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Unauthorized",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5/csv",
+  "timestamp": "2025-10-13T06:36:21"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Conferencia no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "No se encontro la conferencia con ID 5",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5/csv",
+  "timestamp": "2025-10-13T04:27:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Error no controlado",
+          value = """
+{
+  "type": "/probs/error-no-controlado",
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred",
+  "instance": "/api/v1/asistencias/asistencia/conferencia/5/csv",
+  "timestamp": "2025-10-13T02:51:37",
+  "exceptionType": "DataIntegrityViolationException"
+}
+"""
+        )
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_ASISTENCIAS_AJENAS)
+
+  public ResponseEntity<String> qCsvConferenciaId (
+
+    @PathVariable("conferenciaId")
+    Long conferenciaId,
+
+    @RequestParam(name = "minTiempoAsistido", required = false)
+    @Min(0) @Max(144000)
+    Long minTiempoAsistido,
+
+    @RequestParam(name = "presente", required = false)
+    Boolean presente,
+
+    @RequestParam(name = "txt", required = false)
+    @Size(min = 3, max = 30)
+    String txt
+  ) {
+    var csv = astSvc.qCsvConferenciaId(
+      conferenciaId, minTiempoAsistido, presente, txt);
+
+    var headers = new HttpHeaders();
+    headers.setContentType(
+      MediaType.parseMediaType("text/csv; charset=UTF-8"));
+    headers.setContentDispositionFormData(
+      "attachment",
+      "asistencias-conferencia-" + conferenciaId + ".csv");
+
+    return new ResponseEntity<>(csv, headers, HttpStatus.OK);
   }
 }
