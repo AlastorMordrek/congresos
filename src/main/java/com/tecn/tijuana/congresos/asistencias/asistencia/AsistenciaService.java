@@ -1116,6 +1116,93 @@ public class AsistenciaService {
 
 
   /**
+   * Permite consultar las ASISTENCIAS a una CONFERENCIA y retornarlas como
+   * un documento CSV compatible con cualquier aplicacion de hojas de calculo.
+   * <p>
+   * Reutiliza {@link #qConferenciaId} con una pagina unica de hasta 9999
+   * registros, por lo que acepta exactamente los mismos filtros opcionales.
+   * El formato sigue el estandar RFC 4180: separador de campo coma (,),
+   * separador de linea CRLF, campos de texto entre comillas dobles con
+   * comillas internas escapadas como doble comilla ("").
+   *
+   * @param conferenciaId
+   * ID de la CONFERENCIA.
+   *
+   * @param minTiempoAsistido
+   * Filtro de tiempo minimo asistido en segundos, opcional.
+   * Rango: 0 a 144000 (40 horas).
+   *
+   * @param presente
+   * Filtro de estado de asistencia, opcional.
+   * {@code true}  = solo registros con fechaUltimaEntrada != null (presente).
+   * {@code false} = solo registros con fechaUltimaEntrada == null (ausente).
+   * {@code null}  = sin filtro.
+   *
+   * @param txt
+   * Filtro de texto libre, opcional. Busca en alumnoNombre, alumnoNoControl,
+   * creadorNombre, boletoFolio y boletoFolioLargo.
+   *
+   * @return
+   * Cadena CSV con encabezado y un renglon por cada registro de ASISTENCIA.
+   */
+  public String qCsvConferenciaId (
+    Long conferenciaId, Long minTiempoAsistido, Boolean presente, String txt
+  ) {
+    var registros = qConferenciaId(
+      conferenciaId, minTiempoAsistido, presente, txt, 0, 9999);
+
+    var csv = new StringBuilder();
+
+    // Encabezado RFC 4180.
+    csv.append("id,fechaCreacion,creadorId,creadorNombre,")
+       .append("boletoId,boletoFolio,boletoFolioLargo,")
+       .append("congresoId,congresoNombre,")
+       .append("conferenciaId,conferenciaNombre,")
+       .append("alumnoId,alumnoNoControl,alumnoNombre,")
+       .append("fechaUltimaEntrada,tiempoAsistido")
+       .append("\r\n");
+
+    for (var a : registros) {
+      csv.append(a.getId())                          .append(",")
+         .append(csvTexto(a.getFechaCreacion()))     .append(",")
+         .append(a.getCreadorId())                   .append(",")
+         .append(csvTexto(a.getCreadorNombre()))     .append(",")
+         .append(a.getBoletoId())                    .append(",")
+         .append(csvTexto(a.getBoletoFolio()))       .append(",")
+         .append(csvTexto(a.getBoletoFolioLargo()))  .append(",")
+         .append(a.getCongresoId())                  .append(",")
+         .append(csvTexto(a.getCongresoNombre()))    .append(",")
+         .append(a.getConferenciaId())               .append(",")
+         .append(csvTexto(a.getConferenciaNombre())) .append(",")
+         .append(a.getAlumnoId())                    .append(",")
+         .append(csvTexto(a.getAlumnoNoControl()))   .append(",")
+         .append(csvTexto(a.getAlumnoNombre()))      .append(",")
+         .append(csvTexto(a.getFechaUltimaEntrada())).append(",")
+         .append(a.getTiempoAsistido())
+         .append("\r\n");
+    }
+
+    return csv.toString();
+  }
+
+  /**
+   * Envuelve un valor en comillas dobles para cumplir con RFC 4180, escapando
+   * cualquier comilla doble interna. Retorna cadena vacia si el valor es nulo.
+   *
+   * @param valor
+   * El valor a formatear (puede ser cualquier objeto; se usa toString()).
+   *
+   * @return
+   * El valor formateado como campo CSV.
+   */
+  private String csvTexto (Object valor) {
+    if (Objects.isNull(valor)) return "\"\"";
+    return "\"" + valor.toString().replace("\"", "\"\"") + "\"";
+  }
+
+
+
+  /**
    * Permite consultar las ASISTENCIAS de un BOLETO via su Folio Largo.
    * Retorna tambien el BOLETO y el CONGRESO correspondientes.
    *
