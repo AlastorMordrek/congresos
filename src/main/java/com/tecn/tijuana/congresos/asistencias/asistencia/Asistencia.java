@@ -5,6 +5,7 @@ import com.tecn.tijuana.congresos.boletos.boleto.Boleto;
 import com.tecn.tijuana.congresos.eventos.conferencia.Conferencia;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
+import com.tecn.tijuana.congresos.utils.Texto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -259,7 +260,7 @@ public class Asistencia {
   ) {
     return new Asistencia(
       actor.getId(),
-      actor.getNombreCompleto(),
+      Texto.recortar(actor.getNombreCompleto(), 120),
       boleto.getId(),
       boleto.getFolio(),
       boleto.getFolioLargo(),
@@ -269,7 +270,7 @@ public class Asistencia {
       conferencia.getNombre(),
       alumno.getId(),
       alumno.getNoControl(),
-      alumno.getNombreCompleto()
+      Texto.recortar(alumno.getNombreCompleto(), 120)
     );
   }
 

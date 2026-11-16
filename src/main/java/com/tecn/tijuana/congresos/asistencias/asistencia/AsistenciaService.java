@@ -1,13 +1,17 @@
 package com.tecn.tijuana.congresos.asistencias.asistencia;
 
+import com.tecn.tijuana.congresos.acreditaciones.acreditacion
+  .AcreditacionService;
 import com.tecn.tijuana.congresos.boletos.boleto.Boleto;
 import com.tecn.tijuana.congresos.boletos.boleto.BoletoService;
+import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.eventos.conferencia.Conferencia;
 import com.tecn.tijuana.congresos.eventos.conferencia.ConferenciaService;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.eventos.congreso.CongresoService;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios
   .ControlDeUsuariosService;
+import com.tecn.tijuana.congresos.identidad.validacion.dto.RegistroAlumnoDto;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
@@ -39,6 +43,7 @@ public class AsistenciaService {
   private final ConferenciaService confSvc;
   private final BoletoService bolSvc;
   private final ControlDeUsuariosService usrSvc;
+  private final AcreditacionService acrSvc;
 
 
   /**
@@ -67,13 +72,15 @@ public class AsistenciaService {
     CongresoService congSvc,
     ConferenciaService confSvc,
     BoletoService bolSvc,
-    ControlDeUsuariosService usrSvc
+    ControlDeUsuariosService usrSvc,
+    AcreditacionService acrSvc
   ) {
     this.astRep = astRep;
     this.congSvc = congSvc;
     this.confSvc = confSvc;
     this.bolSvc = bolSvc;
     this.usrSvc = usrSvc;
+    this.acrSvc = acrSvc;
   }
 
 
@@ -106,6 +113,299 @@ public class AsistenciaService {
     return asistirCongresoConBoleto(
       actor,
       bolSvc.afirmarIdCongresoNoControlAlumno(congresoId, noControl));
+  }
+
+  /**
+   * Crea un ALUMNO con solo numero de control, genera su BOLETO si hace falta,
+   * y registra su ENTRADA al CONGRESO en una sola operacion.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param congresoId
+   * ID del CONGRESO.
+   *
+   * @param registrarComoExcedente
+   * Permite crear el BOLETO aunque el cupo este lleno.
+   *
+   * @param dto
+   * Datos minimos del ALUMNO. Solo el numero de control es obligatorio.
+   *
+   * @return
+   * Mapa con el ALUMNO, el BOLETO, la ASISTENCIA y, si se genero, el password
+   * temporal.
+   */
+  @Transactional
+  public Map<String, Object> registroRapidoCongreso (
+    Usuario actor,
+    Long congresoId,
+    boolean registrarComoExcedente,
+    boolean confirmarPago,
+    RegistroAlumnoDto dto
+  )
+    throws ResponseStatusException {
+
+    var congreso = congSvc.afirmar(congresoId);
+    afirmarPagoRapido(congreso, confirmarPago);
+
+    boolean passwordGenerado = esVacio(dto.getPassword());
+
+    var alumno = alumnoRapido(actor, dto);
+    var boleto = boletoRapido(
+      actor, congresoId, registrarComoExcedente, dto.getNoControl());
+    boleto = pagarRapidoSiHaceFalta(actor, congreso, boleto, confirmarPago);
+    var asistencia = asistirCongresoConBoleto(actor, boleto);
+
+    return respuestaRegistroRapido(
+      alumno, boleto, asistencia, passwordGenerado, dto.getPassword());
+  }
+
+
+
+  /**
+   * Crea un ALUMNO con solo numero de control, genera su BOLETO del CONGRESO
+   * padre si hace falta, y registra su ENTRADA a la CONFERENCIA en una sola
+   * operacion.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param conferenciaId
+   * ID de la CONFERENCIA.
+   *
+   * @param registrarComoExcedente
+   * Permite crear el BOLETO aunque el cupo del CONGRESO este lleno.
+   *
+   * @param dto
+   * Datos minimos del ALUMNO. Solo el numero de control es obligatorio.
+   *
+   * @return
+   * Mapa con el ALUMNO, el BOLETO, la ASISTENCIA y, si se genero, el password
+   * temporal.
+   */
+  @Transactional
+  public Map<String, Object> registroRapidoConferencia (
+    Usuario actor,
+    Long conferenciaId,
+    boolean registrarComoExcedente,
+    boolean confirmarPago,
+    RegistroAlumnoDto dto
+  )
+    throws ResponseStatusException {
+
+    var conferencia = confSvc.afirmar(conferenciaId);
+    var congreso = congSvc.afirmar(conferencia.getCongresoId());
+    afirmarPagoRapido(congreso, confirmarPago);
+
+    boolean passwordGenerado = esVacio(dto.getPassword());
+
+    var alumno = alumnoRapido(actor, dto);
+    var boleto = boletoRapido(
+      actor,
+      conferencia.getCongresoId(),
+      registrarComoExcedente,
+      dto.getNoControl());
+    boleto = pagarRapidoSiHaceFalta(actor, congreso, boleto, confirmarPago);
+    var asistencia = asistirConferenciaConBoleto(
+      actor, conferencia, boleto);
+
+    return respuestaRegistroRapido(
+      alumno, boleto, asistencia, passwordGenerado, dto.getPassword());
+  }
+
+
+
+  /**
+   * Crea el ALUMNO minimo o falla si el numero de control ya esta tomado.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param dto
+   * Datos minimos del ALUMNO.
+   *
+   * @return
+   * El ALUMNO registrado.
+   */
+  private Usuario alumnoRapido (
+    Usuario actor, RegistroAlumnoDto dto
+  ) {
+    String noControl = dto.getNoControl();
+
+    if (esVacio(noControl)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "El numero de control es obligatorio para el registro rapido");
+    }
+
+    if (!noControl.matches("\\d{8}")) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "El numero de control debe tener 8 digitos");
+    }
+
+    if (usrSvc.noControlTomado(noControl)) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        String.format(
+          "El numero de control %s ya esta registrado." +
+            " Use el registro normal de asistencia.",
+          noControl));
+    }
+
+    if (esVacio(dto.getPassword())) {
+      dto.setPassword(usrSvc.generarPasswordTemporal());
+    }
+
+    return usrSvc.registrar(actor, dto);
+  }
+
+
+
+  /**
+   * Busca el BOLETO del ALUMNO en el CONGRESO o lo crea si no existe.
+   *
+   * @param actor
+   * USUARIO ejecutor de la operacion.
+   *
+   * @param congresoId
+   * ID del CONGRESO.
+   *
+   * @param registrarComoExcedente
+   * Permite inscribir aunque el cupo este lleno.
+   *
+   * @param noControl
+   * Numero de control del ALUMNO.
+   *
+   * @return
+   * El BOLETO existente o el recien creado.
+   */
+  private Boleto boletoRapido (
+    Usuario actor,
+    Long congresoId,
+    boolean registrarComoExcedente,
+    String noControl
+  ) {
+    var existente = bolSvc.qIdCongresoNoControlAlumno(congresoId, noControl);
+
+    if (existente.isPresent()) {
+      return existente.get();
+    }
+
+    var dto = new RegistroBoletoDto();
+    dto.congresoId = congresoId;
+    dto.alumnoNoControl = noControl;
+    dto.registrarComoExcedente = registrarComoExcedente;
+
+    return bolSvc.inscribir(actor, dto);
+  }
+
+
+
+  /**
+   * Valida el pago del CONGRESO cuando no es gratuito.
+   *
+   * @param congreso
+   * CONGRESO del evento.
+   *
+   * @param confirmarPago
+   * Indica si el personal confirmo que el pago fue recibido.
+   */
+  private void afirmarPagoRapido (
+    Congreso congreso, boolean confirmarPago
+  ) {
+    if (!congreso.isGratuito() && !confirmarPago) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT,
+        "El congreso requiere pago. Confirme el pago para continuar.");
+    }
+  }
+
+
+
+  /**
+   * Marca el BOLETO como pagado cuando el CONGRESO no es gratuito.
+   *
+   * @param actor
+   * Usuario ejecutor.
+   *
+   * @param congreso
+   * CONGRESO del evento.
+   *
+   * @param boleto
+   * BOLETO a marcar.
+   *
+   * @param confirmarPago
+   * Indica si se confirmo el pago.
+   *
+   * @return
+   * El BOLETO actualizado.
+   */
+  private Boleto pagarRapidoSiHaceFalta (
+    Usuario actor, Congreso congreso, Boleto boleto, boolean confirmarPago
+  ) {
+    if (congreso.isGratuito() || !confirmarPago) {
+      return boleto;
+    }
+
+    return bolSvc.pagado(actor, boleto.getId(), true);
+  }
+
+
+
+  /**
+   * Arma la respuesta compuesta del registro rapido.
+   *
+   * @param alumno
+   * ALUMNO creado.
+   *
+   * @param boleto
+   * BOLETO asociado.
+   *
+   * @param asistencia
+   * ASISTENCIA registrada.
+   *
+   * @param passwordGenerado
+   * Indica si el password fue generado por el sistema.
+   *
+   * @param password
+   * Password temporal en texto plano.
+   *
+   * @return
+   * Mapa con las partes de la operacion.
+   */
+  private Map<String, Object> respuestaRegistroRapido (
+    Usuario alumno,
+    Boleto boleto,
+    Object asistencia,
+    boolean passwordGenerado,
+    String password
+  ) {
+    Map<String, Object> resultado = new LinkedHashMap<>();
+    resultado.put("alumno", alumno);
+    resultado.put("boleto", boleto);
+    resultado.put("asistencia", asistencia);
+
+    if (passwordGenerado) {
+      resultado.put("password_temporal", password);
+    }
+
+    return resultado;
+  }
+
+
+
+  /**
+   * Indica si una cadena es nula o esta en blanco.
+   *
+   * @param valor
+   * Cadena a evaluar.
+   *
+   * @return
+   * {@code true} si no contiene texto util.
+   */
+  private boolean esVacio (String valor) {
+    return Objects.isNull(valor) || valor.isBlank();
   }
 
   /**
@@ -1239,6 +1539,9 @@ public class AsistenciaService {
     resultado.put("congreso", congreso);
     resultado.put("boleto", boleto);
     resultado.put("asistencia", asistencias);
+
+    acrSvc.qBoletoId(boleto.getId())
+      .ifPresent(acreditacion -> resultado.put("acreditacion", acreditacion));
 
     // Retornar respuesta exitosa.
     return resultado;

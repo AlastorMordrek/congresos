@@ -1,5 +1,7 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.tecn.tijuana.congresos.acreditaciones.acreditacion
+  .AcreditacionService;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.BoletoInscribirseDto;
 import com.tecn.tijuana.congresos.boletos.boleto.dto.RegistroBoletoDto;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
@@ -10,11 +12,17 @@ import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.Api;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 /**
@@ -29,6 +37,7 @@ public class BoletoService {
   private final BoletoRepository bolRep;
   private final CongresoService congSvc;
   private final ControlDeUsuariosService usrSvc;
+  private final AcreditacionService acrSvc;
 
 
   /**
@@ -49,11 +58,13 @@ public class BoletoService {
   public BoletoService (
     BoletoRepository bolRep,
     CongresoService congSvc,
-    ControlDeUsuariosService usrSvc
+    ControlDeUsuariosService usrSvc,
+    AcreditacionService acrSvc
   ) {
     this.bolRep = bolRep;
     this.congSvc = congSvc;
     this.usrSvc = usrSvc;
+    this.acrSvc = acrSvc;
   }
 
 
@@ -105,6 +116,9 @@ public class BoletoService {
     var congreso = congSvc
       .afirmarNoCanceladoPublicadoEnPeriodoDeInscripcionesConCupoDisponible(
         congresoId);
+
+    // Comprobar que el ALUMNO pertenece a la carrera permitida.
+    CongresoService.afirmarCarreraPermitida(congreso, actor);
 
     // Crear y guardar el registro nuevo.
     var reg = bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, actor));
@@ -172,6 +186,9 @@ public class BoletoService {
       CongresoService.afirmarNoCanceladoConCupoDisponibleFechaFinFutura(
         congreso);
     }
+
+    // Comprobar que el ALUMNO pertenece a la carrera permitida.
+    CongresoService.afirmarCarreraPermitida(congreso, alumno);
 
     // Crear y guardar el registro nuevo.
     var reg = bolRep.saveAndFlush(Boleto.nuevo(actor, congreso, alumno));
@@ -364,6 +381,7 @@ public class BoletoService {
    * {@code HTTP-PRECONDITION_FAILED}
    * Si el CONGRESO aun no ha concluido.
    */
+  @Transactional
   public Boleto acreditar (
     Usuario actor, Long id
   ) throws ResponseStatusException {
@@ -377,9 +395,17 @@ public class BoletoService {
     // Comprobar permisos.
     CongresoService.afirmarOrganizadorAsignado(actor, congreso);
 
-    // IDEMPOTENCIA.
+    // Encontrar ALUMNO y comprobar que no esta bloqueado.
+    var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
+
+    // IDEMPOTENCIA: reemitir la constancia con los datos actuales.
     if (boleto.isAcreditado()) {
-      return boleto;
+      var acreditacion =
+        acrSvc.crearDesdeBoleto(actor, boleto, congreso, alumno);
+
+      // Corregir el nombre congelado en el BOLETO.
+      return bolRep.saveAndFlush(
+        boleto.actualizarNombreAlumno(acreditacion.getAlumnoNombre()));
     }
 
     // Comprobar que el BOLETO no esta cancelado.
@@ -389,14 +415,47 @@ public class BoletoService {
     CongresoService.afirmarConcluido(
       CongresoService.afirmarNoCancelado(congreso));
 
-    // Encontrar ALUMNO y comprobar que no esta bloqueado.
-    var alumno = usrSvc.afirmarNoBloqueado(boleto.getAlumnoId());
-
     // Comprobar que el ALUMNO cumple los requerimientos de ASISTENCIA.
     afirmarCumplioRequerimientosDeAsistencia(boleto);
 
-    // Actualizar, guardar y retornar el registro.
-    return bolRep.saveAndFlush(boleto.acreditar());
+    // Crear la constancia de acreditacion.
+    var acreditacion =
+      acrSvc.crearDesdeBoleto(actor, boleto, congreso, alumno);
+
+    // Actualizar, guardar y retornar el registro, corrigiendo el nombre del
+    // ALUMNO congelado en el BOLETO.
+    return bolRep.saveAndFlush(
+      boleto.actualizarNombreAlumno(acreditacion.getAlumnoNombre())
+        .acreditar());
+  }
+
+
+
+  /**
+   * Quita la acreditacion de un BOLETO y elimina su constancia.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @return
+   * El BOLETO desacreditado.
+   */
+  @Transactional
+  public Boleto desacreditar (
+    Usuario actor, Long id
+  ) throws ResponseStatusException {
+
+    var boleto = afirmar(id);
+    var congreso = congSvc.afirmar(boleto.getCongresoId());
+
+    CongresoService.afirmarOrganizadorAsignado(actor, congreso);
+
+    acrSvc.eliminarPorBoletoId(id);
+
+    return bolRep.saveAndFlush(boleto.desacreditar());
   }
 
 
@@ -500,7 +559,7 @@ public class BoletoService {
    * Lista de registros encontrados.
    */
   public List<Boleto> qFiltrado (
-    String txt, Long alumnoId, Long congresoId,
+    String txt, Long alumnoId, String codigoCarrera, Long congresoId,
     Boolean excedente, Boolean pagado,
     Boolean cancelado, Boolean usado, Boolean cumplioRequerimientosDeAsistencia,
     Boolean acreditado,
@@ -514,8 +573,14 @@ public class BoletoService {
       ? null
       : txt.toLowerCase().trim();
 
+    // Normalizar codigoCarrera: vacio o blanco se convierte en null.
+    String carreraN = (Objects.isNull(codigoCarrera) || codigoCarrera.isBlank())
+      ? null
+      : codigoCarrera.trim();
+
     // Si no hay ningun filtro activo, usar la consulta simple.
-    boolean sinFiltros = txtN == null && alumnoId == null && congresoId == null
+    boolean sinFiltros = txtN == null && alumnoId == null && carreraN == null
+      && congresoId == null
       && excedente == null && pagado == null && cancelado == null
       && usado == null && cumplioRequerimientosDeAsistencia == null
       && acreditado == null;
@@ -527,8 +592,8 @@ public class BoletoService {
     // Usar la consulta condicional que evalua solo los filtros activos.
     return bolRep
       .qFiltrado(
-        txtN, alumnoId, congresoId, excedente, pagado, cancelado, usado,
-        cumplioRequerimientosDeAsistencia, acreditado,
+        txtN, alumnoId, carreraN, congresoId, excedente, pagado, cancelado,
+        usado, cumplioRequerimientosDeAsistencia, acreditado,
         pg)
       .getContent();
   }
@@ -672,6 +737,26 @@ public class BoletoService {
    * @throws ResponseStatusException
    * {@code HTTP-NOT_FOUND} si no se encuentra el registro.
    */
+  /**
+   * Busca el BOLETO de un ALUMNO en un CONGRESO por numero de control.
+   *
+   * @param congresoId
+   * ID del CONGRESO.
+   *
+   * @param noControl
+   * Numero de control del ALUMNO.
+   *
+   * @return
+   * El BOLETO encontrado, o vacio si el ALUMNO no esta inscrito.
+   */
+  public Optional<Boleto> qIdCongresoNoControlAlumno (
+    Long congresoId, String noControl
+  ) {
+    return bolRep.qCongresoIdAlumnoNoControl(congresoId, noControl);
+  }
+
+
+
   public Boleto afirmarIdCongresoNoControlAlumno (
     Long congresoId, String noControl
   )
@@ -832,6 +917,214 @@ public class BoletoService {
       actor, congSvc.afirmar(boleto.getCongresoId()));
 
     return boleto;
+  }
+
+
+
+  /**
+   * Edita la evidencia de pago del BOLETO en el slot indicado.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slot
+   * Slot de evidencia de pago.
+   *
+   * @param img
+   * Imagen a guardar, o {@code null} para eliminar la del slot.
+   *
+   * @return
+   * El BOLETO editado.
+   */
+  public Boleto editarMedia (
+    Usuario actor, Long id, String slot, MultipartFile img
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el BOLETO.
+    var boleto = afirmar(id);
+
+    // Clasificar el slot.
+    var esSlotAlumno =
+      "mediaAlumno1".equals(slot) || "mediaAlumno2".equals(slot);
+    var esSlotOficial =
+      "mediaPago1".equals(slot) || "mediaPago2".equals(slot);
+
+    if (!esSlotAlumno && !esSlotOficial) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST, "Slot no valido.");
+    }
+
+    // Los slots del ALUMNO son exclusivos de su duenio.
+    if (esSlotAlumno) {
+      if (actor.getRol() != Rol.ALUMNO) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "Solo el ALUMNO duenio puede editar su evidencia.");
+      }
+
+      afirmarIdAlumno(actor, id);
+    }
+    else {
+      // Los slots oficiales son exclusivos del personal autorizado.
+      if (actor.getRol() == Rol.ALUMNO) {
+        throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "El ALUMNO no puede editar la evidencia oficial.");
+      }
+
+      if (actor.getRol() == Rol.ORGANIZADOR) {
+        afirmarIdOrganizador(actor, boleto);
+      }
+    }
+
+    try {
+      boleto.setMedia(slot, img);
+    } catch (IOException e) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Error al procesar la imagen");
+    }
+
+    // Actualizar, guardar y retornar el registro.
+    return bolRep.saveAndFlush(boleto);
+  }
+
+
+
+  /**
+   * Acepta la evidencia presentada por el ALUMNO y la copia al slot oficial
+   * correspondiente.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slotOficial
+   * Slot oficial que recibe la copia: mediaPago1 o mediaPago2.
+   *
+   * @return
+   * El BOLETO editado.
+   */
+  public Boleto aceptarEvidenciaAlumno (
+    Usuario actor, Long id, String slotOficial
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el BOLETO.
+    var boleto = afirmar(id);
+
+    // Comprobar permisos.
+    if (actor.getRol() == Rol.ORGANIZADOR) {
+      afirmarIdOrganizador(actor, boleto);
+    }
+
+    // Copiar la evidencia presentada por el ALUMNO.
+    String mimeType;
+    byte[] imgData;
+
+    switch (slotOficial) {
+      case "mediaPago1" -> {
+        mimeType = boleto.getMediaAlumno1MimeType();
+        imgData = boleto.getMediaAlumno1ImgData();
+        boleto.setMediaPago1MimeType(mimeType);
+        boleto.setMediaPago1ImgData(imgData);
+      }
+      case "mediaPago2" -> {
+        mimeType = boleto.getMediaAlumno2MimeType();
+        imgData = boleto.getMediaAlumno2ImgData();
+        boleto.setMediaPago2MimeType(mimeType);
+        boleto.setMediaPago2ImgData(imgData);
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST, "Slot no valido.");
+    }
+
+    // Sin evidencia presentada no hay nada que aceptar.
+    if (
+      Objects.isNull(imgData) || imgData.length == 0
+        || Objects.isNull(mimeType) || mimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format(
+          "El ALUMNO no ha presentado evidencia para el slot %s.", slotOficial));
+    }
+
+    // Actualizar, guardar y retornar el registro.
+    return bolRep.saveAndFlush(boleto);
+  }
+
+
+
+  /**
+   * Consulta la evidencia de pago del BOLETO en el slot indicado.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slot
+   * Slot de evidencia de pago.
+   *
+   * @return
+   * La imagen lista para responder.
+   */
+  public ResponseEntity<byte[]> afirmarMedia (
+    Usuario actor, Long id, String slot
+  )
+    throws ResponseStatusException {
+
+    // Encontrar el BOLETO y comprobar acceso del ALUMNO duenio.
+    var boleto = afirmarIdAlumno(actor, id);
+
+    // Extraer datos de la imagen.
+    String mimeType;
+    byte[] imgData;
+
+    switch (slot) {
+      case "mediaPago1" -> {
+        mimeType = boleto.getMediaPago1MimeType();
+        imgData = boleto.getMediaPago1ImgData();
+      }
+      case "mediaPago2" -> {
+        mimeType = boleto.getMediaPago2MimeType();
+        imgData = boleto.getMediaPago2ImgData();
+      }
+      case "mediaAlumno1" -> {
+        mimeType = boleto.getMediaAlumno1MimeType();
+        imgData = boleto.getMediaAlumno1ImgData();
+      }
+      case "mediaAlumno2" -> {
+        mimeType = boleto.getMediaAlumno2MimeType();
+        imgData = boleto.getMediaAlumno2ImgData();
+      }
+      default -> throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST, "Slot no valido.");
+    }
+
+    // Si no hay imagen en el slot, retornar error 404.
+    if (
+      Objects.isNull(imgData) || imgData.length == 0
+        || Objects.isNull(mimeType) || mimeType.isBlank()
+    ) {
+      throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        String.format(
+          "Evidencia de pago del boleto con ID: %s no encontrada.", id));
+    }
+
+    // Retornar respuesta lista con el contenido de la imagen.
+    return ResponseEntity.ok()
+      .contentType(MediaType.valueOf(mimeType))
+      .body(imgData);
   }
 
 

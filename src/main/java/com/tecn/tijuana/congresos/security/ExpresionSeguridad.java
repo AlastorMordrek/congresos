@@ -61,8 +61,24 @@ public class ExpresionSeguridad {
   public static final String CONSULTAR_BOLETOS_AJENOS =
     INSCRIBIR_ALUMNOS;
 
+  public static final String CONSULTAR_BOLETO =
+    CONSULTAR_BOLETOS_AJENOS + " or hasRole('ALUMNO')";
+
   public static final String GESTIONAR_BOLETOS =
     INSCRIBIR_ALUMNOS;
+
+  public static final String EDITAR_MEDIA_BOLETO =
+    GESTIONAR_BOLETOS + " or hasRole('ALUMNO')";
+
+  public static final String CONSULTAR_MEDIA_BOLETO =
+    CONSULTAR_BOLETOS_AJENOS + " or hasRole('ALUMNO')";
+
+  public static final String REGISTRO_RAPIDO =
+    "hasAnyRole('ADMINISTRADOR', 'ORGANIZADOR') " +
+      "or (hasRole('STAFF') and hasAuthority('STAFF_AUTORIZADO') " +
+      "    and hasAuthority('STAFF_ALUMNOS') " +
+      "    and hasAuthority('STAFF_INSCRIPCIONES') " +
+      "    and hasAuthority('STAFF_CUSTODIO'))";
 
 
 

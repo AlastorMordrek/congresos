@@ -18,12 +18,20 @@ public class LoginDto {
 
   /**
    * Email del USUARIO.
+   * Puede omitirse si se inicia sesion con numero de control.
    * */
-  @NotBlank(message = "Debe especificar un Email")
   @Email(message = "Email invalido")
   @Size(min = 6, max = 100,
     message = "Email debe tener entre 6 y 100 caracteres")
   public String email;
+
+  /**
+   * Numero de control del ALUMNO.
+   * Alternativa al email para iniciar sesion.
+   * */
+  @Size(min = 8, max = 8,
+    message = "El numero de control debe tener 8 caracteres")
+  public String noControl;
 
   /**
    * Contrasena de acceso codificada del USUARIO.

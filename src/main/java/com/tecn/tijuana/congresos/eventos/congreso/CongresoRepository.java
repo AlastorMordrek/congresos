@@ -22,13 +22,19 @@ public interface CongresoRepository extends JpaRepository<Congreso, Long> {
 
 
   @Query("select r from Congreso r where" +
-    " lower(r.nombre)                 like %:txt%"+
-    " OR lower(r.resumen)             like %:txt%"+
-    " OR lower(r.descripcion)         like %:txt%"+
-    " OR lower(r.direccion)           like %:txt%"+
-    " OR lower(r.staffRequerimientos) like %:txt%" +
+    " (:txt IS NULL OR (" +
+    "   lower(r.nombre)                 like %:txt%" +
+    "   OR lower(r.resumen)             like %:txt%" +
+    "   OR lower(r.descripcion)         like %:txt%" +
+    "   OR lower(r.direccion)           like %:txt%" +
+    "   OR lower(r.staffRequerimientos) like %:txt%" +
+    " ))" +
+    " AND (:codigoCarrera IS NULL OR r.codigoCarrera = :codigoCarrera)" +
     " ORDER BY r.id DESC")
-  Page<Congreso> buscar (@Param("txt") String txt, Pageable pageable);
+  Page<Congreso> qBuscarFiltrado (
+    @Param("txt") String txt,
+    @Param("codigoCarrera") String codigoCarrera,
+    Pageable pageable);
 
 
 
@@ -47,11 +53,13 @@ public interface CongresoRepository extends JpaRepository<Congreso, Long> {
     " AND (CAST(:fechaFinMin AS timestamp) IS NULL" +
     "   OR r.fechaFin >= :fechaFinMin)" +
     " AND (:gratuito IS NULL OR r.gratuito = :gratuito)" +
+    " AND (:codigoCarrera IS NULL OR r.codigoCarrera = :codigoCarrera)" +
     " ORDER BY r.id DESC")
   Page<Congreso> qPublicadosFiltrado (
     @Param("txt")         String txt,
     @Param("fechaFinMin") LocalDateTime fechaFinMin,
     @Param("gratuito")    Boolean gratuito,
+    @Param("codigoCarrera") String codigoCarrera,
     Pageable pageable);
 
   @Query("select r from Congreso r where" +

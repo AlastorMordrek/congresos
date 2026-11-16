@@ -67,6 +67,9 @@ public class WebSecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
 
+            // Endpoint de salud del contenedor (Actuator).
+            "/actuator/health",
+
             // Endpoints de Autentication.
             "/api/v1/identidad/autenticacion/iniciar-sesion",
             "/api/v1/identidad/autenticacion/terminar-sesion",
@@ -84,7 +87,10 @@ public class WebSecurityConfig {
             "/api/v1/boletos/boleto/publico/**",
 
             // Endpoints de Asistencias publicos.
-            "/api/v1/asistencias/asistencia/publico/**"
+            "/api/v1/asistencias/asistencia/publico/**",
+
+            // Endpoints de Acreditaciones publicos.
+            "/api/v1/acreditaciones/acreditacion/publico/**"
           )
           .permitAll()
 

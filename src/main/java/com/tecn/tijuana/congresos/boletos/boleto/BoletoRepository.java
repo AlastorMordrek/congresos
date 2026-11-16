@@ -102,6 +102,9 @@ public interface BoletoRepository
     "   OR lower(r.alumnoNombre)      like %:txt%" +
     " ))" +
     " AND (:alumnoId   IS NULL OR r.alumnoId   = :alumnoId)" +
+    " AND (:codigoCarrera IS NULL OR r.alumnoId IN (" +
+    "   SELECT u.id FROM Usuario u" +
+    "   WHERE u.codigoCarrera = :codigoCarrera))" +
     " AND (:congresoId IS NULL OR r.congresoId = :congresoId)" +
     " AND (:excedente  IS NULL OR r.excedente  = :excedente)" +
     " AND (:pagado     IS NULL OR r.pagado     = :pagado)" +
@@ -115,6 +118,7 @@ public interface BoletoRepository
   Page<Boleto> qFiltrado (
     @Param("txt")        String txt,
     @Param("alumnoId")   Long alumnoId,
+    @Param("codigoCarrera") String codigoCarrera,
     @Param("congresoId") Long congresoId,
     @Param("excedente")  Boolean excedente,
     @Param("pagado")     Boolean pagado,

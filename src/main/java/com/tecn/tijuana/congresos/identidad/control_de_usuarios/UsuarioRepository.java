@@ -70,6 +70,7 @@ public interface UsuarioRepository
     "   OR lower(r.staffResponsabilidades) like %:txt%" +
     " ))" +
     " AND (:rol              IS NULL OR r.rol              = :rol)" +
+    " AND (:codigoCarrera    IS NULL OR r.codigoCarrera    = :codigoCarrera)" +
     " AND (:bloqueado        IS NULL OR r.bloqueado        = :bloqueado)" +
     " AND (:externo          IS NULL OR r.externo          = :externo)" +
     " AND (:staffAutorizado  IS NULL OR r.staffAutorizado  = :staffAutorizado)" +
@@ -80,6 +81,7 @@ public interface UsuarioRepository
   Page<Usuario> qFiltrado (
     @Param("txt")               String txt,
     @Param("rol")               Rol rol,
+    @Param("codigoCarrera")     String codigoCarrera,
     @Param("bloqueado")         Boolean bloqueado,
     @Param("externo")           Boolean externo,
     @Param("staffAutorizado")   Boolean staffAutorizado,

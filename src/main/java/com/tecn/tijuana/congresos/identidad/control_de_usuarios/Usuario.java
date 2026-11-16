@@ -78,12 +78,12 @@ public class Usuario implements UserDetails {
 
   /**
    * Email del USUARIO.
+   * Puede ser nulo en registros minimos creados con solo numero de control.
    * */
-  @NotBlank(message = "Email vacio")
   @Email(message = "Email invalido")
   @Size(min = 6, max = 100,
     message = "Email debe tener entre 6 y 100 caracteres")
-  @Column(unique = true, nullable = false, length = 100)
+  @Column(unique = true, length = 100)
   private String email;
 
   /**
@@ -124,19 +124,17 @@ public class Usuario implements UserDetails {
   /**
    * Codigo de pais del telefono del USUARIO.
    * */
-  @NotBlank(message = "Prefijo de telefono vacio")
   @Size(min = 1, max = 7,
     message = "Prefijo debe tener entre 1 y 7 digitos")
-  @Column(nullable = false, length = 7)
+  @Column(length = 7)
   private String telPref;
 
   /**
    * Numero de telefono nacional del USUARIO.
    * */
-  @NotBlank(message = "Sufijo de telefono vacio")
   @Size(min = 4, max = 14,
     message = "Sufijo debe tener entre 4 y 14 digitos")
-  @Column(nullable = false, length = 14)
+  @Column(length = 14)
   private String telSuf;
 
 
@@ -168,10 +166,9 @@ public class Usuario implements UserDetails {
 
   /**
    * Fecha de nacimiento del USUARIO.
+   * Puede ser nula en registros minimos creados con solo numero de control.
    * */
-  @NotNull(message = "Fecha de nacimiento vacia")
   @Past(message = "Fecha de nacimiento debe ser en el pasado")
-  @Column(nullable = false)
   private LocalDateTime fechaNacimiento;
 
 
@@ -187,12 +184,12 @@ public class Usuario implements UserDetails {
 
   /**
    * Codigo de la carrera del ALUMNO.
-   * Ej: "ISC".
+   * Ej: "ISIC-2010-224".
    * Solo aplica para USUARIOS tipo ALUMNO.
    * */
-  @Size(min = 2, max = 3,
-    message = "El codigo de carrera debe tener entre 2 y 3 caracteres")
-  @Column(length = 3)
+  @Size(max = 13,
+    message = "El codigo de carrera no puede tener mas de 13 caracteres")
+  @Column(length = 13)
   private String codigoCarrera;
 
   /**
@@ -833,6 +830,11 @@ public class Usuario implements UserDetails {
     String curp,
     String emailInstitucional
   ) {
+    // Los registros minimos no tienen nombre; usar un valor temporal visible.
+    String nombreFinal = (Objects.isNull(nombre) || nombre.isBlank())
+      ? "Alumno " + noControl
+      : nombre;
+
     return new Usuario(
       Rol.ALUMNO,
 
@@ -849,7 +851,7 @@ public class Usuario implements UserDetails {
       telPref,
       telSuf,
 
-      nombre,
+      nombreFinal,
       apellidoPaterno,
       apellidoMaterno,
       fechaNacimiento,
@@ -1123,10 +1125,10 @@ public class Usuario implements UserDetails {
    * El USUARIO actualizado.
    */
   private Usuario actualizarCamposBasicos (Usuario usr) {
-    setEmail(usr.getEmail());
+    setEmail(sinVacio(usr.getEmail()));
 
-    setTelPref(usr.getTelPref());
-    setTelSuf(usr.getTelSuf());
+    setTelPref(sinVacio(usr.getTelPref()));
+    setTelSuf(sinVacio(usr.getTelSuf()));
 
     setNombre(usr.getNombre());
     setApellidoPaterno(usr.getApellidoPaterno());
@@ -1180,6 +1182,21 @@ public class Usuario implements UserDetails {
 
 
   /**
+   * Convierte una cadena vacia o en blanco en {@code null}.
+   *
+   * @param valor
+   * Cadena a normalizar.
+   *
+   * @return
+   * La cadena original o {@code null}.
+   */
+  private static String sinVacio (String valor) {
+    return Objects.isNull(valor) || valor.isBlank() ? null : valor;
+  }
+
+
+
+  /**
    * Consulta el nombre completo del USUARIO.
    *
    * @return
@@ -1187,9 +1204,21 @@ public class Usuario implements UserDetails {
    */
   @JsonIgnore
   public String getNombreCompleto () {
-    return nombre
-      + (Objects.nonNull(apellidoPaterno) ? " " + apellidoPaterno : "")
-      + (Objects.nonNull(apellidoMaterno) ? " " + apellidoMaterno : "");
+    var partes = new StringBuilder();
+
+    for (String parte : new String[]{nombre, apellidoPaterno, apellidoMaterno}) {
+      if (Objects.isNull(parte) || parte.isBlank()) {
+        continue;
+      }
+
+      if (!partes.isEmpty()) {
+        partes.append(' ');
+      }
+
+      partes.append(parte.trim());
+    }
+
+    return partes.toString();
   }
 
 
@@ -1226,7 +1255,9 @@ public class Usuario implements UserDetails {
   @JsonIgnore
   @Override
   public String getUsername() {
-    return getEmail();
+    return Objects.nonNull(getEmail()) && !getEmail().isBlank()
+      ? getEmail()
+      : getNoControl();
   }
 
   @JsonIgnore

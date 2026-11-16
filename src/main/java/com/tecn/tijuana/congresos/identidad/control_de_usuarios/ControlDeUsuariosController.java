@@ -2,6 +2,8 @@ package com.tecn.tijuana.congresos.identidad.control_de_usuarios;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto
   .RegistroUsuarioDto;
+import com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto
+  .UsuarioResumenDto;
 import com.tecn.tijuana.congresos.security.ExpresionSeguridad;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -164,7 +166,7 @@ public class ControlDeUsuariosController {
   "fechaNacimiento": "2001-01-01T00:00:00",
   
   "noControl": "12345678",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -206,7 +208,7 @@ public class ControlDeUsuariosController {
     "apellidoMaterno": "Tres",
     "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
-    "codigoCarrera": "ISC",
+    "codigoCarrera": "ISIC-2010-224",
     "semestre": 1,
     "grupo": "A",
     "externo": false,
@@ -364,7 +366,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -410,7 +412,7 @@ public class ControlDeUsuariosController {
     "apellidoMaterno": "Tres",
     "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
-    "codigoCarrera": "ISC",
+    "codigoCarrera": "ISIC-2010-224",
     "semestre": 1,
     "grupo": "A",
     "externo": false,
@@ -678,7 +680,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -724,7 +726,7 @@ public class ControlDeUsuariosController {
     "apellidoMaterno": "Tres",
     "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
-    "codigoCarrera": "ISC",
+    "codigoCarrera": "ISIC-2010-224",
     "semestre": 1,
     "grupo": "A",
     "externo": false,
@@ -1102,7 +1104,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -1257,7 +1259,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -1376,6 +1378,10 @@ public class ControlDeUsuariosController {
    * @param rol {@code [null]}
    * Filtro opcional. Si no se especifica, no filtra.
    *
+   * @param codigoCarrera {@code [null]}
+   * Filtro opcional por clave oficial de carrera. Si no se especifica, no
+   * filtra.
+   *
    * @param bloqueado {@code [null]}
    * Filtro opcional. Si no se especifica, no filtra.
    *
@@ -1442,7 +1448,7 @@ public class ControlDeUsuariosController {
     "apellidoMaterno": "Tres",
     "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
-    "codigoCarrera": "ISC",
+    "codigoCarrera": "ISIC-2010-224",
     "semestre": 1,
     "grupo": "A",
     "externo": false,
@@ -1547,6 +1553,10 @@ public class ControlDeUsuariosController {
     @RequestParam(name = "rol", required = false)
     Rol rol,
 
+    @RequestParam(name = "codigoCarrera", required = false)
+    @Size(max = 13)
+    String codigoCarrera,
+
     @RequestParam(name = "bloqueado", required = false)
     Boolean bloqueado,
 
@@ -1576,7 +1586,7 @@ public class ControlDeUsuariosController {
   ) {
     return new ResponseEntity<>(
       usrSvc.buscar(
-        txt, rol, bloqueado, externo,
+        txt, rol, codigoCarrera, bloqueado, externo,
         staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
         page, pageSize),
       HttpStatus.OK);
@@ -1586,14 +1596,18 @@ public class ControlDeUsuariosController {
 
   /**
    * Consulta los USUARIOS en general, usando una busqueda de texto opcional
-   * y filtros opcionales de rol, bloqueado, externo, staffAutorizado,
-   * staffCustodio, staffAlumnos y staffInscripciones.
+   * y filtros opcionales de rol, codigoCarrera, bloqueado, externo,
+   * staffAutorizado, staffCustodio, staffAlumnos y staffInscripciones.
    *
    * @param txt {@code [""]}
    * Texto de busqueda.
    *
    * @param rol {@code [null]}
    * Filtro opcional por rol. Si no se especifica, no filtra.
+   *
+   * @param codigoCarrera {@code [null]}
+   * Filtro opcional por clave oficial de carrera. Si no se especifica, no
+   * filtra.
    *
    * @param bloqueado {@code [null]}
    * Filtro opcional por bloqueado. Si no se especifica, no filtra.
@@ -1627,8 +1641,8 @@ public class ControlDeUsuariosController {
   @Operation(
     summary = "Buscar usuarios",
     description = "Permite consultar usuarios de forma paginada aplicando un" +
-      " filtro de texto opcional y filtros opcionales de rol, bloqueado," +
-      " externo, staffAutorizado, staffCustodio, staffAlumnos y" +
+      " filtro de texto opcional y filtros opcionales de rol, codigoCarrera," +
+      " bloqueado, externo, staffAutorizado, staffCustodio, staffAlumnos y" +
       " staffInscripciones. Los filtros de staff solo son relevantes para" +
       " usuarios con rol STAFF."
   )
@@ -1662,7 +1676,7 @@ public class ControlDeUsuariosController {
     "apellidoMaterno": "Tres",
     "fechaNacimiento": "2000-01-11T00:00:00",
     "noControl": "11211522",
-    "codigoCarrera": "ISC",
+    "codigoCarrera": "ISIC-2010-224",
     "semestre": 1,
     "grupo": "A",
     "externo": false,
@@ -1769,6 +1783,10 @@ public class ControlDeUsuariosController {
     @RequestParam(name = "rol", required = false)
     Rol rol,
 
+    @RequestParam(name = "codigoCarrera", required = false)
+    @Size(max = 13)
+    String codigoCarrera,
+
     @RequestParam(name = "bloqueado", required = false)
     Boolean bloqueado,
 
@@ -1798,7 +1816,7 @@ public class ControlDeUsuariosController {
   ) {
     return new ResponseEntity<>(
       usrSvc.buscar(
-        txt, rol, bloqueado, externo,
+        txt, rol, codigoCarrera, bloqueado, externo,
         staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
         page, pageSize),
       HttpStatus.OK);
@@ -1851,7 +1869,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,
@@ -1950,6 +1968,120 @@ public class ControlDeUsuariosController {
     Long id
   ) {
     return new ResponseEntity<>(usrSvc.afirmar(id), HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta el resumen del USUARIO con el Numero de Control especificado.
+   * <p>
+   * El resumen solo incluye los datos necesarios para identificar visualmente
+   * al USUARIO. No valida que el rol sea ALUMNO: si el Numero de Control
+   * pertenece a otro rol, se devuelve igualmente para que el cliente pueda
+   * mostrarlo.
+   *
+   * @param noControl
+   * Numero de Control del USUARIO.
+   *
+   * @return
+   * Respuesta HTTP acorde.
+   */
+  @GetMapping("usuario/noControl/{noControl}")
+
+  @Operation(
+    summary = "Consultar resumen de usuario por Numero de Control",
+    description = "Permite obtener un resumen de los datos de un usuario" +
+      " especificado por su Numero de Control, para identificarlo en" +
+      " pantallas operativas como el registro de asistencias. " +
+      "Requiere permisos de consulta de usuarios."
+  )
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Consulta exitosa",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = UsuarioResumenDto.class),
+        examples = @ExampleObject(
+          name = "Exito",
+          description = "Ejemplo de respuesta al consultar un usuario por" +
+            " Numero de Control",
+          value = """
+{
+  "id": 18,
+  "rol": "ALUMNO",
+  "noControl": "11211522",
+  "nombre": "Silas",
+  "apellidoPaterno": "Mordrek",
+  "apellidoMaterno": "Tres",
+  "codigoCarrera": "ISIC-2010-224"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Acceso denegado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario autenticado no tiene permisos para" +
+            " consultar usuarios",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Unauthorized",
+  "status": 401,
+  "detail": "Acceso denegado: permisos insuficientes",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/noControl/11211522",
+  "timestamp": "2025-09-24T04:35:09.421247985Z"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Usuario no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El usuario con el Numero de Control especificado" +
+            " no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Usuario con Numero de Control: 11211522 no encontrado",
+  "instance": "/api/v1/identidad/control-de-usuarios/usuario/noControl/11211522",
+  "timestamp": "2025-09-24T04:36:17.701247985Z"
+}
+"""
+        )
+      )
+    )
+  })
+
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_USUARIOS)
+
+  public ResponseEntity<UsuarioResumenDto> qNoControl (
+
+    @Size(min = 1, max = 20, message = "Numero de Control invalido")
+    @PathVariable("noControl")
+    String noControl
+  ) {
+    return new ResponseEntity<>(
+      UsuarioResumenDto.de(usrSvc.afirmarNoControl(noControl)),
+      HttpStatus.OK);
   }
 
 
@@ -2181,7 +2313,7 @@ public class ControlDeUsuariosController {
   "apellidoMaterno": "Tres",
   "fechaNacimiento": "2000-01-11T00:00:00",
   "noControl": "11211522",
-  "codigoCarrera": "ISC",
+  "codigoCarrera": "ISIC-2010-224",
   "semestre": 1,
   "grupo": "A",
   "externo": false,

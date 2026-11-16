@@ -1,7 +1,6 @@
 package com.tecn.tijuana.congresos.identidad.control_de_usuarios.dto;
 
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Rol;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -128,11 +127,11 @@ public class RegistroUsuarioDto {
 
   /**
    * Codigo de la carrera del ALUMNO.
-   * Ej: "ISC".
+   * Ej: "ISIC-2010-224".
    * Solo aplica para USUARIOS tipo ALUMNO.
    * */
-  @Size(min = 2, max = 3,
-    message = "El codigo de carrera debe tener entre 2 y 3 caracteres")
+  @Size(max = 13,
+    message = "El codigo de carrera no puede tener mas de 13 caracteres")
   public String codigoCarrera;
 
   /**

@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -1351,6 +1352,75 @@ public class BoletoController {
 
 
 
+  /**
+   * Quita la acreditacion de un BOLETO y elimina su constancia.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion.
+   *
+   * @return
+   * El BOLETO desacreditado.
+   */
+  @PatchMapping("desacreditar/{id}")
+
+  @Operation(
+    summary = "Desacreditar boleto",
+    description = "Quita la acreditacion de un boleto y elimina la constancia" +
+      " de acreditacion asociada.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Boleto desacreditado",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "403",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Boleto no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.ACREDITAR_ALUMNOS)
+
+  public ResponseEntity<Boleto> desacreditar (
+
+    @PathVariable
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.desacreditar(actor, id),
+      HttpStatus.OK);
+  }
+
+
+
   //----------------------------------------------------------------------------
   // CONSULTAS.
 
@@ -1363,6 +1433,10 @@ public class BoletoController {
    *
    * @param congresoId {@code [null]}
    * Filtro opcional. Si no se especifica, no filtra.
+   *
+   * @param codigoCarrera {@code [null]}
+   * Filtro opcional por clave oficial de carrera del ALUMNO. Si no se
+   * especifica, no filtra.
    *
    * @param excedente {@code [null]}
    * Filtro opcional. Si no se especifica, no filtra.
@@ -1396,8 +1470,9 @@ public class BoletoController {
   @Operation(
     summary = "Buscar boletos",
     description = "Permite al personal autorizado buscar boletos usando " +
-      "filtro de texto y filtros opcionales de congresoId, excedente, pagado," +
-      " cancelado, usado, cumplioRequerimientosDeAsistencia y acreditado.",
+      "filtro de texto y filtros opcionales de congresoId, codigoCarrera," +
+      " excedente, pagado, cancelado, usado," +
+      " cumplioRequerimientosDeAsistencia y acreditado.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "No requiere cuerpo en la peticion."
     )
@@ -1536,6 +1611,10 @@ public class BoletoController {
     @RequestParam(name = "congresoId", required = false)
     Long congresoId,
 
+    @RequestParam(name = "codigoCarrera", required = false)
+    @Size(max = 13)
+    String codigoCarrera,
+
     @RequestParam(name = "excedente", required = false)
     Boolean excedente,
 
@@ -1567,8 +1646,8 @@ public class BoletoController {
 
     return new ResponseEntity<>(
       bolSvc.qFiltrado(
-        txt, null, congresoId, excedente, pagado, cancelado, usado,
-        cumplioRequerimientosDeAsistencia, acreditado,
+        txt, null, codigoCarrera, congresoId, excedente, pagado, cancelado,
+        usado, cumplioRequerimientosDeAsistencia, acreditado,
         page, pageSize),
       HttpStatus.OK);
   }
@@ -1781,7 +1860,7 @@ public class BoletoController {
   ) {
     return new ResponseEntity<>(
       bolSvc.qFiltrado(
-        txt, actor.getId(), null,
+        txt, actor.getId(), null, null,
         excedente, pagado, cancelado, usado,
         cumplioRequerimientosDeAsistencia, acreditado,
         page, pageSize),
@@ -2367,15 +2446,18 @@ public class BoletoController {
     )
   })
 
-  @PreAuthorize(ExpresionSeguridad.CONSULTAR_BOLETOS_AJENOS)
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_BOLETO)
 
   public ResponseEntity<Boleto> qId (
 
     @PathVariable("id")
-    Long id
+    Long id,
+
+    @AuthenticationPrincipal
+    Usuario actor
   ) {
     return new ResponseEntity<>(
-      bolSvc.afirmar(id),
+      bolSvc.afirmarIdAlumno(actor, id),
       HttpStatus.OK);
   }
 
@@ -2590,7 +2672,7 @@ public class BoletoController {
   ) {
     return new ResponseEntity<>(
       bolSvc.qFiltrado(
-        txt, null, congresoId, excedente, pagado, cancelado, usado,
+        txt, null, null, congresoId, excedente, pagado, cancelado, usado,
         cumplioRequerimientosDeAsistencia, acreditado,
         page, pageSize),
       HttpStatus.OK);
@@ -2933,6 +3015,410 @@ public class BoletoController {
     return new ResponseEntity<>(
       bolSvc.qIdCongresoCancelado(
         congresoId, Boleto.NO_CANCELADO, page, pageSize),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Permite editar la evidencia de pago de un BOLETO.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slot
+   * Nombre del slot a editar.
+   *
+   * @param img {@code [null]}
+   * Posible archivo a poner en el slot, {@code null} si se desea limpiarlo.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   */
+  @PatchMapping("editar/{id}/media/{slot}")
+
+  @Operation(
+    summary = "Editar evidencia de pago",
+    description = "Permite editar la evidencia de pago de un boleto." +
+      " Slots disponibles: mediaPago1 y mediaPago2.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Contenido del archivo de imagen",
+      required = true,
+      content = @Content(
+        mediaType = "multipart/form-data",
+        examples = {
+          @ExampleObject(
+            name = "Nueva imagen",
+            description = "Ejemplo de peticion para poner una nueva imagen" +
+              " en el slot",
+            value = """
+{
+  "img": <CONTENIDO DEL ARCHIVO>
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Eliminar imagen",
+            description = "Si se omite el archivo se limpia el slot",
+            value = """
+{
+}
+"""
+          )
+        }
+      )
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Evidencia actualizada",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Slot invalido o imagen invalida",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Slot no valido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Slot no valido.",
+  "instance": "/api/v1/boletos/boleto/editar/1/media/invalido",
+  "timestamp": "2025-10-13T04:05:10"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Boleto no encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "El boleto no existe",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Boleto con ID: 1 no encontrado",
+  "instance": "/api/v1/boletos/boleto/editar/1/media/mediaPago1",
+  "timestamp": "2025-10-13T04:07:17"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.EDITAR_MEDIA_BOLETO)
+
+  public ResponseEntity<Boleto> editarMedia (
+
+    @PathVariable
+    Long id,
+
+    @PathVariable
+    String slot,
+
+    @RequestPart(required = false)
+    MultipartFile img,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.editarMedia(actor, id, slot, img),
+      HttpStatus.OK);
+  }
+
+
+
+  /**
+   * Consulta la evidencia de pago de un BOLETO.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slot
+   * Slot de evidencia de pago.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * La imagen solicitada.
+   */
+  @GetMapping("{id}/media/{slot}")
+
+  @Operation(
+    summary = "Consultar evidencia de pago",
+    description = "Obtiene la evidencia de pago de un boleto." +
+      " El ALUMNO solo puede consultar la de sus propios boletos.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Imagen obtenida",
+      content = @Content(
+        mediaType = "image/jpeg",
+        schema = @Schema(type = "string", format = "binary")
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Slot invalido",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Slot no valido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Slot no valido.",
+  "instance": "/api/v1/boletos/boleto/1/media/invalido",
+  "timestamp": "2025-10-13T04:05:10"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "No encontrado",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = {
+          @ExampleObject(
+            name = "Boleto no encontrado",
+            description = "El boleto no existe",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Boleto con ID: 1 no encontrado",
+  "instance": "/api/v1/boletos/boleto/1/media/mediaPago1",
+  "timestamp": "2025-10-13T04:07:17"
+}
+"""
+          ),
+          @ExampleObject(
+            name = "Sin imagen",
+            description = "No hay imagen en el slot",
+            value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Evidencia de pago del boleto con ID: 1 no encontrada.",
+  "instance": "/api/v1/boletos/boleto/1/media/mediaPago1",
+  "timestamp": "2025-10-13T04:08:18"
+}
+"""
+          )
+        }
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.CONSULTAR_MEDIA_BOLETO)
+
+  public ResponseEntity<byte[]> qIdMedia (
+
+    @PathVariable("id")
+    Long id,
+
+    @PathVariable("slot")
+    String slot,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return bolSvc.afirmarMedia(actor, id, slot);
+  }
+
+
+
+  /**
+   * Acepta la evidencia presentada por el ALUMNO y la copia al slot oficial.
+   *
+   * @param id
+   * ID del BOLETO.
+   *
+   * @param slot
+   * Slot oficial que recibe la copia: mediaPago1 o mediaPago2.
+   *
+   * @param actor
+   * USUARIO responsable de la peticion, inyectado por SpringSecurity.
+   *
+   * @return
+   * El BOLETO actualizado.
+   */
+  @PatchMapping("aceptar/{id}/media/{slot}")
+
+  @Operation(
+    summary = "Aceptar evidencia del alumno",
+    description = "Copia la evidencia presentada por el ALUMNO al slot " +
+      "oficial indicado. Slots: mediaPago1 y mediaPago2.",
+    requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "No requiere cuerpo en la peticion."
+    )
+  )
+
+  @ApiResponses({
+    @ApiResponse(
+      responseCode = "200",
+      description = "Evidencia aceptada",
+      content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = Boleto.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "400",
+      description = "Slot invalido",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Error",
+          description = "Slot no valido",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Slot no valido.",
+  "instance": "/api/v1/boletos/boleto/aceptar/1/media/invalido",
+  "timestamp": "2025-10-13T04:05:10"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "401",
+      description = "Sin autorizacion",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    ),
+    @ApiResponse(
+      responseCode = "404",
+      description = "Boleto o evidencia no encontrados",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class),
+        examples = @ExampleObject(
+          name = "Sin evidencia",
+          description = "El ALUMNO no ha presentado evidencia",
+          value = """
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "El ALUMNO no ha presentado evidencia para el slot mediaPago1.",
+  "instance": "/api/v1/boletos/boleto/aceptar/1/media/mediaPago1",
+  "timestamp": "2025-10-13T04:08:18"
+}
+"""
+        )
+      )
+    ),
+    @ApiResponse(
+      responseCode = "500",
+      description = "Error interno",
+      content = @Content(
+        mediaType = "application/problem+json",
+        schema = @Schema(
+          implementation = org.springframework.http.ProblemDetail.class)
+      )
+    )
+  })
+
+  @PreAuthorize(ExpresionSeguridad.GESTIONAR_BOLETOS)
+
+  public ResponseEntity<Boleto> aceptarEvidenciaAlumno (
+
+    @PathVariable
+    Long id,
+
+    @PathVariable
+    String slot,
+
+    @AuthenticationPrincipal
+    Usuario actor
+  ) {
+    return new ResponseEntity<>(
+      bolSvc.aceptarEvidenciaAlumno(actor, id, slot),
       HttpStatus.OK);
   }
 }

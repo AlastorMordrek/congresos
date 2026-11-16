@@ -1,15 +1,21 @@
 package com.tecn.tijuana.congresos.boletos.boleto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tecn.tijuana.congresos.eventos.congreso.Congreso;
 import com.tecn.tijuana.congresos.identidad.control_de_usuarios.Usuario;
 import com.tecn.tijuana.congresos.utils.GeneradorDeFolios;
+import com.tecn.tijuana.congresos.utils.Texto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 /**
@@ -288,7 +294,7 @@ public class Boleto {
       congreso.getDireccion(),
       alumno.getId(),
       alumno.getNoControl(),
-      alumno.getNombreCompleto(),
+      Texto.recortar(alumno.getNombreCompleto(), 120),
       congreso.getCupo() != 0
         && congreso.getInscritos() >= congreso.getCupo()
     );
@@ -385,6 +391,22 @@ public class Boleto {
 
 
   /**
+   * Actualiza el nombre del ALUMNO congelado en el BOLETO.
+   *
+   * @param nombre
+   * Nombre completo actual del ALUMNO.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto actualizarNombreAlumno (String nombre) {
+    setAlumnoNombre(nombre);
+    return this;
+  }
+
+
+
+  /**
    * Acredita el BOLETO, marcando que el ALUMNO fue aprobado por el ORGANIZADOR.
    *
    * @return
@@ -392,6 +414,17 @@ public class Boleto {
    */
   public Boleto acreditar () {
     setAcreditado(true);
+    return this;
+  }
+
+  /**
+   * Quita la acreditacion del BOLETO.
+   *
+   * @return
+   * El registro actualizado.
+   */
+  public Boleto desacreditar () {
+    setAcreditado(false);
     return this;
   }
 
@@ -431,6 +464,192 @@ public class Boleto {
         && tiempoAsistido >= tiempoAsistidoRequerido) {
       setCumplioRequerimientosDeAsistencia(true);
     }
+    return this;
+  }
+
+
+
+  //--------------------------- CAMPOS MULTIMEDIA ------------------------------
+
+  /**
+   * Evidencia de pago 1 del BOLETO.
+   * <p>
+   * Tipo de archivo de la imagen 1.
+   * */
+  @JsonIgnore
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaPago1MimeType;
+
+  /**
+   * Evidencia de pago 1 del BOLETO.
+   * <p>
+   * Contenido crudo de la imagen 1.
+   * */
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaPago1ImgData;
+
+
+
+  /**
+   * Evidencia de pago 2 del BOLETO.
+   * <p>
+   * Tipo de archivo de la imagen 2.
+   * */
+  @JsonIgnore
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaPago2MimeType;
+
+  /**
+   * Evidencia de pago 2 del BOLETO.
+   * <p>
+   * Contenido crudo de la imagen 2.
+   * */
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaPago2ImgData;
+
+
+
+  /**
+   * Evidencia de pago presentada por el ALUMNO.
+   * <p>
+   * Tipo de archivo de la imagen 1.
+   * */
+  @JsonIgnore
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaAlumno1MimeType;
+
+  /**
+   * Evidencia de pago presentada por el ALUMNO.
+   * <p>
+   * Contenido crudo de la imagen 1.
+   * */
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaAlumno1ImgData;
+
+
+
+  /**
+   * Evidencia de pago presentada por el ALUMNO.
+   * <p>
+   * Tipo de archivo de la imagen 2.
+   * */
+  @JsonIgnore
+  @Size(min = 1, max = 100,
+    message = "El tipo de archivo debe tener maximo 100 caracteres")
+  @Column(length = 100)
+  private String mediaAlumno2MimeType;
+
+  /**
+   * Evidencia de pago presentada por el ALUMNO.
+   * <p>
+   * Contenido crudo de la imagen 2.
+   * */
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonIgnore
+  @Size(min = 1024, max = 2 * 1024 * 1024,
+    message = "El archivo debe pesar entre 1 KB y 2 MB")
+  @Column(length = 2 * 1024 * 1024)
+  private byte[] mediaAlumno2ImgData;
+
+
+
+  /**
+   * Establece o elimina la imagen del slot de evidencia de pago indicado.
+   *
+   * @param slot
+   * Nombre del slot a editar.
+   *
+   * @param img
+   * Archivo multiparte con la imagen, o {@code null} para eliminarla.
+   *
+   * @return
+   * El objeto actualizado.
+   *
+   * @throws IOException
+   * Cuando hay algun problema con la imagen.
+   */
+  public Boleto setMedia (
+    String slot, MultipartFile img
+  )
+    throws IOException {
+
+    if (Objects.isNull(img)) {
+      switch (slot) {
+
+        case "mediaPago1":
+          setMediaPago1MimeType(null);
+          setMediaPago1ImgData(null);
+          break;
+
+        case "mediaPago2":
+          setMediaPago2MimeType(null);
+          setMediaPago2ImgData(null);
+          break;
+
+        case "mediaAlumno1":
+          setMediaAlumno1MimeType(null);
+          setMediaAlumno1ImgData(null);
+          break;
+
+        case "mediaAlumno2":
+          setMediaAlumno2MimeType(null);
+          setMediaAlumno2ImgData(null);
+          break;
+
+        default:
+          break;
+      }
+
+      return this;
+    }
+
+    var mime = img.getContentType();
+    var bytes = img.getBytes();
+
+    switch (slot) {
+
+      case "mediaPago1":
+        setMediaPago1MimeType(mime);
+        setMediaPago1ImgData(bytes);
+        break;
+
+      case "mediaPago2":
+        setMediaPago2MimeType(mime);
+        setMediaPago2ImgData(bytes);
+        break;
+
+      case "mediaAlumno1":
+        setMediaAlumno1MimeType(mime);
+        setMediaAlumno1ImgData(bytes);
+        break;
+
+      case "mediaAlumno2":
+        setMediaAlumno2MimeType(mime);
+        setMediaAlumno2ImgData(bytes);
+        break;
+
+      default:
+        break;
+    }
+
     return this;
   }
 }

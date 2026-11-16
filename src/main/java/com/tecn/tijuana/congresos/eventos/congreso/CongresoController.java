@@ -88,6 +88,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
   
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -133,6 +134,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
   
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -295,6 +297,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
   
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -343,6 +346,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
   
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -505,7 +509,10 @@ public class CongresoController {
 
   @Operation(
     summary = "Editar slot multimedia",
-    description = "Permite editar un slot de multimedia de un congreso.",
+    description = "Permite editar un slot de multimedia de un congreso." +
+      " Slots de constancia: constanciaPieImg1..constanciaPieImg10," +
+      " constanciaPieFranja, constanciaAnio, constanciaFirma." +
+      " Slots de evento: media1..media6, mediaEvt1..mediaEvt6.",
     requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
       description = "Contenido del archivo multimedia",
       required = true,
@@ -666,6 +673,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
 
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -824,6 +832,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
 
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -984,6 +993,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
 
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -1142,6 +1152,7 @@ public class CongresoController {
   "resumen": "Maybe?",
   "descripcion": "O no se, como ustedes vean :/",
   "direccion": "Calafornix",
+  "codigoCarrera": null,
 
   "fechaInicio": "2025-10-11T13:00:00",
   "fechaFin": "2025-10-11T15:00:00",
@@ -1464,6 +1475,7 @@ public class CongresoController {
     "resumen": "Maybe?",
     "descripcion": "O no se, como ustedes vean :/",
     "direccion": "Calafornix",
+    "codigoCarrera": null,
 
     "fechaInicio": "2025-10-11T13:00:00",
     "fechaFin": "2025-10-11T15:00:00",
@@ -1493,6 +1505,7 @@ public class CongresoController {
     "resumen": "For a healthier community",
     "descripcion": "Encuentro anual de bienestar fisico y mental.",
     "direccion": "Av. Reforma 102, Tijuana",
+    "codigoCarrera": null,
 
     "fechaInicio": "2025-11-05T09:00:00",
     "fechaFin": "2025-11-05T18:00:00",
@@ -1583,6 +1596,10 @@ public class CongresoController {
     @RequestParam(name = "gratuito", required = false)
     Boolean gratuito,
 
+    @RequestParam(name = "codigoCarrera", required = false)
+    @Size(max = 13)
+    String codigoCarrera,
+
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
     int page,
@@ -1592,7 +1609,8 @@ public class CongresoController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      conSvc.qPublicados(txt, fechaFinMin, gratuito, page, pageSize),
+      conSvc.qPublicados(
+        txt, fechaFinMin, gratuito, codigoCarrera, page, pageSize),
       HttpStatus.OK);
   }
 
@@ -1645,6 +1663,7 @@ public class CongresoController {
     "descripcion": "Evento centrado en el intercambio de ideas sobre " +
       "tecnologia aplicada e innovacion.",
     "direccion": "Centro de Convenciones, Guadalajara",
+    "codigoCarrera": null,
 
     "fechaInicio": "2025-11-15T09:00:00",
     "fechaFin": "2025-11-16T18:00:00",
@@ -1675,6 +1694,7 @@ public class CongresoController {
     "descripcion": "Simposio sobre las nuevas metodologias educativas y " +
       "el papel de la tecnologia en el aprendizaje.",
     "direccion": "Av. Universidad 250, Ciudad de Mexico",
+    "codigoCarrera": null,
 
     "fechaInicio": "2025-12-01T09:00:00",
     "fechaFin": "2025-12-02T18:00:00",
@@ -1810,6 +1830,7 @@ public class CongresoController {
   "descripcion": "Evento centrado en compartir avances recientes en " +
     "robotica, energia y materiales inteligentes.",
   "direccion": "Centro Cultural Tijuana, B.C.",
+  "codigoCarrera": null,
 
   "fechaInicio": "2025-10-13T08:00:00",
   "fechaFin": "2025-10-14T18:00:00",
@@ -1938,6 +1959,7 @@ public class CongresoController {
     "resumen": "Innovacion y desarrollo tecnologico",
     "descripcion": "Evento sobre las ultimas tendencias...",
     "direccion": "Centro de Convenciones",
+    "codigoCarrera": null,
     
     "fechaInicio": "2025-11-15T09:00:00",
     "fechaFin": "2025-11-16T18:00:00",
@@ -2221,6 +2243,7 @@ public class CongresoController {
   "resumen": "Avances en investigacion cientifica",
   "descripcion": "Presentacion de proyectos de investigacion...",
   "direccion": "Auditorio Principal",
+  "codigoCarrera": null,
   
   "fechaInicio": "2025-11-20T09:00:00",
   "fechaFin": "2025-11-21T18:00:00",
@@ -2374,6 +2397,7 @@ public class CongresoController {
     "resumen": "Avances en salud y medicina",
     "descripcion": "Discusion sobre nuevos tratamientos...",
     "direccion": "Hospital Regional",
+    "codigoCarrera": null,
     
     "fechaInicio": "2025-12-05T09:00:00",
     "fechaFin": "2025-12-06T18:00:00",
@@ -2480,8 +2504,12 @@ public class CongresoController {
   public ResponseEntity<List<Congreso>> buscar (
 
     @RequestParam(name = "txt", required = false, defaultValue = "")
-    @Size(min = 1, max = 30)
+    @Size(max = 30)
     String txt,
+
+    @RequestParam(name = "codigoCarrera", required = false)
+    @Size(max = 13)
+    String codigoCarrera,
 
     @RequestParam(name = "page", required = false, defaultValue = "0")
     @Min(0) @Max(999)
@@ -2492,7 +2520,7 @@ public class CongresoController {
     int pageSize
   ) {
     return new ResponseEntity<>(
-      conSvc.buscar(txt, page, pageSize),
+      conSvc.buscar(txt, codigoCarrera, page, pageSize),
       HttpStatus.OK);
   }
 
@@ -2542,6 +2570,7 @@ public class CongresoController {
     "resumen": "Congreso organizado por mi",
     "descripcion": "Este es un congreso que he organizado...",
     "direccion": "Mi Localidad",
+    "codigoCarrera": null,
     
     "fechaInicio": "2025-11-25T09:00:00",
     "fechaFin": "2025-11-26T18:00:00",
@@ -2716,6 +2745,7 @@ public class CongresoController {
     "resumen": "Mis proyectos innovadores",
     "descripcion": "Este congreso presenta mis trabajos...",
     "direccion": "Mi Instituto",
+    "codigoCarrera": null,
     
     "fechaInicio": "2025-12-10T09:00:00",
     "fechaFin": "2025-12-11T18:00:00",

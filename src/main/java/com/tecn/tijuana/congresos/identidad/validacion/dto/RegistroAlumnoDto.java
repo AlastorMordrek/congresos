@@ -21,7 +21,6 @@ public class RegistroAlumnoDto {
   /**
    * Email del USUARIO.
    * */
-  @NotBlank(message = "Email vacio")
   @Email(message = "Email invalido")
   @Size(min = 6, max = 100,
     message = "Email debe tener entre 6 y 100 caracteres")
@@ -30,7 +29,6 @@ public class RegistroAlumnoDto {
   /**
    * Contrasena de acceso codificada del USUARIO.
    * */
-  @NotBlank(message = "Clave vacia")
   @Size(min = 8, max = 100,
     message = "La clave debe tener entre 8 y 100 caracteres")
   public String password;
@@ -40,7 +38,6 @@ public class RegistroAlumnoDto {
   /**
    * Codigo de pais del telefono del USUARIO.
    * */
-  @NotBlank(message = "Prefijo de telefono vacio")
   @Size(min = 1, max = 7,
     message = "Prefijo debe tener entre 1 y 7 digitos")
   public String telPref;
@@ -48,7 +45,6 @@ public class RegistroAlumnoDto {
   /**
    * Numero de telefono nacional del USUARIO.
    * */
-  @NotBlank(message = "Sufijo de telefono vacio")
   @Size(min = 4, max = 14,
     message = "Sufijo debe tener entre 4 y 14 digitos")
   public String telSuf;
@@ -58,9 +54,8 @@ public class RegistroAlumnoDto {
   /**
    * Nombre del USUARIO.
    * */
-  @NotBlank(message = "Nombre vacio")
-  @Size(min = 3, max = 40,
-    message = "El nombre debe tener entre 3 y 40 caracteres")
+  @Size(max = 40,
+    message = "El nombre no puede tener mas de 40 caracteres")
   public String nombre;
 
   /**
@@ -81,7 +76,6 @@ public class RegistroAlumnoDto {
    * Fecha de nacimiento del USUARIO.
    * */
   @Past(message = "Fecha de nacimiento debe ser en el pasado")
-  @NotNull(message = "Debe especificar una fecha de nacimiento")
   public LocalDateTime fechaNacimiento;
 
 
@@ -96,11 +90,11 @@ public class RegistroAlumnoDto {
 
   /**
    * Codigo de la carrera del ALUMNO.
-   * Ej: "ISC".
+   * Ej: "ISIC-2010-224".
    * Solo aplica para USUARIOS tipo ALUMNO.
    * */
-  @Size(min = 2, max = 3,
-    message = "El codigo de carrera debe tener entre 2 y 3 caracteres")
+  @Size(max = 13,
+    message = "El codigo de carrera no puede tener mas de 13 caracteres")
   public String codigoCarrera;
 
   /**

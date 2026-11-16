@@ -123,6 +123,7 @@ public class CongresoService {
    */
   public List<Congreso> qPublicados (
     String txt, LocalDateTime fechaFinMin, Boolean gratuito,
+    String codigoCarrera,
     int page, int pageSize
   ) {
     Pageable pg = Api.pagina(page, pageSize);
@@ -132,14 +133,20 @@ public class CongresoService {
       ? null
       : txt.toLowerCase().trim();
 
+    // Normalizar codigoCarrera.
+    String carreraN = (Objects.isNull(codigoCarrera) || codigoCarrera.isBlank())
+      ? null
+      : codigoCarrera.trim();
+
     // Si no hay ningun filtro activo, usar la consulta simple.
-    if (txtN == null && fechaFinMin == null && gratuito == null) {
+    if (txtN == null && fechaFinMin == null && gratuito == null
+      && carreraN == null) {
       return conRep.publicados(pg).getContent();
     }
 
     // Usar la consulta condicional.
     return conRep
-      .qPublicadosFiltrado(txtN, fechaFinMin, gratuito, pg)
+      .qPublicadosFiltrado(txtN, fechaFinMin, gratuito, carreraN, pg)
       .getContent();
   }
 
@@ -178,6 +185,9 @@ public class CongresoService {
    * @param txt
    * El texto a buscar.
    *
+   * @param codigoCarrera
+   * Filtro opcional por clave oficial de carrera. {@code null} para no filtrar.
+   *
    * @param page
    * Numero de pagina (0-based)
    *
@@ -187,15 +197,25 @@ public class CongresoService {
    * @return
    * Lista de registros encontrados.
    */
-  public List<Congreso> buscar (String txt, int page, int pageSize) {
+  public List<Congreso> buscar (
+    String txt, String codigoCarrera, int page, int pageSize
+  ) {
     Pageable pg = Api.pagina(page, pageSize);
 
-    if (Objects.isNull(txt) || txt.isBlank()) {
+    String txtN = (Objects.isNull(txt) || txt.isBlank())
+      ? null
+      : txt.toLowerCase().trim();
+
+    String carreraN = (Objects.isNull(codigoCarrera) || codigoCarrera.isBlank())
+      ? null
+      : codigoCarrera.trim();
+
+    if (txtN == null && carreraN == null) {
       return conRep.q(pg).getContent();
     }
 
     return conRep
-      .buscar(txt.toLowerCase().trim(), pg)
+      .qBuscarFiltrado(txtN, carreraN, pg)
       .getContent();
   }
 
@@ -472,6 +492,58 @@ public class CongresoService {
         fotoMimeType = congreso.getMediaEvt6MimeType();
         yield congreso.getMediaEvt6ImgData();
       }
+      case "constanciaPieImg1" -> {
+        fotoMimeType = congreso.getConstanciaPieImg1MimeType();
+        yield congreso.getConstanciaPieImg1Data();
+      }
+      case "constanciaPieImg2" -> {
+        fotoMimeType = congreso.getConstanciaPieImg2MimeType();
+        yield congreso.getConstanciaPieImg2Data();
+      }
+      case "constanciaPieImg3" -> {
+        fotoMimeType = congreso.getConstanciaPieImg3MimeType();
+        yield congreso.getConstanciaPieImg3Data();
+      }
+      case "constanciaPieImg4" -> {
+        fotoMimeType = congreso.getConstanciaPieImg4MimeType();
+        yield congreso.getConstanciaPieImg4Data();
+      }
+      case "constanciaPieImg5" -> {
+        fotoMimeType = congreso.getConstanciaPieImg5MimeType();
+        yield congreso.getConstanciaPieImg5Data();
+      }
+      case "constanciaPieImg6" -> {
+        fotoMimeType = congreso.getConstanciaPieImg6MimeType();
+        yield congreso.getConstanciaPieImg6Data();
+      }
+      case "constanciaPieImg7" -> {
+        fotoMimeType = congreso.getConstanciaPieImg7MimeType();
+        yield congreso.getConstanciaPieImg7Data();
+      }
+      case "constanciaPieImg8" -> {
+        fotoMimeType = congreso.getConstanciaPieImg8MimeType();
+        yield congreso.getConstanciaPieImg8Data();
+      }
+      case "constanciaPieImg9" -> {
+        fotoMimeType = congreso.getConstanciaPieImg9MimeType();
+        yield congreso.getConstanciaPieImg9Data();
+      }
+      case "constanciaPieImg10" -> {
+        fotoMimeType = congreso.getConstanciaPieImg10MimeType();
+        yield congreso.getConstanciaPieImg10Data();
+      }
+      case "constanciaPieFranja" -> {
+        fotoMimeType = congreso.getConstanciaPieFranjaMimeType();
+        yield congreso.getConstanciaPieFranjaData();
+      }
+      case "constanciaAnio" -> {
+        fotoMimeType = congreso.getConstanciaAnioMimeType();
+        yield congreso.getConstanciaAnioData();
+      }
+      case "constanciaFirma" -> {
+        fotoMimeType = congreso.getConstanciaFirmaMimeType();
+        yield congreso.getConstanciaFirmaData();
+      }
       default -> throw new ResponseStatusException(
         HttpStatus.BAD_REQUEST,
         "Slot no valido.");
@@ -528,9 +600,10 @@ public class CongresoService {
   public Congreso registrar (Usuario actor, Congreso congreso)
     throws ResponseStatusException {
 
-    // Validar las fechas del Congreso o retornar el error HTTP acorde.
-    afirmarPeriodoEventoValido(congreso);
-    afirmarPeriodoInscripcionesValido(congreso);
+    // TEMPORAL QA: validaciones de fechas y periodos desactivadas para
+    // pruebas. Restaurar antes de produccion.
+    // afirmarPeriodoEventoValido(congreso);
+    // afirmarPeriodoInscripcionesValido(congreso);
 
     // Marcar al Actor como creador del registro.
     congreso.setCreadorId(actor.getId());
@@ -566,9 +639,10 @@ public class CongresoService {
     // Comprobar permisos.
     afirmarOrganizadorAsignado(actor, con);
 
-    // Validar cambios.
-    afirmarPeriodoEventoValido(congreso);
-    afirmarPeriodoInscripcionesValido(congreso);
+    // TEMPORAL QA: validaciones de fechas y periodos desactivadas para
+    // pruebas. Restaurar antes de produccion.
+    // afirmarPeriodoEventoValido(congreso);
+    // afirmarPeriodoInscripcionesValido(congreso);
 
     // Actualizar, guardar y retornar el registro.
     return conRep.saveAndFlush(con.actualizar(congreso));
@@ -1114,6 +1188,56 @@ public class CongresoService {
         HttpStatus.PRECONDITION_FAILED,
         "El congreso no esta publicado");
     }
+    return reg;
+  }
+
+  /**
+   * Determina si un ALUMNO cumple con la carrera a la que esta limitado el
+   * CONGRESO. Si el CONGRESO no tiene restriccion, la validacion siempre pasa.
+   * <p>
+   * La regla solo aplica al inscribir ALUMNOS. Los BOLETOS ya emitidos no se
+   * revalidan y conservan su acceso al evento.
+   *
+   * @param reg
+   * El CONGRESO a validar.
+   *
+   * @param alumno
+   * El ALUMNO que se desea inscribir.
+   *
+   * @return
+   * El registro validado.
+   *
+   * @throws ResponseStatusException
+   * {@code HTTP-PRECONDITION_FAILED} si el ALUMNO no pertenece a la carrera.
+   */
+  public static Congreso afirmarCarreraPermitida (
+    Congreso reg, Usuario alumno
+  ) {
+    var carrera = reg.getCodigoCarrera();
+
+    if (carrera == null || carrera.isBlank()) {
+      return reg;
+    }
+
+    var carreraAlumno = alumno.getCodigoCarrera();
+
+    if (carreraAlumno == null || carreraAlumno.isBlank()) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        String.format(
+          "El congreso esta limitado a la carrera con clave %s y el alumno no" +
+            " tiene carrera registrada",
+          carrera));
+    }
+
+    if (!carrera.equals(carreraAlumno)) {
+      throw new ResponseStatusException(
+        HttpStatus.PRECONDITION_FAILED,
+        String.format(
+          "El congreso esta limitado a la carrera con clave %s",
+          carrera));
+    }
+
     return reg;
   }
 

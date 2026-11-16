@@ -54,6 +54,17 @@ public class RegistroCongresoDto {
     message = "La direccion debe tener entre 0 y 200 caracteres")
   public String direccion = "";
 
+  /**
+   * Carrera a la que se limita el CONGRESO.
+   * <p>
+   * Clave oficial del catalogo de carreras del TecNM. Si se omite, el CONGRESO
+   * no tiene restriccion por carrera. Solo aplica al inscribir ALUMNOS; los
+   * BOLETOS existentes conservan su acceso.
+   * */
+  @Size(max = 13,
+    message = "El codigo de carrera no puede exceder 13 caracteres")
+  public String codigoCarrera;
+
 
 
   /**
@@ -151,4 +162,110 @@ public class RegistroCongresoDto {
   @Max(value = 144000,
     message = "Se deben requerir como maximo 40 horas de tiempo asistido")
   public long alumnoAcreditacionTiempoAsistidoRequerido = 1;
+
+
+
+  /**
+   * Creditos que otorga la constancia de acreditacion.
+   * */
+  @JsonSetter(nulls = Nulls.SKIP)
+  @Min(value = 1, message = "La constancia debe otorgar al menos 1 credito")
+  @Max(value = 20, message = "La constancia no puede otorgar mas de 20 creditos")
+  public int constanciaCreditos = 1;
+
+  /**
+   * Nombre de la institucion que aparece en la constancia.
+   * */
+  @Size(max = 150)
+  public String constanciaInstituto;
+
+  /**
+   * Subtitulo oficial de la constancia.
+   * */
+  @Size(max = 150)
+  public String constanciaSubtitulo;
+
+  /**
+   * Ciudad de emision.
+   * */
+  @Size(max = 80)
+  public String constanciaCiudad;
+
+  /**
+   * Estado de emision.
+   * */
+  @Size(max = 80)
+  public String constanciaEstado;
+
+  /**
+   * Pais de emision.
+   * */
+  @Size(max = 80)
+  public String constanciaPais;
+
+  /**
+   * Nombre de la jefatura de servicios escolares.
+   * */
+  @Size(max = 100)
+  public String constanciaJefaNombre;
+
+  /**
+   * Cargo de la jefatura de servicios escolares.
+   * */
+  @Size(max = 150)
+  public String constanciaJefaCargo;
+
+  /**
+   * Nombre de la persona que firma.
+   * */
+  @Size(max = 100)
+  public String constanciaJefeNombre;
+
+  /**
+   * Departamento de la persona que firma.
+   * */
+  @Size(max = 150)
+  public String constanciaDepartamento;
+
+  /**
+   * Primer lema institucional.
+   * */
+  @Size(max = 150)
+  public String constanciaLema1;
+
+  /**
+   * Segundo lema institucional.
+   * */
+  @Size(max = 150)
+  public String constanciaLema2;
+
+  /**
+   * Texto del pie de la constancia.
+   * */
+  @Size(max = 500)
+  public String constanciaPieTexto;
+
+  /**
+   * Nota opcional de copia de correspondencia.
+   * */
+  @Size(max = 100)
+  public String constanciaNotaCcp;
+
+  /**
+   * Iniciales opcionales de la persona que firma y de quien captura.
+   * */
+  @Size(max = 50)
+  public String constanciaIniciales;
+
+  /**
+   * Actividad realizada, opcional.
+   * */
+  @Size(max = 200)
+  public String constanciaActividad;
+
+  /**
+   * Nivel de desempeno, opcional.
+   * */
+  @Size(max = 100)
+  public String constanciaNivelDesempeno;
 }

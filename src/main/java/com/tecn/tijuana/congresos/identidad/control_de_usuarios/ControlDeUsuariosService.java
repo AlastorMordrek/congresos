@@ -221,8 +221,9 @@ public class ControlDeUsuariosService {
     return usrRep.saveAndFlush(
       Usuario.nuevoAlumno(
         codificarPassword(
-          afirmarEmailNoTomado(
-            afirmarEmailInstitucionalNoTomado(usr)),
+          afirmarNoControlNoTomado(
+            afirmarEmailNoTomado(
+              afirmarEmailInstitucionalNoTomado(usr))),
           pwdEnc)));
   }
 
@@ -242,8 +243,36 @@ public class ControlDeUsuariosService {
   )
     throws ResponseStatusException {
 
+    afirmarRegistroCompleto(dto);
+
     return registrarseAlumno(
       Usuario.nuevoAlumnoAutoRegistrado(dto));
+  }
+
+  /**
+   * Permite al personal autorizado registrar a un ALUMNO con datos minimos.
+   * <p>
+   * Si se provee un numero de control y el alumno no es externo, solo ese
+   * campo es obligatorio. Si el alumno es externo o no tiene numero de
+   * control, se exige el registro completo.
+   *
+   * @param actor
+   * Usuario ejecutor de la operacion.
+   *
+   * @param dto
+   * Datos del ALUMNO a registrar.
+   *
+   * @return
+   * El Usuario recien registrado en la BD.
+   */
+  public Usuario registrar (
+    Usuario actor, RegistroAlumnoDto dto
+  )
+    throws ResponseStatusException {
+
+    afirmarDatosDeRegistroMinimo(dto);
+
+    return registrar(actor, Usuario.nuevoAlumnoAutoRegistrado(dto));
   }
 
   /**
@@ -259,12 +288,96 @@ public class ControlDeUsuariosService {
     throws ResponseStatusException {
 
     return usrRep.saveAndFlush(
-      Usuario.nuevoAlumnoAutoRegistrado(
+      Usuario.nuevoAlumno(
         codificarPassword(
           afirmarNoControlNoTomado(
             afirmarEmailNoTomado(
               afirmarEmailInstitucionalNoTomado(usr))),
           pwdEnc)));
+  }
+
+  /**
+   * Genera un password temporal compatible con la politica de acceso.
+   *
+   * @return
+   * Password en texto plano para entregar al ALUMNO una sola vez.
+   */
+  public String generarPasswordTemporal () {
+    return GeneradorDeFolios.folio(10);
+  }
+
+
+
+  /**
+   * Valida que el registro publico traiga todos los datos personales.
+   *
+   * @param dto
+   * Datos del ALUMNO.
+   */
+  private void afirmarRegistroCompleto (RegistroAlumnoDto dto) {
+
+    if (esVacio(dto.email)
+      || esVacio(dto.password)
+      || esVacio(dto.nombre)
+      || Objects.isNull(dto.fechaNacimiento)
+      || esVacio(dto.telPref)
+      || esVacio(dto.telSuf)) {
+
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "El registro requiere email, password, nombre, fecha de nacimiento" +
+          " y telefono");
+    }
+  }
+
+
+
+  /**
+   * Valida el registro hecho por el personal autorizado. El modo minimo solo
+   * aplica cuando hay numero de control y el ALUMNO no es externo.
+   *
+   * @param dto
+   * Datos del ALUMNO.
+   */
+  private void afirmarDatosDeRegistroMinimo (RegistroAlumnoDto dto) {
+
+    if (dto.externo || esVacio(dto.noControl)) {
+      afirmarRegistroCompleto(dto);
+      return;
+    }
+
+    if (!dto.noControl.matches("\\d{8}")) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "El numero de control debe tener 8 digitos");
+    }
+
+    if (dto.semestre < 0 || dto.semestre > 50) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "El semestre debe estar entre 0 y 50");
+    }
+
+    if (esVacio(dto.password)) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Debe especificar una clave de acceso");
+    }
+  }
+
+
+
+  /**
+   * Indica si una cadena es nula o esta en blanco.
+   *
+   * @param valor
+   * Cadena a evaluar.
+   *
+   * @return
+   * {@code true} si no contiene texto util.
+   */
+  private boolean esVacio (String valor) {
+    return Objects.isNull(valor) || valor.isBlank();
   }
 
 
@@ -699,6 +812,7 @@ public class ControlDeUsuariosService {
       null,
       null,
       null,
+      null,
       DEFAULT_PAGE, DEFAULT_PAGE_SIZE);
   }
 
@@ -732,6 +846,7 @@ public class ControlDeUsuariosService {
       null,
       null,
       null,
+      null,
       page, DEFAULT_PAGE_SIZE);
   }
 
@@ -751,6 +866,9 @@ public class ControlDeUsuariosService {
    *
    * @param rol
    * Filtro opcional. {@code null} para no filtrar.
+   *
+   * @param codigoCarrera
+   * Filtro opcional por clave oficial de carrera. {@code null} para no filtrar.
    *
    * @param bloqueado
    * Filtro opcional. {@code null} para no filtrar.
@@ -781,7 +899,8 @@ public class ControlDeUsuariosService {
    */
   public List<Usuario> buscar (
     String txt,
-    Rol rol, Boolean bloqueado, Boolean externo,
+    Rol rol, String codigoCarrera,
+    Boolean bloqueado, Boolean externo,
     Boolean staffAutorizado, Boolean staffCustodio,
     Boolean staffAlumnos, Boolean staffInscripciones,
     int page, int pageSize
@@ -794,9 +913,14 @@ public class ControlDeUsuariosService {
       ? null
       : txt.toLowerCase().trim();
 
+    // Normalizar codigoCarrera: vacio o blanco se convierte en null.
+    String carreraN = (Objects.isNull(codigoCarrera) || codigoCarrera.isBlank())
+      ? null
+      : codigoCarrera.trim();
+
     // Si no hay ningun filtro activo, usar la consulta simple.
     boolean sinFiltros = txtN == null
-      && rol == null && bloqueado == null && externo == null
+      && rol == null && carreraN == null && bloqueado == null && externo == null
       && staffAutorizado == null && staffCustodio == null
       && staffAlumnos == null && staffInscripciones == null;
 
@@ -807,7 +931,7 @@ public class ControlDeUsuariosService {
     // Usar la consulta condicional que evalua solo los filtros activos.
     return usrRep
       .qFiltrado(
-        txtN, rol, bloqueado, externo,
+        txtN, rol, carreraN, bloqueado, externo,
         staffAutorizado, staffCustodio, staffAlumnos, staffInscripciones,
         pg)
       .getContent();
@@ -843,6 +967,22 @@ public class ControlDeUsuariosService {
   public Usuario qEmail (String email) {
 
     return usrRep.qEmail(email).orElse(null);
+  }
+
+
+
+  /**
+   * Obtiene el registro con el Numero de Control especificado.
+   *
+   * @param noControl
+   * Numero de Control del registro.
+   *
+   * @return
+   * El registro encontrado o {@code null} si no se encuentra.
+   */
+  public Usuario qNoControl (String noControl) {
+
+    return usrRep.qNoControl(noControl).orElse(null);
   }
 
 
@@ -956,6 +1096,35 @@ public class ControlDeUsuariosService {
     }
 
     return usr;
+  }
+
+
+
+  /**
+   * Comprueba que el USUARIO con el Numero de Control especificado existe.
+   *
+   * @param noControl
+   * Identificador del registro.
+   *
+   * @return
+   * El registro encontrado.
+   *
+   * @throws ResponseStatusException
+   * <p>
+   * {@code HTTP-NOT_FOUND} si no existe.
+   */
+  public Usuario afirmarNoControl (
+    String noControl
+  )
+    throws ResponseStatusException {
+
+    return usrRep.qNoControl(noControl)
+      .orElseThrow(() ->
+        new ResponseStatusException(
+          HttpStatus.NOT_FOUND,
+          String.format(
+            "Usuario con Numero de Control: %s no encontrado",
+            noControl)));
   }
 
 
@@ -1214,9 +1383,20 @@ public class ControlDeUsuariosService {
     // Aux.
     UserDetails usrDts;
 
-    // Encontrar el USUARIO via su Email.
+    // Elegir el identificador de acceso: numero de control o email.
+    String identificador = (
+      Objects.nonNull(dto.getNoControl()) && !dto.getNoControl().isBlank()
+    ) ? dto.getNoControl() : dto.getEmail();
+
+    if (Objects.isNull(identificador) || identificador.isBlank()) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Debe especificar un email o un numero de control");
+    }
+
+    // Encontrar el USUARIO por el identificador provisto.
     try {
-      usrDts = usrDSvc.loadUserByUsername(dto.getEmail());
+      usrDts = usrDSvc.loadUserByUsername(identificador);
     } catch (UsernameNotFoundException e) {
       throw new ResponseStatusException(
         HttpStatus.NOT_FOUND,
@@ -1259,7 +1439,7 @@ public class ControlDeUsuariosService {
    * false = no esta tomado.
    */
   public boolean emailTomado (String email) {
-    return usrRep.qEmail(email).isPresent();
+    return !esVacio(email) && usrRep.qEmail(email).isPresent();
   }
 
 
@@ -1275,7 +1455,8 @@ public class ControlDeUsuariosService {
    * false = no esta tomado.
    */
   public boolean emailInstitucionalTomado (String email) {
-    return usrRep.qEmailInstitucional(email).isPresent();
+    return !esVacio(email)
+      && usrRep.qEmailInstitucional(email).isPresent();
   }
 
 
@@ -1291,7 +1472,8 @@ public class ControlDeUsuariosService {
    * false = no esta tomado.
    */
   public boolean noControlTomado (String noControl) {
-    return usrRep.qNoControl(noControl).isPresent();
+    return !esVacio(noControl)
+      && usrRep.qNoControl(noControl).isPresent();
   }
 
 

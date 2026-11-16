@@ -67,6 +67,7 @@ public class UsuarioDetailsService implements UserDetailsService {
 //        new UsernameNotFoundException("Usuario no encontrado"));
 
     var usuario = usrRep.qEmail(username)
+      .or(() -> usrRep.qNoControl(username))
       .orElseThrow(() ->
         new UsernameNotFoundException("Usuario no encontrado"));
 
